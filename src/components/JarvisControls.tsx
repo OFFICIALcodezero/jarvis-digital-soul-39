@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { JarvisMode } from './JarvisCore';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -23,6 +23,7 @@ import {
 import { Label } from './ui/label';
 import { Slider } from './ui/slider';
 import { Switch } from './ui/switch';
+import { useApiKeys } from '../hooks/useApiKeys';
 
 interface JarvisControlsProps {
   activeMode: JarvisMode;
@@ -50,6 +51,13 @@ const JarvisControls: React.FC<JarvisControlsProps> = ({
   const [volume, setVolume] = useState(75);
   const [isMuted, setIsMuted] = useState(false);
   const [autoReply, setAutoReply] = useState(true);
+  
+  const { validateApiKeys } = useApiKeys();
+  const [validationState, setValidationState] = useState(validateApiKeys());
+
+  useEffect(() => {
+    setValidationState(validateApiKeys());
+  }, [apiKeys]);
   
   const handleModeChange = (mode: JarvisMode) => {
     setActiveMode(mode);
@@ -193,8 +201,13 @@ const JarvisControls: React.FC<JarvisControlsProps> = ({
                   placeholder="sk-..."
                   value={apiKeys.openAIKey}
                   onChange={(e) => updateApiKeys({ openAIKey: e.target.value })}
-                  className="bg-black/40 border-jarvis/30 text-white"
+                  className={`bg-black/40 border-jarvis/30 text-white ${
+                    validationState.errors.openAIKey ? 'border-red-500' : ''
+                  }`}
                 />
+                {validationState.errors.openAIKey && (
+                  <p className="text-xs text-red-500">{validationState.errors.openAIKey}</p>
+                )}
               </div>
               
               <div className="space-y-2">
@@ -204,8 +217,13 @@ const JarvisControls: React.FC<JarvisControlsProps> = ({
                   placeholder="elevenlabs_..."
                   value={apiKeys.elevenLabsKey}
                   onChange={(e) => updateApiKeys({ elevenLabsKey: e.target.value })}
-                  className="bg-black/40 border-jarvis/30 text-white"
+                  className={`bg-black/40 border-jarvis/30 text-white ${
+                    validationState.errors.elevenLabsKey ? 'border-red-500' : ''
+                  }`}
                 />
+                {validationState.errors.elevenLabsKey && (
+                  <p className="text-xs text-red-500">{validationState.errors.elevenLabsKey}</p>
+                )}
                 <p className="text-xs text-gray-500">Required for voice and face modes</p>
               </div>
             </div>
