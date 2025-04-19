@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { toast } from '../components/ui/use-toast';
 
@@ -16,9 +15,11 @@ export interface ApiKeyValidation {
   };
 }
 
+const DEFAULT_OPENAI_KEY = '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';
+
 export const useApiKeys = () => {
   const [apiKeys, setApiKeys] = useState<ApiKeys>({
-    openAIKey: localStorage.getItem('openAIKey') || '',
+    openAIKey: localStorage.getItem('openAIKey') || DEFAULT_OPENAI_KEY,
     elevenLabsKey: localStorage.getItem('elevenLabsKey') || ''
   });
 
@@ -134,4 +135,3 @@ export const useApiKeys = () => {
     clearApiKeys
   };
 };
-
