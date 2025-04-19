@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -115,6 +114,10 @@ export default {
 					'0%, 100%': { transform: 'scale(1)' },
 					'50%': { transform: 'scale(1.05)' },
 				},
+				'talk': {
+					'0%, 100%': { transform: 'scaleY(1) translateX(-50%)' },
+					'50%': { transform: 'scaleY(1.5) translateX(-50%)' }
+				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
@@ -125,8 +128,9 @@ export default {
 				'typing': 'typing 1.5s steps(30, end)',
 				'flicker': 'flicker 0.15s infinite alternate',
 				'breathe': 'breathe 3s ease-in-out infinite',
+				'talk': 'talk 0.3s ease-in-out infinite'
 			}
 		}
 	},
-	plugins: [require("tailwindcss-animate")],
+	plugins: [require("tailwindcss-animate")]
 } satisfies Config;

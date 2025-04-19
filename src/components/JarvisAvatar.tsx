@@ -9,6 +9,7 @@ interface JarvisAvatarProps {
 
 const JarvisAvatar: React.FC<JarvisAvatarProps> = ({ activeMode, isSpeaking }) => {
   const avatarRef = useRef<HTMLDivElement>(null);
+  const lipRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Add animation effects when speaking
@@ -17,6 +18,15 @@ const JarvisAvatar: React.FC<JarvisAvatarProps> = ({ activeMode, isSpeaking }) =
         avatarRef.current.classList.add('animate-breathe');
       } else {
         avatarRef.current.classList.remove('animate-breathe');
+      }
+    }
+
+    // Animate lips when speaking
+    if (lipRef.current) {
+      if (isSpeaking) {
+        lipRef.current.classList.add('animate-talk');
+      } else {
+        lipRef.current.classList.remove('animate-talk');
       }
     }
   }, [isSpeaking]);
@@ -58,6 +68,11 @@ const JarvisAvatar: React.FC<JarvisAvatarProps> = ({ activeMode, isSpeaking }) =
           alt="JARVIS Avatar" 
           className="w-full"
         />
+        {/* Animated Lips */}
+        <div 
+          ref={lipRef}
+          className="absolute left-1/2 bottom-[35%] -translate-x-1/2 w-16 h-1 bg-jarvis/80 rounded-full transition-all duration-100"
+        ></div>
       </div>
       
       {/* Hacker mode overlay */}
