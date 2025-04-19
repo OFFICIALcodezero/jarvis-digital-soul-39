@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { JarvisMode } from './JarvisCore';
 import { Button } from './ui/button';
@@ -30,10 +29,14 @@ interface JarvisControlsProps {
   setActiveMode: (mode: JarvisMode) => void;
   isListening: boolean;
   setIsListening: (isListening: boolean) => void;
-  apiKey: string;
-  setApiKey: (key: string) => void;
-  elevenLabsKey: string;
-  setElevenLabsKey: (key: string) => void;
+  apiKeys: {
+    openAIKey: string;
+    elevenLabsKey: string;
+  };
+  updateApiKeys: (keys: Partial<{
+    openAIKey: string;
+    elevenLabsKey: string;
+  }>) => void;
 }
 
 const JarvisControls: React.FC<JarvisControlsProps> = ({ 
@@ -41,10 +44,8 @@ const JarvisControls: React.FC<JarvisControlsProps> = ({
   setActiveMode,
   isListening,
   setIsListening,
-  apiKey,
-  setApiKey,
-  elevenLabsKey,
-  setElevenLabsKey
+  apiKeys,
+  updateApiKeys
 }) => {
   const [volume, setVolume] = useState(75);
   const [isMuted, setIsMuted] = useState(false);
@@ -190,8 +191,8 @@ const JarvisControls: React.FC<JarvisControlsProps> = ({
                 <Input
                   id="openai-key"
                   placeholder="sk-..."
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
+                  value={apiKeys.openAIKey}
+                  onChange={(e) => updateApiKeys({ openAIKey: e.target.value })}
                   className="bg-black/40 border-jarvis/30 text-white"
                 />
               </div>
@@ -201,8 +202,8 @@ const JarvisControls: React.FC<JarvisControlsProps> = ({
                 <Input
                   id="eleven-labs-key"
                   placeholder="elevenlabs_..."
-                  value={elevenLabsKey}
-                  onChange={(e) => setElevenLabsKey(e.target.value)}
+                  value={apiKeys.elevenLabsKey}
+                  onChange={(e) => updateApiKeys({ elevenLabsKey: e.target.value })}
                   className="bg-black/40 border-jarvis/30 text-white"
                 />
                 <p className="text-xs text-gray-500">Required for voice and face modes</p>

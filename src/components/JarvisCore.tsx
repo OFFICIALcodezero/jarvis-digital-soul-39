@@ -1,5 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
+import { useApiKeys } from '../hooks/useApiKeys';
 import JarvisAvatar from './JarvisAvatar';
 import JarvisChat from './JarvisChat';
 import JarvisControls from './JarvisControls';
@@ -10,14 +10,23 @@ import { toast } from '../components/ui/use-toast';
 export type JarvisMode = 'normal' | 'voice' | 'face' | 'hacker';
 
 const JarvisCore = () => {
+  const { apiKeys, updateApiKeys, validateApiKeys } = useApiKeys();
   const [loading, setLoading] = useState(true);
   const [activeMode, setActiveMode] = useState<JarvisMode>('normal');
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const [apiKey, setApiKey] = useState<string>('');
-  const [elevenLabsKey, setElevenLabsKey] = useState<string>('');
 
   useEffect(() => {
+    const { openAIKeyValid, elevenLabsKeyValid } = validateApiKeys();
+    
+    if (!openAIKeyValid || !elevenLabsKeyValid) {
+      toast({
+        title: "API Key Configuration",
+        description: "Please configure your OpenAI and ElevenLabs API keys.",
+        variant: "destructive"
+      });
+    }
+
     // Simulate initial loading
     const timer = setTimeout(() => {
       setLoading(false);
@@ -28,7 +37,7 @@ const JarvisCore = () => {
     }, 2000);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [apiKeys]);
 
   const modeIcons = {
     normal: Brain,
@@ -84,10 +93,8 @@ const JarvisCore = () => {
               setActiveMode={handleSetMode} 
               isListening={isListening} 
               setIsListening={setIsListening}
-              apiKey={apiKey}
-              setApiKey={setApiKey}
-              elevenLabsKey={elevenLabsKey}
-              setElevenLabsKey={setElevenLabsKey}
+              apiKeys={apiKeys}
+              updateApiKeys={updateApiKeys}
             />
           </div>
           
@@ -96,8 +103,8 @@ const JarvisCore = () => {
               activeMode={activeMode} 
               setIsSpeaking={setIsSpeaking} 
               isListening={isListening}
-              apiKey={apiKey}
-              elevenLabsKey={elevenLabsKey}
+              apiKey={apiKeys.openAIKey}
+              elevenLabsKey={apiKeys.elevenLabsKey}
             />
           </div>
         </div>
