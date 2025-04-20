@@ -100,6 +100,7 @@ const JarvisFaceAI: React.FC<JarvisFaceAIProps> = ({ isSpeaking, className }) =>
         className
       )}
     >
+      {/* Enhanced glow effect when speaking */}
       <div className={cn(
         "absolute -inset-4 bg-jarvis/20 rounded-full blur-xl transition-opacity duration-500",
         isSpeaking ? "opacity-100" : "opacity-0"
@@ -107,31 +108,49 @@ const JarvisFaceAI: React.FC<JarvisFaceAIProps> = ({ isSpeaking, className }) =>
       
       <div className="relative">
         {processedImageUrl ? (
-          <img 
-            src={processedImageUrl}
-            alt="JARVIS Face"
-            className="w-full relative z-10"
-          />
+          <div className="relative">
+            <img 
+              src={processedImageUrl}
+              alt="JARVIS Face"
+              className={cn(
+                "w-full relative z-10 transition-transform duration-300",
+                isSpeaking && "animate-subtle-bounce"
+              )}
+            />
+            {/* Speaking animation rings */}
+            {isSpeaking && (
+              <div className="absolute inset-0 z-0">
+                <div className="absolute inset-0 rounded-full animate-ping-slow bg-jarvis/10" />
+                <div className="absolute inset-0 rounded-full animate-ping-slow delay-300 bg-jarvis/5" />
+              </div>
+            )}
+          </div>
         ) : (
           <div className="w-full h-full animate-pulse bg-jarvis/20 rounded-full" />
         )}
 
-        {/* Eyes */}
+        {/* Enhanced eyes with glow effect */}
         <div className="absolute top-[40%] left-[35%] w-3 h-3 z-20">
           <div 
             ref={eyeLeftRef}
-            className="w-full h-full rounded-full bg-jarvis shadow-[0_0_8px_rgba(14,165,233,0.8)] transition-transform duration-100"
+            className={cn(
+              "w-full h-full rounded-full bg-jarvis shadow-[0_0_8px_rgba(14,165,233,0.8)] transition-all duration-100",
+              isSpeaking && "animate-pulse-subtle"
+            )}
           />
         </div>
         <div className="absolute top-[40%] right-[35%] w-3 h-3 z-20">
           <div 
             ref={eyeRightRef}
-            className="w-full h-full rounded-full bg-jarvis shadow-[0_0_8px_rgba(14,165,233,0.8)] transition-transform duration-100"
+            className={cn(
+              "w-full h-full rounded-full bg-jarvis shadow-[0_0_8px_rgba(14,165,233,0.8)] transition-all duration-100",
+              isSpeaking && "animate-pulse-subtle"
+            )}
           />
         </div>
       </div>
       
-      {/* Ripple effect when speaking */}
+      {/* Enhanced ripple effect when speaking */}
       {isSpeaking && (
         <>
           <div className="absolute inset-0 rounded-full animate-ping bg-jarvis/20" />
