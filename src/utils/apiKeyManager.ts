@@ -1,4 +1,3 @@
-
 /**
  * API Key Manager for JARVIS
  * 
@@ -13,8 +12,7 @@ export type ApiServiceType = 'openai' | 'elevenlabs';
 const DEFAULT_API_KEYS: Record<ApiServiceType, string> = {
   // Add your default API keys here
   openai: "sk-default-openai-key-provided-by-owner",
-  elevenlabs: "default-elevenlabs-key-provided-by-owner",
-  // Add other API services as needed
+  elevenlabs: "default-elevenlabs-key-provided-by-owner", // Ensure this is a valid ElevenLabs API key
 };
 
 // Local storage keys
