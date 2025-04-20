@@ -4,7 +4,7 @@ import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
-import { getApiKey, setApiKey, resetToDefaultKey, isUsingDefaultKey, getAvailableServices } from '../utils/apiKeyManager';
+import { getApiKey, setApiKey, resetToDefaultKey, isUsingDefaultKey, getAvailableServices, ApiServiceType } from '../utils/apiKeyManager';
 
 const JarvisApiSettings: React.FC = () => {
   const [open, setOpen] = useState(false);
@@ -18,7 +18,7 @@ const JarvisApiSettings: React.FC = () => {
       
       services.forEach(service => {
         if (!isUsingDefaultKey(service)) {
-          currentKeys[service] = getApiKey(service as any);
+          currentKeys[service] = getApiKey(service);
         }
       });
       
@@ -41,7 +41,7 @@ const JarvisApiSettings: React.FC = () => {
     
     services.forEach(service => {
       if (keys[service]) {
-        setApiKey(service as any, keys[service]);
+        setApiKey(service, keys[service]);
       }
     });
     
@@ -50,7 +50,7 @@ const JarvisApiSettings: React.FC = () => {
 
   // Reset a key to default
   const resetKey = (service: string) => {
-    resetToDefaultKey(service as any);
+    resetToDefaultKey(service as ApiServiceType);
     setKeys(prev => {
       const newKeys = { ...prev };
       delete newKeys[service];

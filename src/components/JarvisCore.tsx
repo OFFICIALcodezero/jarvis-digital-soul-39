@@ -2,6 +2,9 @@
 import { useEffect } from 'react';
 import { getApiKey } from '../utils/apiKeyManager';
 
+// Define and export the JarvisMode type
+export type JarvisMode = 'normal' | 'voice' | 'face' | 'hacker';
+
 const JarvisCore = () => {
   useEffect(() => {
     // Initialize the core systems with the API keys

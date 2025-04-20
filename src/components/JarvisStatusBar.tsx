@@ -9,6 +9,7 @@ interface JarvisStatusBarProps {
   isListening: boolean;
   modeIcons: Record<JarvisMode, LucideIcon>;
   modeNames: Record<JarvisMode, string>;
+  children?: React.ReactNode;
 }
 
 const JarvisStatusBar: React.FC<JarvisStatusBarProps> = ({ 
@@ -16,7 +17,8 @@ const JarvisStatusBar: React.FC<JarvisStatusBarProps> = ({
   isSpeaking, 
   isListening, 
   modeIcons,
-  modeNames
+  modeNames,
+  children
 }) => {
   const Icon = modeIcons[activeMode];
   
@@ -45,6 +47,12 @@ const JarvisStatusBar: React.FC<JarvisStatusBarProps> = ({
           <span className="text-jarvis">System Online</span>
         </div>
       </div>
+      
+      {children && (
+        <div className="flex items-center">
+          {children}
+        </div>
+      )}
       
       <div className="flex items-center">
         <Icon className="h-4 w-4 text-jarvis mr-2" />

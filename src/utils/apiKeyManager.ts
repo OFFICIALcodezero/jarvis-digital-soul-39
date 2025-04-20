@@ -6,8 +6,11 @@
  * It provides default keys while allowing for custom keys.
  */
 
+// Define valid API service types
+export type ApiServiceType = 'openai' | 'elevenlabs';
+
 // Default API keys provided by the owner
-const DEFAULT_API_KEYS = {
+const DEFAULT_API_KEYS: Record<ApiServiceType, string> = {
   // Add your default API keys here
   openai: "sk-default-openai-key-provided-by-owner",
   elevenlabs: "default-elevenlabs-key-provided-by-owner",
@@ -18,7 +21,7 @@ const DEFAULT_API_KEYS = {
 const STORAGE_PREFIX = 'jarvis_api_';
 
 // Get API key with fallback to default
-export function getApiKey(service: keyof typeof DEFAULT_API_KEYS): string {
+export function getApiKey(service: ApiServiceType): string {
   const storageKey = `${STORAGE_PREFIX}${service}`;
   const userKey = localStorage.getItem(storageKey);
   
@@ -27,24 +30,24 @@ export function getApiKey(service: keyof typeof DEFAULT_API_KEYS): string {
 }
 
 // Set custom API key
-export function setApiKey(service: keyof typeof DEFAULT_API_KEYS, key: string): void {
+export function setApiKey(service: ApiServiceType, key: string): void {
   const storageKey = `${STORAGE_PREFIX}${service}`;
   localStorage.setItem(storageKey, key);
 }
 
 // Check if using default or custom key
-export function isUsingDefaultKey(service: keyof typeof DEFAULT_API_KEYS): boolean {
+export function isUsingDefaultKey(service: ApiServiceType): boolean {
   const storageKey = `${STORAGE_PREFIX}${service}`;
   return !localStorage.getItem(storageKey);
 }
 
 // Reset to default key
-export function resetToDefaultKey(service: keyof typeof DEFAULT_API_KEYS): void {
+export function resetToDefaultKey(service: ApiServiceType): void {
   const storageKey = `${STORAGE_PREFIX}${service}`;
   localStorage.removeItem(storageKey);
 }
 
 // Get all API service names
-export function getAvailableServices(): string[] {
-  return Object.keys(DEFAULT_API_KEYS);
+export function getAvailableServices(): ApiServiceType[] {
+  return Object.keys(DEFAULT_API_KEYS) as ApiServiceType[];
 }
