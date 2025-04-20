@@ -1,27 +1,64 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
+import { useState } from "react";
+import { Toaster } from "sonner";
+import "./App.css";
+import JarvisCore from "./components/JarvisCore";
+import JarvisAvatar from "./components/JarvisAvatar";
+import JarvisChat from "./components/JarvisChat";
+import JarvisControls from "./components/JarvisControls";
+import JarvisStatusBar from "./components/JarvisStatusBar";
+import JarvisApiSettings from "./components/JarvisApiSettings";
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+function App() {
+  const [isHackerMode, setHackerMode] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [message, setMessage] = useState("");
+  const [responseText, setResponseText] = useState("");
+
+  const handleSend = (msg: string) => {
+    setMessage(msg);
+    setIsProcessing(true);
+    
+    // Simulate response after processing
+    setTimeout(() => {
+      setResponseText(`I processed your message: "${msg}"`);
+      setIsProcessing(false);
+    }, 2000);
+  };
+
+  return (
+    <div className={`app-container ${isHackerMode ? "hacker-mode" : ""}`}>
+      <JarvisStatusBar>
+        <div className="flex items-center gap-2">
+          <JarvisApiSettings />
+        </div>
+      </JarvisStatusBar>
+      
+      <main>
+        <div className="jarvis-container">
+          <JarvisAvatar isSpeaking={isSpeaking} isHackerMode={isHackerMode} />
+          <JarvisChat 
+            responseText={responseText} 
+            isProcessing={isProcessing} 
+            isHackerMode={isHackerMode} 
+          />
+        </div>
+        
+        <JarvisControls 
+          onSend={handleSend} 
+          isProcessing={isProcessing} 
+          onToggleHackerMode={() => setHackerMode(!isHackerMode)} 
+          isHackerMode={isHackerMode}
+          onPlayback={() => setIsSpeaking(!isSpeaking)} 
+          isSpeaking={isSpeaking} 
+        />
+      </main>
+      
+      <JarvisCore />
+      <Toaster position="bottom-right" />
+    </div>
+  );
+}
 
 export default App;
