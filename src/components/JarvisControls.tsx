@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
 import { JarvisMode } from './JarvisCore';
 import { Button } from './ui/button';
-import { Input } from './ui/input';
 import { 
   Brain, 
   Mic, 
@@ -9,55 +9,28 @@ import {
   Terminal, 
   Settings,
   Volume2,
-  VolumeX,
-  Key
+  VolumeX
 } from 'lucide-react';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Label } from './ui/label';
 import { Slider } from './ui/slider';
 import { Switch } from './ui/switch';
-import { useApiKeys } from '../hooks/useApiKeys';
+import { Label } from './ui/label';
 
 interface JarvisControlsProps {
   activeMode: JarvisMode;
   setActiveMode: (mode: JarvisMode) => void;
   isListening: boolean;
   setIsListening: (isListening: boolean) => void;
-  apiKeys: {
-    openAIKey: string;
-    elevenLabsKey: string;
-  };
-  updateApiKeys: (keys: Partial<{
-    openAIKey: string;
-    elevenLabsKey: string;
-  }>) => void;
 }
 
 const JarvisControls: React.FC<JarvisControlsProps> = ({ 
   activeMode, 
   setActiveMode,
   isListening,
-  setIsListening,
-  apiKeys,
-  updateApiKeys
+  setIsListening
 }) => {
   const [volume, setVolume] = useState(75);
   const [isMuted, setIsMuted] = useState(false);
   const [autoReply, setAutoReply] = useState(true);
-  
-  const { validateApiKeys } = useApiKeys();
-  const [validationState, setValidationState] = useState(validateApiKeys());
-
-  useEffect(() => {
-    setValidationState(validateApiKeys());
-  }, [apiKeys]);
   
   const handleModeChange = (mode: JarvisMode) => {
     setActiveMode(mode);
@@ -172,64 +145,6 @@ const JarvisControls: React.FC<JarvisControlsProps> = ({
           </div>
         </div>
       )}
-      
-      <div className="mb-4">
-        <h3 className="text-jarvis font-medium mb-3">API Settings</h3>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button
-              variant="outline"
-              className="w-full bg-transparent border-jarvis/30 text-jarvis hover:bg-jarvis/20"
-            >
-              <Key className="mr-2 h-4 w-4" />
-              Configure API Keys
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="bg-jarvis-dark border-jarvis/50">
-            <DialogHeader>
-              <DialogTitle className="text-jarvis">API Configuration</DialogTitle>
-              <DialogDescription className="text-gray-400">
-                Enter your API keys to enable JARVIS functionality
-              </DialogDescription>
-            </DialogHeader>
-            
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="openai-key" className="text-jarvis">OpenAI API Key</Label>
-                <Input
-                  id="openai-key"
-                  placeholder="sk-..."
-                  value={apiKeys.openAIKey}
-                  onChange={(e) => updateApiKeys({ openAIKey: e.target.value })}
-                  className={`bg-black/40 border-jarvis/30 text-white ${
-                    validationState.errors.openAIKey ? 'border-red-500' : ''
-                  }`}
-                />
-                {validationState.errors.openAIKey && (
-                  <p className="text-xs text-red-500">{validationState.errors.openAIKey}</p>
-                )}
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="eleven-labs-key" className="text-jarvis">ElevenLabs API Key</Label>
-                <Input
-                  id="eleven-labs-key"
-                  placeholder="elevenlabs_..."
-                  value={apiKeys.elevenLabsKey}
-                  onChange={(e) => updateApiKeys({ elevenLabsKey: e.target.value })}
-                  className={`bg-black/40 border-jarvis/30 text-white ${
-                    validationState.errors.elevenLabsKey ? 'border-red-500' : ''
-                  }`}
-                />
-                {validationState.errors.elevenLabsKey && (
-                  <p className="text-xs text-red-500">{validationState.errors.elevenLabsKey}</p>
-                )}
-                <p className="text-xs text-gray-500">Required for voice and face modes</p>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
       
       <div className="mb-4">
         <h3 className="text-jarvis font-medium mb-3">Preferences</h3>

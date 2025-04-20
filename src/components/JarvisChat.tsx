@@ -4,13 +4,12 @@ import { Send, Play, Square, Trash, Volume2, Volume, VolumeX } from 'lucide-reac
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { toast } from './ui/use-toast';
+import { getApiKey } from '../utils/apiKeyManager';
 
 interface JarvisChatProps {
   activeMode: JarvisMode;
   setIsSpeaking: (isSpeaking: boolean) => void;
   isListening: boolean;
-  apiKey: string;
-  elevenLabsKey: string;
 }
 
 interface Message {
@@ -23,9 +22,7 @@ interface Message {
 const JarvisChat: React.FC<JarvisChatProps> = ({ 
   activeMode, 
   setIsSpeaking, 
-  isListening, 
-  apiKey, 
-  elevenLabsKey 
+  isListening
 }) => {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -45,6 +42,10 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
   const [volume, setVolume] = useState(0.8);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Get API keys directly from the apiKeyManager
+  const apiKey = getApiKey('openai');
+  const elevenLabsKey = getApiKey('elevenlabs');
 
   useEffect(() => {
     // Initialize audio element
@@ -141,7 +142,6 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
     setInput('');
   };
 
-  // Simulate typing effect
   const simulateTyping = async (text: string) => {
     setIsTyping(true);
     setCurrentTypingText('');
@@ -158,7 +158,6 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
     addMessage('assistant', text);
   };
 
-  // Text to speech using ElevenLabs
   const speakText = async (text: string) => {
     if (!elevenLabsKey || (activeMode !== 'voice' && activeMode !== 'face')) {
       return;
@@ -205,7 +204,6 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
     }
   };
 
-  // Stop currently playing audio
   const stopSpeaking = () => {
     if (audioRef.current) {
       audioRef.current.pause();
@@ -215,7 +213,6 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
     }
   };
 
-  // Toggle mute/unmute
   const toggleMute = () => {
     if (volume > 0) {
       setVolume(0);
