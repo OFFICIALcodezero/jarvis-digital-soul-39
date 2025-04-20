@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -72,9 +73,11 @@ export default {
 			backgroundImage: {
 				'circuit-pattern': "url('/lovable-uploads/00ddfeb8-acf7-4356-9166-884c0b47bcaf.png')",
 				'circuit-overlay': "linear-gradient(to bottom, rgba(0, 26, 51, 0.9), rgba(0, 26, 51, 0.7))",
+				'jarvis-gradient': "linear-gradient(135deg, #0ea5e9 0%, #33C3F0 100%)",
 			},
 			boxShadow: {
 				'jarvis-glow': '0 0 20px 2px rgba(51, 195, 240, 0.3)',
+				'jarvis-pulse': '0 0 30px 5px rgba(51, 195, 240, 0.5)',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -116,8 +119,20 @@ export default {
 				},
 				'talk': {
 					'0%, 100%': { transform: 'scaleY(1) translateX(-50%)' },
-					'50%': { transform: 'scaleY(1.5) translateX(-50%)' }
-				}
+					'50%': { transform: 'scaleY(2.5) translateX(-50%)' }
+				},
+				'ripple': {
+					'0%': { transform: 'scale(0)', opacity: '1' },
+					'100%': { transform: 'scale(4)', opacity: '0' },
+				},
+				'text-glow-pulse': {
+					'0%, 100%': { textShadow: '0 0 8px rgba(14, 165, 233, 0.7)' },
+					'50%': { textShadow: '0 0 15px rgba(14, 165, 233, 1)' },
+				},
+				'scale-in': {
+					'0%': { transform: 'scale(0.95)', opacity: '0' },
+					'100%': { transform: 'scale(1)', opacity: '1' },
+				},
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
@@ -128,7 +143,10 @@ export default {
 				'typing': 'typing 1.5s steps(30, end)',
 				'flicker': 'flicker 0.15s infinite alternate',
 				'breathe': 'breathe 3s ease-in-out infinite',
-				'talk': 'talk 0.3s ease-in-out infinite'
+				'talk': 'talk 0.3s ease-in-out infinite',
+				'ripple': 'ripple 0.8s linear',
+				'text-glow': 'text-glow-pulse 2s ease-in-out infinite',
+				'scale-in': 'scale-in 0.3s ease-out',
 			}
 		}
 	},

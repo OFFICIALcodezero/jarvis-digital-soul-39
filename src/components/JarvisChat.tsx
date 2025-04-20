@@ -1,10 +1,9 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { JarvisMode } from './JarvisCore';
-import { Send, Play, Square, Trash } from 'lucide-react';
+import { Send, Play, Square, Trash, Volume2, Volume, VolumeX } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import { Textarea } from './ui/textarea';
 import { toast } from './ui/use-toast';
 
 interface JarvisChatProps {
@@ -38,14 +37,61 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
     }
   ]);
   const [input, setInput] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const [currentTypingText, setCurrentTypingText] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [hackerCommand, setHackerCommand] = useState('');
   const [hackerOutput, setHackerOutput] = useState('');
+  const [audioPlaying, setAudioPlaying] = useState(false);
+  const [volume, setVolume] = useState(0.8);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    // Initialize audio element
+    audioRef.current = new Audio();
+    audioRef.current.onended = () => {
+      setAudioPlaying(false);
+      setIsSpeaking(false);
+    };
+    audioRef.current.onplay = () => {
+      setAudioPlaying(true);
+      setIsSpeaking(true);
+    };
+    
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, hackerOutput]);
+  }, [messages, hackerOutput, currentTypingText]);
+
+  useEffect(() => {
+    // Listen for command suggestions
+    const handleCommandSuggestion = (e: CustomEvent) => {
+      const { command } = e.detail;
+      setInput(command);
+      handleSendMessage(command);
+    };
+
+    window.addEventListener('jarvis-command' as any, handleCommandSuggestion as any);
+    
+    return () => {
+      window.removeEventListener('jarvis-command' as any, handleCommandSuggestion as any);
+    };
+  }, []);
+
+  useEffect(() => {
+    // When volume changes, update audio element volume
+    if (audioRef.current) {
+      audioRef.current.volume = volume;
+    }
+  }, [volume]);
 
   useEffect(() => {
     // Mock voice recognition for demo purposes
@@ -87,12 +133,96 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
     setMessages(prev => [...prev, newMessage]);
   };
 
-  const handleSendMessage = () => {
-    if (!input.trim()) return;
+  const handleSendMessage = (customInput?: string) => {
+    const messageToSend = customInput || input;
+    if (!messageToSend.trim()) return;
     
-    addMessage('user', input);
-    processUserMessage(input);
+    addMessage('user', messageToSend);
+    processUserMessage(messageToSend);
     setInput('');
+  };
+
+  // Simulate typing effect
+  const simulateTyping = async (text: string) => {
+    setIsTyping(true);
+    setCurrentTypingText('');
+    
+    // Split text into characters and show them one by one
+    for (let i = 0; i <= text.length; i++) {
+      setCurrentTypingText(text.substring(0, i));
+      // Random typing speed between 20-50ms
+      await new Promise(resolve => setTimeout(resolve, Math.random() * 30 + 20));
+    }
+    
+    setIsTyping(false);
+    setCurrentTypingText('');
+    addMessage('assistant', text);
+  };
+
+  // Text to speech using ElevenLabs
+  const speakText = async (text: string) => {
+    if (!elevenLabsKey || (activeMode !== 'voice' && activeMode !== 'face')) {
+      return;
+    }
+    
+    try {
+      // Use Roger voice (deep male voice fitting for Jarvis)
+      const voiceId = 'CwhRBWXzGAHq8TQ4Fs17';
+      
+      const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'xi-api-key': elevenLabsKey,
+        },
+        body: JSON.stringify({
+          text: text,
+          model_id: 'eleven_monolingual_v1',
+          voice_settings: {
+            stability: 0.3,
+            similarity_boost: 0.7,
+          }
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('ElevenLabs API request failed');
+      }
+      
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      
+      if (audioRef.current) {
+        audioRef.current.src = audioUrl;
+        audioRef.current.play();
+      }
+    } catch (error) {
+      console.error('Error with text-to-speech:', error);
+      toast({
+        title: 'Text-to-Speech Error',
+        description: 'Failed to generate speech. Please check your ElevenLabs API key.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  // Stop currently playing audio
+  const stopSpeaking = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      setAudioPlaying(false);
+      setIsSpeaking(false);
+    }
+  };
+
+  // Toggle mute/unmute
+  const toggleMute = () => {
+    if (volume > 0) {
+      setVolume(0);
+    } else {
+      setVolume(0.8);
+    }
   };
 
   const processUserMessage = async (message: string) => {
@@ -121,7 +251,7 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
       }
       
       // Simulate processing delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise(resolve => setTimeout(resolve, 800));
       
       // Handle special commands
       if (message.toLowerCase().includes("enter hacker mode")) {
@@ -167,21 +297,19 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
       // Generate a standard response
       const responses = [
         "I understand you're asking about " + message.split(' ').slice(0, 3).join(' ') + ". Let me help with that.",
-        "I've analyzed your question about " + message.split(' ').slice(0, 3).join(' ') + " and here's what I found.",
-        "Based on your query about " + message.split(' ').slice(0, 3).join(' ') + ", I can provide the following information.",
+        "I've analyzed your query about " + message.split(' ').slice(0, 3).join(' ') + " and here's what I found.",
+        "Based on your question about " + message.split(' ').slice(0, 3).join(' ') + ", I can provide the following information.",
         "I've processed your request regarding " + message.split(' ').slice(0, 3).join(' ') + " and here's my response."
       ];
       
       response = responses[Math.floor(Math.random() * responses.length)];
       
-      // Add assistant's response
-      addMessage('assistant', response);
+      // Add typing effect for the assistant's response
+      await simulateTyping(response);
       
+      // Speak the response if in voice or face mode
       if (activeMode === 'voice' || activeMode === 'face') {
-        // Simulate voice speaking
-        setIsSpeaking(true);
-        await new Promise(resolve => setTimeout(resolve, 3000));
-        setIsSpeaking(false);
+        await speakText(response);
       }
     } catch (error) {
       console.error("Error processing message:", error);
@@ -224,12 +352,28 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
             ${message.role === 'user' ? 'ml-auto bg-jarvis/10' : 'mr-auto bg-black/40'}
           `}
         >
-          <div className="text-sm font-medium mb-1">
-            {message.role === 'user' ? 'You' : 'JARVIS'}
+          <div className="text-sm font-medium mb-1 flex justify-between items-center">
+            <span>{message.role === 'user' ? 'You' : 'JARVIS'}</span>
+            
+            {message.role === 'assistant' && (
+              <div className="flex items-center space-x-1">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 text-jarvis/70 hover:text-jarvis hover:bg-transparent"
+                  onClick={() => speakText(message.content)}
+                  disabled={audioPlaying}
+                >
+                  <Volume2 className="h-3 w-3" />
+                </Button>
+              </div>
+            )}
           </div>
+          
           <div className={`${message.role === 'assistant' ? 'text-jarvis' : 'text-white'}`}>
             {message.content}
           </div>
+          
           <div className="text-xs text-gray-500 mt-1 text-right">
             {message.timestamp.toLocaleTimeString()}
           </div>
@@ -238,12 +382,60 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
     ));
   };
 
+  const renderAudioControls = () => {
+    if (activeMode === 'voice' || activeMode === 'face') {
+      return (
+        <div className="p-2 flex items-center justify-end space-x-2 border-t border-jarvis/10">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 text-jarvis/70 hover:text-jarvis hover:bg-jarvis/10"
+            onClick={toggleMute}
+          >
+            {volume === 0 ? (
+              <VolumeX className="h-4 w-4 mr-1" />
+            ) : (
+              <Volume className="h-4 w-4 mr-1" />
+            )}
+            {volume === 0 ? 'Unmute' : 'Mute'}
+          </Button>
+          
+          {audioPlaying && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 text-jarvis/70 hover:text-jarvis hover:bg-jarvis/10"
+              onClick={stopSpeaking}
+            >
+              <Square className="h-4 w-4 mr-1" />
+              Stop
+            </Button>
+          )}
+          
+          <div className="flex items-center space-x-2">
+            <span className="text-xs text-gray-400">Volume:</span>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.1"
+              value={volume}
+              onChange={(e) => setVolume(parseFloat(e.target.value))}
+              className="w-24 accent-jarvis"
+            />
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className="flex flex-col h-full">
       {activeMode === 'hacker' ? (
         <div className="jarvis-panel flex-1 flex flex-col">
           <div className="p-2 bg-black/60 flex items-center justify-between">
-            <div className="text-jarvis text-sm">JARVIS Terminal</div>
+            <div className="text-jarvis text-sm terminal-text">JARVIS Terminal</div>
             <div className="flex space-x-2">
               <Button 
                 variant="ghost" 
@@ -295,7 +487,20 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
           
           <div className="flex-1 p-4 overflow-y-auto">
             {renderChatMessages()}
-            {isProcessing && (
+            
+            {/* Typing indicator */}
+            {isTyping && (
+              <div className="mb-4 mr-auto max-w-[85%]">
+                <div className="px-4 py-3 rounded-lg bg-black/40 jarvis-panel">
+                  <div className="text-sm font-medium mb-1">JARVIS</div>
+                  <div className="text-jarvis">
+                    {currentTypingText}<span className="animate-pulse">|</span>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {isProcessing && !isTyping && (
               <div className="flex space-x-2 items-center text-jarvis mb-4">
                 <div className="h-2 w-2 bg-jarvis rounded-full animate-pulse"></div>
                 <div className="h-2 w-2 bg-jarvis rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
@@ -306,13 +511,16 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
             <div ref={chatEndRef}></div>
           </div>
           
+          {/* Audio controls section */}
+          {renderAudioControls()}
+          
           <div className="p-3 bg-black/30 border-t border-jarvis/20">
             <div className="flex items-center">
               <Input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 className="flex-1 bg-black/40 border-jarvis/30 text-white focus-visible:ring-jarvis/50"
-                placeholder="Type your message..."
+                placeholder={isListening ? "Listening..." : "Type your message..."}
                 disabled={isProcessing || isListening}
                 onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
               />
@@ -320,7 +528,7 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
                 variant="ghost" 
                 size="icon" 
                 className="ml-2 text-jarvis hover:bg-jarvis/20" 
-                onClick={handleSendMessage}
+                onClick={() => handleSendMessage()}
                 disabled={isProcessing || isListening || !input.trim()}
               >
                 <Send className="h-5 w-5" />
