@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { JarvisMode } from './JarvisCore';
 import { Send, Play, Square, Trash, Volume2, Volume, VolumeX } from 'lucide-react';
@@ -229,6 +228,35 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
     setIsProcessing(true);
     
     try {
+      // Check for help command
+      if (message.toLowerCase().trim() === 'help') {
+        const helpResponse = `Available commands:
+
+1. Conversation Commands:
+- "Tell me a joke"
+- "What time is it?"
+- "Who created you?"
+
+2. Hacker Module Commands:
+- "Access the mainframe"
+- "Scan for vulnerabilities"
+- "Decrypt the signal"
+
+3. Knowledge Commands:
+- "Who is Elon Musk?"
+- "Explain quantum computing"
+- "Latest tech news"
+
+Type any of these commands or ask me anything else!`;
+
+        await simulateTyping(helpResponse);
+        if (activeMode === 'voice' || activeMode === 'face') {
+          await speakText(helpResponse);
+        }
+        setIsProcessing(false);
+        return;
+      }
+
       // Check if we have required API keys based on mode
       if ((activeMode === 'face' || activeMode === 'voice') && !elevenLabsKey) {
         toast({

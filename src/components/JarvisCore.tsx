@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useApiKeys } from '../hooks/useApiKeys';
 import JarvisAvatar from './JarvisAvatar';
@@ -7,7 +6,6 @@ import JarvisControls from './JarvisControls';
 import JarvisStatusBar from './JarvisStatusBar';
 import { Headphones, Brain, Mic, Terminal } from 'lucide-react';
 import { toast } from '../components/ui/use-toast';
-import CommandSuggestions from './CommandSuggestions';
 
 export type JarvisMode = 'normal' | 'voice' | 'face' | 'hacker';
 
@@ -30,20 +28,16 @@ const JarvisCore = () => {
       });
     }
 
-    // Enhanced loading sequence
     const timeline = async () => {
-      // Stage 1: Initial loading
       await new Promise(resolve => setTimeout(resolve, 800));
       toast({
         title: "JARVIS Initializing",
         description: "Loading core systems...",
       });
       
-      // Stage 2: Show grid effect
       await new Promise(resolve => setTimeout(resolve, 600));
       setShowGrid(true);
       
-      // Stage 3: Complete initialization
       await new Promise(resolve => setTimeout(resolve, 600));
       setLoading(false);
       toast({
@@ -80,12 +74,10 @@ const JarvisCore = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#001A33] overflow-hidden relative">
-        {/* Tech grid background */}
         {showGrid && (
           <div className="tech-grid opacity-20"></div>
         )}
         
-        {/* Jarvis Logo */}
         <div className="text-center z-10 relative">
           <div className="jarvis-logo text-4xl mb-6 tracking-[0.3em]">J.A.R.V.I.S</div>
           <div className="w-32 h-32 mx-auto mb-8 rounded-full border-4 border-jarvis/50 border-t-jarvis animate-spin"></div>
@@ -99,7 +91,6 @@ const JarvisCore = () => {
           </div>
         </div>
         
-        {/* Dynamic hex grid background */}
         <div className="hex-grid">
           {Array.from({ length: 40 }).map((_, i) => (
             <div 
@@ -120,10 +111,8 @@ const JarvisCore = () => {
 
   return (
     <div className="min-h-screen flex flex-col relative bg-[#001A33] bg-circuit-pattern bg-cover bg-no-repeat before:content-[''] before:absolute before:inset-0 before:bg-circuit-overlay before:z-0">
-      {/* Tech grid background */}
       <div className="tech-grid opacity-10"></div>
       
-      {/* Animated hex grid background */}
       <div className="hex-grid">
         {Array.from({ length: 30 }).map((_, i) => (
           <div 
@@ -140,7 +129,6 @@ const JarvisCore = () => {
       </div>
       
       <div className="container mx-auto px-4 py-6 flex-1 flex flex-col z-10 relative">
-        {/* Jarvis Logo */}
         <div className="jarvis-logo text-2xl md:text-3xl mb-4 tracking-wider">J.A.R.V.I.S</div>
         
         <JarvisStatusBar 
@@ -154,9 +142,6 @@ const JarvisCore = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 mt-6">
           <div className="lg:col-span-1 flex flex-col gap-6">
             <JarvisAvatar activeMode={activeMode} isSpeaking={isSpeaking} />
-            
-            {/* Command Suggestions */}
-            <CommandSuggestions />
             
             <JarvisControls 
               activeMode={activeMode} 
@@ -180,7 +165,6 @@ const JarvisCore = () => {
         </div>
       </div>
 
-      {/* Decorative scan lines */}
       <div className="scan-line animate-scan"></div>
       <div className="scan-line animate-scan" style={{ animationDelay: '0.5s' }}></div>
       <div className="scan-line animate-scan" style={{ animationDelay: '1s' }}></div>
