@@ -7,16 +7,13 @@ import JarvisAvatar from "./components/JarvisAvatar";
 import JarvisChat from "./components/JarvisChat";
 import JarvisControls from "./components/JarvisControls";
 import JarvisStatusBar from "./components/JarvisStatusBar";
-import JarvisApiSettings from "./components/JarvisApiSettings";
 import { Brain, Mic, Headphones, Terminal } from "lucide-react";
-import { useApiKeys } from "./hooks/useApiKeys";
 
 function App() {
   const [activeMode, setActiveMode] = useState<JarvisMode>('normal');
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const { apiKeys, updateApiKeys } = useApiKeys();
   
   // Mode icons and names for the status bar
   const modeIcons = {
@@ -41,11 +38,7 @@ function App() {
         isListening={isListening}
         modeIcons={modeIcons}
         modeNames={modeNames}
-      >
-        <div className="flex items-center gap-2">
-          <JarvisApiSettings />
-        </div>
-      </JarvisStatusBar>
+      />
       
       <main>
         <div className="jarvis-container">
@@ -57,8 +50,6 @@ function App() {
             activeMode={activeMode}
             setIsSpeaking={setIsSpeaking}
             isListening={isListening}
-            apiKey={apiKeys.openAIKey}
-            elevenLabsKey={apiKeys.elevenLabsKey}
           />
         </div>
         
@@ -67,8 +58,6 @@ function App() {
           setActiveMode={setActiveMode}
           isListening={isListening}
           setIsListening={setIsListening}
-          apiKeys={apiKeys}
-          updateApiKeys={updateApiKeys}
         />
       </main>
       
