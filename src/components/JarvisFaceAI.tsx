@@ -1,6 +1,7 @@
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { cn } from "@/lib/utils";
+import { removeBackground, loadImage } from '../utils/imageUtils';
 
 interface JarvisFaceAIProps {
   isSpeaking: boolean;
@@ -11,6 +12,32 @@ const JarvisFaceAI: React.FC<JarvisFaceAIProps> = ({ isSpeaking, className }) =>
   const eyeLeftRef = useRef<HTMLDivElement>(null);
   const eyeRightRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [processedImageUrl, setProcessedImageUrl] = useState<string>('');
+
+  // Process the image on component mount
+  useEffect(() => {
+    const processImage = async () => {
+      try {
+        // Fetch the original image
+        const response = await fetch('/lovable-uploads/00ddfeb8-acf7-4356-9166-884c0b47bcaf.png');
+        const imageBlob = await response.blob();
+        
+        // Load the image
+        const img = await loadImage(imageBlob);
+        
+        // Remove background
+        const processedBlob = await removeBackground(img);
+        
+        // Create URL for the processed image
+        const processedUrl = URL.createObjectURL(processedBlob);
+        setProcessedImageUrl(processedUrl);
+      } catch (error) {
+        console.error('Error processing image:', error);
+      }
+    };
+
+    processImage();
+  }, []);
 
   // Handle eye tracking
   useEffect(() => {
@@ -79,11 +106,15 @@ const JarvisFaceAI: React.FC<JarvisFaceAIProps> = ({ isSpeaking, className }) =>
       )} />
       
       <div className="relative">
-        <img 
-          src="/lovable-uploads/00ddfeb8-acf7-4356-9166-884c0b47bcaf.png"
-          alt="JARVIS Face"
-          className="w-full relative z-10"
-        />
+        {processedImageUrl ? (
+          <img 
+            src={processedImageUrl}
+            alt="JARVIS Face"
+            className="w-full relative z-10"
+          />
+        ) : (
+          <div className="w-full h-full animate-pulse bg-jarvis/20 rounded-full" />
+        )}
 
         {/* Eyes */}
         <div className="absolute top-[40%] left-[35%] w-3 h-3 z-20">
