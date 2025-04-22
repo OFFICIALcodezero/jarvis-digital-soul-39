@@ -1,124 +1,85 @@
 
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { toast } from '@/components/ui/use-toast';
-import { getApiKey } from '@/utils/apiKeyManager';
-import { getAssistantVoiceId } from '@/services/aiAssistantService';
 import { AssistantType } from '@/pages/JarvisInterface';
 
 export const useVoiceSynthesis = (activeMode: string) => {
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const elevenLabsKey = getApiKey('elevenlabs');
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentVoiceId, setCurrentVoiceId] = useState('CwhRBWXzGAHq8TQ4Fs17'); // Default Roger voice
-  
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice | null>(null);
+
   useEffect(() => {
-    audioRef.current = new Audio();
-    
-    const handleAudioEnd = () => {
-      setIsPlaying(false);
+    // Load available voices
+    const loadVoices = () => {
+      const availableVoices = window.speechSynthesis.getVoices();
+      setVoices(availableVoices);
+      
+      // Try to find a good default voice - prefer Daniel (English)
+      const defaultVoice = availableVoices.find(voice => 
+        voice.name.toLowerCase().includes('daniel') && voice.lang.startsWith('en')
+      ) || availableVoices.find(voice => voice.lang.startsWith('en')) || availableVoices[0];
+      
+      setSelectedVoice(defaultVoice || null);
     };
-    
-    if (audioRef.current) {
-      audioRef.current.addEventListener('ended', handleAudioEnd);
-    }
-    
+
+    // Load voices on mount and when voices change
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+
     return () => {
-      if (audioRef.current) {
-        audioRef.current.removeEventListener('ended', handleAudioEnd);
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
+      window.speechSynthesis.cancel();
     };
   }, []);
 
   const speakText = useCallback(async (text: string, assistantType: AssistantType = 'jarvis') => {
-    if (!elevenLabsKey) {
+    if (!selectedVoice) {
       toast({
-        title: "API Key Required",
-        description: "ElevenLabs API key is required for voice synthesis. Please set it in the settings.",
+        title: "Voice Not Available",
+        description: "No speech synthesis voice is available.",
         variant: "destructive"
       });
       return;
     }
+
+    // Cancel any ongoing speech
+    window.speechSynthesis.cancel();
     
-    if (audioRef.current?.src) {
-      URL.revokeObjectURL(audioRef.current.src);
-    }
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.voice = selectedVoice;
+    utterance.rate = 1;
+    utterance.pitch = 1;
     
-    try {
-      // Get the appropriate voice ID for the selected assistant
-      const voiceId = getAssistantVoiceId(assistantType);
-      
-      // Update for SSML compatibility by wrapping in <speak> tags if not already present
-      const formattedText = text.startsWith('<speak>') ? text : `<speak>${text}</speak>`;
-      
-      const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'xi-api-key': elevenLabsKey,
-        },
-        body: JSON.stringify({
-          text: formattedText,
-          model_id: 'eleven_turbo_v2',
-          voice_settings: {
-            stability: 0.3,
-            similarity_boost: 0.75,
-            style: 0.15,
-            use_speaker_boost: true
-          }
-        }),
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('ElevenLabs API error:', errorData);
-        throw new Error(errorData.detail?.message || 'Error generating speech');
-      }
-      
-      const audioBlob = await response.blob();
-      const audioUrl = URL.createObjectURL(audioBlob);
-      
-      if (audioRef.current) {
-        audioRef.current.src = audioUrl;
-        setIsPlaying(true);
-        await audioRef.current.play();
-      }
-    } catch (error) {
-      console.error('Error with text-to-speech:', error);
-      toast({
-        title: 'Text-to-Speech Error',
-        description: 'Failed to generate speech. Please check your ElevenLabs API key.',
-        variant: 'destructive',
-      });
+    utterance.onstart = () => setIsPlaying(true);
+    utterance.onend = () => setIsPlaying(false);
+    utterance.onerror = (event) => {
+      console.error('Speech synthesis error:', event);
       setIsPlaying(false);
-    }
-  }, [elevenLabsKey]);
+      toast({
+        title: "Speech Error",
+        description: "Failed to speak the text.",
+        variant: "destructive"
+      });
+    };
+
+    window.speechSynthesis.speak(utterance);
+  }, [selectedVoice]);
 
   const stopSpeaking = useCallback(() => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-      setIsPlaying(false);
-    }
+    window.speechSynthesis.cancel();
+    setIsPlaying(false);
   }, []);
 
   const setAudioVolume = useCallback((volume: number) => {
-    if (audioRef.current) {
-      audioRef.current.volume = volume;
-    }
-  }, []);
-
-  const setVoiceId = useCallback((voiceId: string) => {
-    setCurrentVoiceId(voiceId);
+    // Volume is handled by the system for Web Speech API
   }, []);
 
   return {
-    audioRef,
     speakText,
     stopSpeaking,
     setAudioVolume,
-    setVoiceId,
-    isPlaying
+    isPlaying,
+    voices,
+    selectedVoice,
+    setSelectedVoice
   };
 };
