@@ -1,15 +1,16 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
+import { Brain, Mic, Sparkles, Cpu } from 'lucide-react';
 
-interface ControlOption {
+export interface ControlOption {
   id: string;
   label: string;
   icon: React.ReactNode;
   active: boolean;
 }
 
-interface ControlPanelProps {
+export interface ControlPanelProps {
   options: ControlOption[];
   onToggle: (id: string) => void;
 }

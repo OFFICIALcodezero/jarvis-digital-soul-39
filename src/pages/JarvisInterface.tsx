@@ -13,10 +13,52 @@ import ChatMode from '@/components/chat/ChatMode';
 import HackerMode from '@/components/chat/HackerMode';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Mic, Brain, Sparkles, Cpu } from 'lucide-react';
 
 const JarvisInterface = () => {
   const [mode, setMode] = useState<'chat' | 'hacker'>('chat');
-  const { isMobile } = useIsMobile();
+  const [activeMode, setActiveMode] = useState<'normal' | 'voice' | 'face' | 'hacker'>('normal');
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const isMobile = useIsMobile();
+  
+  // Control panel options
+  const controlOptions = [
+    {
+      id: 'normal',
+      label: 'Normal Mode',
+      icon: <Brain />,
+      active: activeMode === 'normal'
+    },
+    {
+      id: 'voice',
+      label: 'Voice Mode',
+      icon: <Mic />,
+      active: activeMode === 'voice'
+    },
+    {
+      id: 'face',
+      label: 'Face Mode',
+      icon: <Sparkles />,
+      active: activeMode === 'face'
+    },
+    {
+      id: 'hacker',
+      label: 'Hacker Mode',
+      icon: <Cpu />,
+      active: activeMode === 'hacker'
+    }
+  ];
+
+  const handleToggleMode = (id: string) => {
+    setActiveMode(id as 'normal' | 'voice' | 'face' | 'hacker');
+    if (id === 'hacker') {
+      setMode('hacker');
+    } else {
+      setMode('chat');
+    }
+  };
   
   return (
     <div className="relative min-h-screen flex flex-col bg-jarvis-bg text-white overflow-hidden">
@@ -45,13 +87,17 @@ const JarvisInterface = () => {
         {/* Central Core */}
         <div className="lg:w-1/3 order-2 lg:order-1">
           <div className="glass-morphism p-4 rounded-2xl h-full flex flex-col">
-            <JarvisCentralCore />
+            <JarvisCentralCore 
+              isSpeaking={isSpeaking}
+              isListening={isListening}
+              isProcessing={isProcessing}
+              activeMode={activeMode}
+            />
             <div className="mt-4">
-              <div className="relative flex justify-center">
-                <button className="relative flex items-center justify-center w-12 h-12 rounded-full jarvis-panel border border-jarvis transition-all duration-300 group">
-                  <div className="absolute inset-0 rounded-full bg-jarvis/30 animate-pulse"></div>
-                </button>
-              </div>
+              <VoiceActivation 
+                isListening={isListening}
+                toggleListening={() => setIsListening(!isListening)}
+              />
             </div>
           </div>
         </div>
@@ -64,10 +110,22 @@ const JarvisInterface = () => {
               <TabsTrigger value="hacker" className="data-[state=active]:bg-[#33c3f0]/20">Hacker Mode</TabsTrigger>
             </TabsList>
             <TabsContent value="chat" className="h-[calc(100%-40px)]">
-              <ChatMode />
+              <ChatMode 
+                messages={[]}
+                speakText={async () => {}}
+                audioPlaying={false}
+                isTyping={false}
+                currentTypingText=""
+                isProcessing={false}
+                selectedLanguage="en"
+                onLanguageChange={() => {}}
+              />
             </TabsContent>
             <TabsContent value="hacker" className="h-[calc(100%-40px)]">
-              <HackerMode />
+              <HackerMode 
+                hackerOutput=""
+                setHackerOutput={() => {}}
+              />
             </TabsContent>
           </Tabs>
         </div>
@@ -75,7 +133,10 @@ const JarvisInterface = () => {
       
       {/* Control Panel */}
       <div className="p-4 z-10">
-        <ControlPanel />
+        <ControlPanel 
+          options={controlOptions}
+          onToggle={handleToggleMode}
+        />
       </div>
       
       {/* Lower background gradient */}

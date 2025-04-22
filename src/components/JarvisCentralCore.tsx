@@ -1,8 +1,7 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { cn } from "@/lib/utils";
 
-interface JarvisCentralCoreProps {
+export interface JarvisCentralCoreProps {
   isSpeaking: boolean;
   isListening: boolean;
   isProcessing: boolean;
@@ -10,10 +9,10 @@ interface JarvisCentralCoreProps {
 }
 
 const JarvisCentralCore: React.FC<JarvisCentralCoreProps> = ({
-  isSpeaking,
-  isListening,
-  isProcessing,
-  activeMode
+  isSpeaking = false,
+  isListening = false,
+  isProcessing = false,
+  activeMode = 'normal'
 }) => {
   const [particles, setParticles] = useState<{id: number, x: number, y: number, size: number, speed: number, angle: number}[]>([]);
   const coreRef = useRef<HTMLDivElement>(null);
