@@ -48,6 +48,7 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
     chatEndRef,
     processUserMessage,
     scrollToBottom,
+    setMessages
   } = useChatLogic(activeMode, setIsSpeaking, activeAssistant, inputMode);
 
   const { speakText, stopSpeaking, setAudioVolume, isPlaying, voices, selectedVoice, setSelectedVoice } = useVoiceSynthesis(activeMode);
@@ -181,18 +182,17 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
       };
 
       if (skillResponse.skillType === "image" && skillResponse.data) {
-        messages.push(userMessage as any);
-
-        setMessages((prev: any) => [
-          ...prev,
-          {
-            id: (Date.now() + 1).toString(),
-            role: "assistant",
-            content: "",
-            timestamp: new Date(),
-            generatedImage: skillResponse.data,
-          },
-        ]);
+        const updatedMessages = [...messages, userMessage];
+        
+        updatedMessages.push({
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content: "",
+          timestamp: new Date(),
+          generatedImage: skillResponse.data,
+        });
+        
+        setMessages(updatedMessages);
         setInput("");
         setShowImageGenerator(false);
 

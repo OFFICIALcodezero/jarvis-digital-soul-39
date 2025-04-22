@@ -1,4 +1,3 @@
-
 import { useState, useRef } from 'react';
 import { toast } from '@/components/ui/use-toast';
 import { getApiKey } from '../utils/apiKeyManager';
@@ -98,7 +97,6 @@ export const useChatLogic = (
     try {
       updateUserMemory(message);
       
-      // First, check if this is a skill command
       if (isSkillCommand(message)) {
         const skillResponse = await processSkillCommand(message);
         await simulateTyping(skillResponse.text);
@@ -107,7 +105,6 @@ export const useChatLogic = (
         return { shouldSpeak: skillResponse.shouldSpeak, text: skillResponse.text };
       }
       
-      // If not a skill command, proceed with normal AI processing
       const chatHistory = messages.map(msg => ({
         role: msg.role,
         content: msg.content
@@ -152,5 +149,6 @@ export const useChatLogic = (
     conversationContext,
     processUserMessage,
     scrollToBottom,
+    setMessages,
   };
 };
