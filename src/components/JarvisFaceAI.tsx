@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { cn } from "@/lib/utils";
 import { removeBackground, loadImage } from '../utils/imageUtils';
@@ -12,7 +11,11 @@ const JarvisFaceAI: React.FC<JarvisFaceAIProps> = ({ isSpeaking, className }) =>
   const eyeLeftRef = useRef<HTMLDivElement>(null);
   const eyeRightRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const faceRef = useRef<HTMLDivElement>(null);
   const [processedImageUrl, setProcessedImageUrl] = useState<string>('');
+  const [isDragging, setIsDragging] = useState(false);
+  const [rotation, setRotation] = useState({ x: 0, y: 0 });
+  const [lastMousePos, setLastMousePos] = useState({ x: 0, y: 0 });
 
   // Process the image on component mount
   useEffect(() => {
@@ -91,11 +94,49 @@ const JarvisFaceAI: React.FC<JarvisFaceAIProps> = ({ isSpeaking, className }) =>
     return () => clearInterval(blinkInterval);
   }, []);
 
+  // Handle face rotation
+  useEffect(() => {
+    const handleMouseDown = (e: MouseEvent) => {
+      setIsDragging(true);
+      setLastMousePos({ x: e.clientX, y: e.clientY });
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging || !faceRef.current) return;
+
+      const deltaX = e.clientX - lastMousePos.x;
+      const deltaY = e.clientY - lastMousePos.y;
+
+      setRotation(prev => ({
+        x: (prev.x + deltaY * 0.5) % 360,
+        y: (prev.y + deltaX * 0.5) % 360
+      }));
+
+      setLastMousePos({ x: e.clientX, y: e.clientY });
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    document.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('mouseleave', handleMouseUp);
+
+    return () => {
+      document.removeEventListener('mousedown', handleMouseDown);
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('mouseleave', handleMouseUp);
+    };
+  }, [isDragging, lastMousePos]);
+
   return (
     <div 
       ref={containerRef}
       className={cn(
-        "relative w-[200px] mx-auto transition-all duration-700",
+        "relative w-[200px] mx-auto transition-all duration-700 cursor-move",
         isSpeaking && "animate-breathe",
         className
       )}
@@ -106,7 +147,14 @@ const JarvisFaceAI: React.FC<JarvisFaceAIProps> = ({ isSpeaking, className }) =>
         isSpeaking ? "opacity-100" : "opacity-0"
       )} />
       
-      <div className="relative">
+      <div 
+        ref={faceRef}
+        className="relative transition-transform"
+        style={{
+          transform: `perspective(1000px) rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`,
+          transformStyle: 'preserve-3d'
+        }}
+      >
         {processedImageUrl ? (
           <div className="relative">
             <img 
@@ -116,6 +164,7 @@ const JarvisFaceAI: React.FC<JarvisFaceAIProps> = ({ isSpeaking, className }) =>
                 "w-full relative z-10 transition-transform duration-300",
                 isSpeaking && "animate-subtle-bounce"
               )}
+              style={{ backfaceVisibility: 'visible' }}
             />
             {/* Speaking animation rings */}
             {isSpeaking && (
