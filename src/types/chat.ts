@@ -1,4 +1,3 @@
-
 export interface Message {
   id: string;
   role: 'user' | 'assistant';
@@ -26,6 +25,18 @@ export interface ChatModeProps {
   isProcessing: boolean;
   selectedLanguage: string;
   onLanguageChange: (languageCode: string) => void;
+}
+
+export interface AudioControlsProps {
+  volume: number;
+  audioPlaying: boolean;
+  stopSpeaking: () => void;
+  toggleMute: () => void;
+  onVolumeChange: (values: number[]) => void;
+  isMicActive: boolean;
+  onMicToggle: () => void;
+  inputMode: 'voice' | 'text';
+  onInputModeChange: (mode: 'voice' | 'text') => void;
 }
 
 export interface UserPreference {

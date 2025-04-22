@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import ChatInterface from '@/components/ChatInterface';
 import JarvisCore from '@/components/JarvisCore';
@@ -15,7 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Mic, Brain, Sparkles, Cpu, Bot } from 'lucide-react';
 
-export type AssistantType = 'jarvis' | 'chatgpt' | 'alexa' | 'siri' | 'gemini';
+export type AssistantType = 'jarvis';
 
 const JarvisInterface = () => {
   const [mode, setMode] = useState<'chat' | 'hacker'>('chat');
