@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ChatInterface from '@/components/ChatInterface';
 import JarvisCore from '@/components/JarvisCore';
 import JarvisFaceAI from '@/components/JarvisFaceAI';
@@ -13,7 +13,9 @@ import ChatMode from '@/components/chat/ChatMode';
 import HackerMode from '@/components/chat/HackerMode';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Mic, Brain, Sparkles, Cpu, Bot } from 'lucide-react';
+import { Mic, Brain, Sparkles, Cpu, Bot, Volume2, VolumeX } from 'lucide-react';
+import { getApiKey } from '@/utils/apiKeyManager';
+import { toast } from '@/components/ui/use-toast';
 
 export type AssistantType = 'jarvis';
 
@@ -26,7 +28,31 @@ const JarvisInterface = () => {
   const [activeAssistant, setActiveAssistant] = useState<AssistantType>('jarvis');
   const [inputMode, setInputMode] = useState<'voice' | 'text'>('text');
   const [hackerOutput, setHackerOutput] = useState<string>('');
+  const [volume, setVolume] = useState<number>(0.8);
+  const [isMuted, setIsMuted] = useState<boolean>(false);
   const isMobile = useIsMobile();
+  
+  const elevenLabsKey = getApiKey('elevenlabs');
+  const openAIKey = getApiKey('openai');
+  
+  useEffect(() => {
+    // Check for required API keys on component mount
+    if (!elevenLabsKey && (activeMode === 'voice' || activeMode === 'face')) {
+      toast({
+        title: "ElevenLabs API Key Required",
+        description: "Voice features require an ElevenLabs API key. Please add it in the controls panel.",
+        variant: "destructive"
+      });
+    }
+    
+    if (!openAIKey) {
+      toast({
+        title: "OpenAI API Key Required",
+        description: "JARVIS requires an OpenAI API key to function properly. Please add it in the controls panel.",
+        variant: "destructive"
+      });
+    }
+  }, [elevenLabsKey, openAIKey, activeMode]);
   
   // Control panel options
   const controlOptions = [
@@ -67,9 +93,23 @@ const JarvisInterface = () => {
     // Auto-set input mode based on selected interface mode
     if (id === 'voice' || id === 'face') {
       setInputMode('voice');
+      
+      // Check for ElevenLabs API key when switching to voice mode
+      if (!elevenLabsKey) {
+        toast({
+          title: "ElevenLabs API Key Required",
+          description: "Voice features require an ElevenLabs API key. Please add it in the controls panel.",
+          variant: "destructive"
+        });
+      }
     } else {
       setInputMode('text');
     }
+  };
+  
+  const toggleMute = () => {
+    setIsMuted(!isMuted);
+    setVolume(prev => isMuted ? prev : 0);
   };
   
   return (
@@ -86,7 +126,7 @@ const JarvisInterface = () => {
           </div>
         </div>
         
-        <div className="flex space-x-4">
+        <div className="flex items-center space-x-4">
           <div className="flex items-center text-sm">
             <div className="h-2 w-2 rounded-full mr-2 bg-jarvis"></div>
             <span className="text-jarvis">System Online</span>
@@ -97,6 +137,15 @@ const JarvisInterface = () => {
               <span className="text-jarvis capitalize">{activeAssistant} enabled</span>
             </div>
           )}
+          <button 
+            onClick={toggleMute}
+            className="text-jarvis hover:text-jarvis/80 transition-colors"
+          >
+            {isMuted ? 
+              <VolumeX className="h-4 w-4" /> : 
+              <Volume2 className="h-4 w-4" />
+            }
+          </button>
         </div>
       </div>
 
@@ -115,6 +164,7 @@ const JarvisInterface = () => {
               <VoiceActivation 
                 isListening={isListening}
                 toggleListening={() => setIsListening(!isListening)}
+                isSpeaking={isSpeaking}
               />
             </div>
           </div>
