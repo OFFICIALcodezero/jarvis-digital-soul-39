@@ -13,7 +13,8 @@ import { NewsArticle } from '@/services/newsService';
 import { CalendarEvent } from '@/services/timeCalendarService';
 import { getDailyBriefing } from '@/services/dailyBriefingService';
 import ImageGenerationWidget from './widgets/ImageGenerationWidget';
-import { GeneratedImage } from '@/services/imageGenerationService';
+import { GeneratedImage, generateImage, parseImageRequest } from '@/services/imageGenerationService';
+import GeneratedImageCard from './chat/GeneratedImageCard';
 
 const JarvisChat: React.FC<JarvisChatProps> = ({
   activeMode,
@@ -32,9 +33,8 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [newsArticles, setNewsArticles] = useState<NewsArticle[]>([]);
   const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
-  const [generatedImage, setGeneratedImage] = useState<GeneratedImage | null>(null);
-  const [showImageGenerator, setShowImageGenerator] = useState(false);
   const [pendingImagePrompt, setPendingImagePrompt] = useState<string>('');
+  const [activeImage, setActiveImage] = useState<GeneratedImage | null>(null);
 
   const {
     messages,
@@ -70,7 +70,6 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
   const playDailyBriefing = async () => {
     try {
       const { text, briefing } = await getDailyBriefing();
-      
       if (briefing) {
         if (briefing.weather) {
           setWeatherData({
@@ -114,7 +113,6 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
             ]
           });
         }
-        
         if (briefing.news) {
           setNewsArticles(briefing.news.map((item, index) => ({
             title: item.topHeadline,
@@ -124,7 +122,6 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
             publishedAt: new Date().toISOString()
           })));
         }
-        
         if (briefing.calendar && briefing.calendar.nextEvent) {
           setCalendarEvents([
             {
@@ -135,14 +132,6 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
           ]);
         }
       }
-      
-      const briefingMessage = {
-        id: Date.now().toString(),
-        role: 'assistant' as const,
-        content: text,
-        timestamp: new Date()
-      };
-      
       setIsSpeaking(true);
       await speakText(text);
       setIsSpeaking(false);
@@ -166,11 +155,97 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
     ];
   };
 
+  const isDirectImagePrompt = (msg: string) => {
+    const lower = msg.toLowerCase();
+    return (
+      lower.startsWith('generate an image') ||
+      lower.startsWith('generate a image') ||
+      lower.startsWith('generate image') ||
+      lower.startsWith('create an image') ||
+      lower.startsWith('create image') ||
+      lower.startsWith('draw') ||
+      lower.startsWith('make an image') ||
+      lower.startsWith('show me') ||
+      lower.startsWith('paint') ||
+      lower.startsWith('illustrate') ||
+      /image of|image about/.test(lower) ||
+      (lower.includes('picture') && (lower.includes('generate') || lower.includes('create') || lower.includes('show')))
+    );
+  };
+
+  const handleRefineImage = async (prevPrompt: string, refinement: string) => {
+    const newPrompt = `${prevPrompt}. ${refinement}`;
+    await handleImageGenerationFromPrompt(newPrompt, true);
+  };
+
+  const handleImageGenerationFromPrompt = async (prompt: string, isRefine = false) => {
+    const userMsg = {
+      id: (Date.now() + Math.floor(Math.random()*1000)).toString(),
+      role: 'user' as const,
+      content: prompt,
+      timestamp: new Date()
+    };
+
+    let msgs = isRefine ? messages.filter(m => !m.generatedImage) : messages;
+    setMessages([...msgs, userMsg]);
+
+    setInput('');
+    const loadingMsg = {
+      id: (Date.now() + Math.floor(Math.random()*1000) + 1).toString(),
+      role: 'assistant' as const,
+      content: '',
+      timestamp: new Date(),
+      generatedImage: {
+        url: '',
+        prompt,
+        timestamp: new Date(),
+        style: undefined,
+        resolution: undefined
+      } as GeneratedImage
+    };
+    setMessages(prev => [...prev, loadingMsg]);
+    setIsSpeaking(true);
+
+    try {
+      const params = parseImageRequest(prompt);
+      const img = await generateImage(params);
+
+      setMessages(msgsNow => [
+        ...msgsNow.filter(m => !(m.generatedImage && m.generatedImage.url === '')),
+        {
+          id: (Date.now() + Math.floor(Math.random()*1000) + 2).toString(),
+          role: 'assistant' as const,
+          content: '',
+          timestamp: new Date(),
+          generatedImage: img
+        }
+      ]);
+      setActiveImage(img);
+
+      await speakText(`Here is what I created for you. ${img.prompt}`);
+    } catch (e) {
+      setMessages(msgsNow => [
+        ...msgsNow.filter(m => !(m.generatedImage && m.generatedImage.url === '')),
+        {
+          id: (Date.now() + Math.floor(Math.random()*1000) + 3).toString(),
+          role: 'assistant' as const,
+          content: "I'm sorry, I couldn't generate the image. Please try again.",
+          timestamp: new Date()
+        }
+      ]);
+    }
+    setIsSpeaking(false);
+  };
+
   const handleSendMessage = async () => {
     if (!input.trim()) return;
 
-    let result;
+    if (isDirectImagePrompt(input)) {
+      await handleImageGenerationFromPrompt(input);
+      return;
+    }
 
+    let result;
     if (isSkillCommand(input)) {
       const skillResponse = await processSkillCommand(input);
 
@@ -182,19 +257,19 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
       };
 
       if (skillResponse.skillType === "image" && skillResponse.data) {
-        const updatedMessages = [...messages, userMessage];
-        
-        updatedMessages.push({
-          id: (Date.now() + 1).toString(),
-          role: "assistant",
-          content: "",
-          timestamp: new Date(),
-          generatedImage: skillResponse.data,
-        });
-        
-        setMessages(updatedMessages);
+        setMessages(prev => [
+          ...prev,
+          userMessage,
+          {
+            id: (Date.now() + 1).toString(),
+            role: "assistant",
+            content: "",
+            timestamp: new Date(),
+            generatedImage: skillResponse.data,
+          }
+        ]);
         setInput("");
-        setShowImageGenerator(false);
+        setActiveImage(skillResponse.data);
 
         setIsSpeaking(true);
         await speakText(
@@ -251,7 +326,6 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
             }]
           });
         }
-        
         if (skillResponse.data.news) {
           setNewsArticles(skillResponse.data.news.map((item: any, index: number) => ({
             title: item.topHeadline,
@@ -261,7 +335,6 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
             publishedAt: new Date().toISOString()
           })));
         }
-        
         if (skillResponse.data.calendar && skillResponse.data.calendar.nextEvent) {
           setCalendarEvents([{
             title: skillResponse.data.calendar.nextEvent.title,
@@ -270,10 +343,8 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
           }]);
         }
       } else if (skillResponse.skillType === 'image' && skillResponse.data) {
-        setGeneratedImage(skillResponse.data);
-        setShowImageGenerator(true);
+        setActiveImage(skillResponse.data);
       }
-
       result = {
         shouldSpeak: skillResponse.shouldSpeak,
         text: skillResponse.text,
@@ -281,9 +352,7 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
     } else {
       result = await processUserMessage(input);
     }
-
     setInput("");
-
     if (result?.shouldSpeak) {
       setAudioPlaying(true);
       setIsSpeaking(true);
@@ -315,7 +384,11 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
     if (transcript && (activeMode === 'voice' || activeMode === 'face' || inputMode === 'voice')) {
       setInput(transcript);
       clearTranscript();
-      handleSendMessage();
+      if (isDirectImagePrompt(transcript)) {
+        handleImageGenerationFromPrompt(transcript);
+      } else {
+        handleSendMessage();
+      }
     }
   }, [transcript]);
 
@@ -330,6 +403,71 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
   if (activeMode === 'hacker') {
     return <HackerMode hackerOutput={hackerOutput} setHackerOutput={setHackerOutput} />;
   }
+
+  const ImageOverlay = ({ image, onClose, onRefine, onRegenerate }: {
+    image: GeneratedImage,
+    onClose: () => void,
+    onRefine: (newPrompt: string) => void,
+    onRegenerate: () => void
+  }) => {
+    const [refinePrompt, setRefinePrompt] = useState('');
+    return (
+      <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 animate-fade-in transition-all">
+        <div className="bg-black/90 rounded-xl shadow-2xl border-2 border-jarvis/40 overflow-hidden p-6 w-[90vw] max-w-2xl">
+          <div className="flex flex-col items-center">
+            <img
+              src={image.url}
+              alt={image.prompt}
+              className="max-h-[60vh] rounded-lg mb-4 shadow-lg animate-scale-in"
+              style={{ objectFit: 'cover' }}
+            />
+            <div className="text-center mb-3 text-lg text-jarvis font-bold animate-fade-in">
+              "{image.prompt}"
+            </div>
+            <div className="flex flex-row gap-2 justify-center">
+              <button onClick={onRegenerate} className="bg-jarvis/20 px-4 py-2 rounded text-jarvis font-bold hover:bg-jarvis/30 transition animate-fade-in flex items-center">
+                Regenerate
+              </button>
+              <form
+                className="flex gap-2 items-center"
+                onSubmit={e => {
+                  e.preventDefault();
+                  if (refinePrompt.trim()) {
+                    onRefine(refinePrompt.trim());
+                  }
+                }}
+              >
+                <input
+                  className="bg-black/60 border border-jarvis/30 rounded px-3 py-1 text-white outline-none"
+                  type="text"
+                  value={refinePrompt}
+                  placeholder="Refine (e.g. add neon lights)"
+                  onChange={e => setRefinePrompt(e.target.value)}
+                />
+                <button type="submit" className="bg-jarvis/20 px-3 py-1 rounded text-jarvis font-semibold hover:bg-jarvis/40 transition">
+                  Refine
+                </button>
+              </form>
+              <button onClick={onClose} className="ml-2 px-2 text-gray-200 hover:text-jarvis">
+                Close
+              </button>
+            </div>
+            <div className="mt-2 flex justify-center gap-4">
+              <a
+                href={image.url}
+                download={`jarvis-image-${Date.now()}.jpg`}
+                className="text-sm text-jarvis underline hover:text-jarvis/80"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Download
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="jarvis-panel flex-1 flex flex-col h-full">
@@ -358,19 +496,6 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
             </div>
           )}
 
-          {showImageGenerator && (
-            <div className="p-3 bg-black/30 border-b border-jarvis/20">
-              <ImageGenerationWidget 
-                initialPrompt={pendingImagePrompt}
-                onGenerate={(image) => {
-                  setGeneratedImage(image);
-                  setPendingImagePrompt('');
-                }}
-                onClose={() => setShowImageGenerator(false)}
-              />
-            </div>
-          )}
-
           <ChatLayout
             messages={messages}
             input={input}
@@ -394,6 +519,20 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
           />
         </div>
       </div>
+      {activeImage && (
+        <ImageOverlay
+          image={activeImage}
+          onClose={() => setActiveImage(null)}
+          onRefine={refinement => {
+            handleRefineImage(activeImage.prompt, refinement);
+            setActiveImage(null);
+          }}
+          onRegenerate={() => {
+            handleImageGenerationFromPrompt(activeImage.prompt, true);
+            setActiveImage(null);
+          }}
+        />
+      )}
     </div>
   );
 };
