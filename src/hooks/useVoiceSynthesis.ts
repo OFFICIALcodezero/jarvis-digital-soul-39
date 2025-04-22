@@ -1,11 +1,12 @@
 
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { toast } from '@/components/ui/use-toast';
 import { getApiKey } from '@/utils/apiKeyManager';
 
 export const useVoiceSynthesis = (activeMode: string) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const elevenLabsKey = getApiKey('elevenlabs');
+  const [currentVoiceId, setCurrentVoiceId] = useState('CwhRBWXzGAHq8TQ4Fs17'); // Default voice
 
   useEffect(() => {
     audioRef.current = new Audio();
@@ -24,7 +25,7 @@ export const useVoiceSynthesis = (activeMode: string) => {
     }
     
     try {
-      const voiceId = 'CwhRBWXzGAHq8TQ4Fs17';
+      const voiceId = currentVoiceId;
       
       const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
         method: 'POST',
@@ -76,10 +77,15 @@ export const useVoiceSynthesis = (activeMode: string) => {
     }
   };
 
+  const setVoiceId = (voiceId: string) => {
+    setCurrentVoiceId(voiceId);
+  };
+
   return {
     audioRef,
     speakText,
     stopSpeaking,
     setAudioVolume,
+    setVoiceId,
   };
 };
