@@ -1,9 +1,12 @@
 
+import { GeneratedImage } from "@/services/imageGenerationService";
+
 export interface Message {
   id: string;
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
+  generatedImage?: GeneratedImage;
 }
 
 export interface JarvisChatProps {
