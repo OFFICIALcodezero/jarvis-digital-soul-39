@@ -1,8 +1,4 @@
-
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Brain } from 'lucide-react';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
 import { toast } from './ui/use-toast';
 import { getApiKey } from '../utils/apiKeyManager';
 import { useVoiceSynthesis } from '../hooks/useVoiceSynthesis';
@@ -10,30 +6,14 @@ import { Message, JarvisChatProps, ConversationContext, UserPreference } from '.
 import HackerMode from './chat/HackerMode';
 import ChatMode from './chat/ChatMode';
 import AudioControls from './chat/AudioControls';
+import MessageInput from './chat/MessageInput';
+import MessageSuggestions from './chat/MessageSuggestions';
 import { generateAIResponse, getUserMemory, updateUserMemory } from '@/services/aiService';
-
-// This is a temporary mock implementation
-const defaultHackerModeProps = {
-  hackerOutput: '',
-  setHackerOutput: () => {}
-};
-
-// This is a temporary mock implementation
-const defaultChatModeProps = {
-  messages: [],
-  speakText: async () => {},
-  audioPlaying: false,
-  isTyping: false,
-  currentTypingText: '',
-  isProcessing: false,
-  selectedLanguage: 'en',
-  onLanguageChange: () => {}
-};
 
 const JarvisChat: React.FC<JarvisChatProps> = ({ 
   activeMode, 
   setIsSpeaking, 
-  isListening
+  isListening 
 }) => {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -179,35 +159,7 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
     }
   };
 
-  const handleSendMessage = (customInput?: string) => {
-    const messageToSend = customInput || input;
-    if (!messageToSend.trim()) return;
-    
-    processUserMessage(messageToSend);
-    setInput('');
-  };
-
-  const handleLanguageChange = (languageCode: string) => {
-    setSelectedLanguage(languageCode);
-    const languages = {
-      en: "English",
-      es: "Spanish",
-      fr: "French",
-      de: "German",
-      it: "Italian",
-      pt: "Portuguese",
-      ru: "Russian",
-      ja: "Japanese",
-      zh: "Chinese"
-    };
-    toast({
-      title: "Language Changed",
-      description: `JARVIS will now respond in ${languages[languageCode as keyof typeof languages] || languageCode}`,
-    });
-  };
-
   const getSuggestions = (): string[] => {
-    // Simple suggestions based on conversation history and context
     const suggestions = [
       "What can you help me with?",
       "Tell me a joke",
@@ -215,7 +167,6 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
       "Explain quantum computing"
     ];
     
-    // Add personalized suggestions if we have user preferences
     const userPrefs = conversationContext.userPreferences;
     
     if (userPrefs.name) {
@@ -227,8 +178,13 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
       suggestions.push(`Tell me more about ${randomInterest}`);
     }
     
-    // Return random 3 suggestions
     return suggestions.sort(() => 0.5 - Math.random()).slice(0, 3);
+  };
+
+  const handleSendMessage = () => {
+    if (!input.trim()) return;
+    processUserMessage(input);
+    setInput('');
   };
 
   const hackerModeProps = {
@@ -244,7 +200,7 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
     currentTypingText,
     isProcessing,
     selectedLanguage,
-    onLanguageChange: handleLanguageChange
+    onLanguageChange: (languageCode: string) => {}
   };
 
   const audioControlsProps = {
@@ -257,7 +213,7 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
 
   if (activeMode === 'hacker') {
     return (
-      <HackerMode {...hackerModeProps} />
+      <HackerMode hackerOutput={hackerOutput} setHackerOutput={setHackerOutput} />
     );
   }
 
@@ -271,53 +227,25 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
       
       {/* Suggestion chips */}
       {!isProcessing && messages.length < 3 && (
-        <div className="px-4 mb-4 flex flex-wrap gap-2">
-          {getSuggestions().map((suggestion, index) => (
-            <button
-              key={index}
-              onClick={() => handleSendMessage(suggestion)}
-              className="bg-jarvis/10 text-jarvis text-xs px-3 py-1.5 rounded-full flex items-center hover:bg-jarvis/20 transition-colors"
-            >
-              <Brain className="w-3 h-3 mr-1.5" />
-              {suggestion}
-            </button>
-          ))}
-        </div>
+        <MessageSuggestions 
+          suggestions={getSuggestions()} 
+          onSuggestionClick={handleSendMessage}
+        />
       )}
       
       <div ref={chatEndRef}></div>
       
       {(activeMode === 'voice' || activeMode === 'face') && (
-        <AudioControls 
-          volume={volume}
-          audioPlaying={audioPlaying}
-          stopSpeaking={stopSpeaking}
-          toggleMute={toggleMute}
-          onVolumeChange={(values) => setVolume(values[0])} 
-        />
+        <AudioControls {...audioControlsProps} />
       )}
       
-      <div className="p-3 bg-black/30 border-t border-jarvis/20">
-        <div className="flex items-center">
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            className="flex-1 bg-black/40 border-jarvis/30 text-white focus-visible:ring-jarvis/50"
-            placeholder={isListening ? "Listening..." : "Type your message..."}
-            disabled={isProcessing || isListening}
-            onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-          />
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="ml-2 text-jarvis hover:bg-jarvis/20" 
-            onClick={() => handleSendMessage()}
-            disabled={isProcessing || isListening || !input.trim()}
-          >
-            <Send className="h-5 w-5" />
-          </Button>
-        </div>
-      </div>
+      <MessageInput
+        input={input}
+        setInput={setInput}
+        handleSendMessage={handleSendMessage}
+        isProcessing={isProcessing}
+        isListening={isListening}
+      />
     </div>
   );
 };
