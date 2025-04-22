@@ -55,3 +55,11 @@ export interface ConversationContext {
   userPreferences: UserPreference;
   sessionStartTime: Date;
 }
+
+export interface GeneratedImageData {
+  url: string;
+  prompt: string;
+  timestamp: Date;
+  style?: string;
+  resolution?: string;
+}

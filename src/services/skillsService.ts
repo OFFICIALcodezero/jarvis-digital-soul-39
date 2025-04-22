@@ -3,12 +3,13 @@ import { getWeatherResponse } from './weatherService';
 import { getNewsResponse } from './newsService';
 import { getTimeCalendarResponse } from './timeCalendarService';
 import { getDailyBriefing } from './dailyBriefingService';
+import { parseImageRequest, generateImage } from './imageGenerationService';
 
 export interface SkillResponse {
   text: string;
   data?: any;
   shouldSpeak: boolean;
-  skillType: 'weather' | 'news' | 'time' | 'calendar' | 'briefing' | 'general' | 'unknown';
+  skillType: 'weather' | 'news' | 'time' | 'calendar' | 'briefing' | 'image' | 'general' | 'unknown';
 }
 
 export const processSkillCommand = async (command: string): Promise<SkillResponse> => {
@@ -85,6 +86,24 @@ export const processSkillCommand = async (command: string): Promise<SkillRespons
       };
     }
     
+    // Image generation queries
+    else if (lowerCommand.includes('generate image') || 
+             lowerCommand.includes('create image') || 
+             lowerCommand.includes('make image') ||
+             lowerCommand.includes('draw') ||
+             (lowerCommand.includes('generate') && lowerCommand.includes('picture')) ||
+             (lowerCommand.includes('create') && lowerCommand.includes('picture'))) {
+      const imageParams = parseImageRequest(command);
+      const generatedImage = await generateImage(imageParams);
+      
+      return {
+        text: `Here is the image I created based on your prompt: "${imageParams.prompt}"`,
+        data: generatedImage,
+        shouldSpeak: true,
+        skillType: 'image'
+      };
+    }
+    
     // Fall back to general query
     return {
       text: "I don't have a specific skill for that query. Let me search for an answer.",
@@ -122,5 +141,11 @@ export const isSkillCommand = (command: string): boolean => {
          lowerCommand.includes('briefing') ||
          lowerCommand.includes('update me') ||
          lowerCommand.includes('what\'s up') ||
-         lowerCommand.includes('good morning');
+         lowerCommand.includes('good morning') ||
+         lowerCommand.includes('generate image') ||
+         lowerCommand.includes('create image') ||
+         lowerCommand.includes('make image') ||
+         lowerCommand.includes('draw') ||
+         (lowerCommand.includes('generate') && lowerCommand.includes('picture')) ||
+         (lowerCommand.includes('create') && lowerCommand.includes('picture'));
 };

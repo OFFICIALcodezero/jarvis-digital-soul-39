@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useVoiceSynthesis } from '../hooks/useVoiceSynthesis';
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
@@ -12,6 +13,8 @@ import { WeatherData } from '@/services/weatherService';
 import { NewsArticle } from '@/services/newsService';
 import { CalendarEvent } from '@/services/timeCalendarService';
 import { getDailyBriefing } from '@/services/dailyBriefingService';
+import ImageGenerationWidget from './widgets/ImageGenerationWidget';
+import { GeneratedImage } from '@/services/imageGenerationService';
 
 const JarvisChat: React.FC<JarvisChatProps> = ({
   activeMode,
@@ -30,6 +33,9 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [newsArticles, setNewsArticles] = useState<NewsArticle[]>([]);
   const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
+  const [generatedImage, setGeneratedImage] = useState<GeneratedImage | null>(null);
+  const [showImageGenerator, setShowImageGenerator] = useState(false);
+  const [pendingImagePrompt, setPendingImagePrompt] = useState<string>('');
 
   const {
     messages,
@@ -155,7 +161,8 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
       "Tell me the latest news",
       "What time is it?",
       "What's on my schedule today?",
-      "Give me a daily briefing"
+      "Generate an image of a sunset over mountains",
+      "Create an image of a futuristic robot"
     ];
   };
 
@@ -246,6 +253,9 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
             date: new Date().toLocaleDateString()
           }]);
         }
+      } else if (skillResponse.skillType === 'image' && skillResponse.data) {
+        setGeneratedImage(skillResponse.data);
+        setShowImageGenerator(true);
       }
       
       result = {
@@ -329,6 +339,19 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
           {showDashboard && (
             <div className="p-3 bg-black/20 border-b border-jarvis/20">
               <JarvisDashboard />
+            </div>
+          )}
+
+          {showImageGenerator && (
+            <div className="p-3 bg-black/30 border-b border-jarvis/20">
+              <ImageGenerationWidget 
+                initialPrompt={pendingImagePrompt}
+                onGenerate={(image) => {
+                  setGeneratedImage(image);
+                  setPendingImagePrompt('');
+                }}
+                onClose={() => setShowImageGenerator(false)}
+              />
             </div>
           )}
 
