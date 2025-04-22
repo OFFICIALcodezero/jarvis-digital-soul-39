@@ -15,6 +15,7 @@ const VoiceActivation: React.FC<VoiceActivationProps> = ({
 }) => {
   const [transcript, setTranscript] = useState('');
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const [recognitionSupported, setRecognitionSupported] = useState(true);
 
   useEffect(() => {
     if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
@@ -65,6 +66,7 @@ const VoiceActivation: React.FC<VoiceActivationProps> = ({
       };
     } else {
       console.error('Speech recognition not supported in this browser');
+      setRecognitionSupported(false);
     }
   }, [onCommandReceived, isListening, toggleListening]);
 
@@ -83,6 +85,19 @@ const VoiceActivation: React.FC<VoiceActivationProps> = ({
       setTranscript('');
     }
   }, [isListening]);
+
+  if (!recognitionSupported) {
+    return (
+      <div className="relative">
+        <button 
+          className="relative flex items-center justify-center w-14 h-14 rounded-full bg-slate-800/50 border border-red-500/30 group"
+          onClick={() => alert("Speech recognition is not supported in your browser")}
+        >
+          <MicOff className="w-6 h-6 text-red-400" />
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="relative">

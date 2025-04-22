@@ -10,6 +10,7 @@ import { Message, JarvisChatProps } from '../types/chat';
 import HackerMode from './chat/HackerMode';
 import ChatMode from './chat/ChatMode';
 import AudioControls from './chat/AudioControls';
+import { generateAIResponse } from '@/services/aiService';
 
 const JarvisChat: React.FC<JarvisChatProps> = ({ 
   activeMode, 
@@ -31,6 +32,7 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
   const [hackerOutput, setHackerOutput] = useState('');
   const [audioPlaying, setAudioPlaying] = useState(false);
   const [volume, setVolume] = useState(0.8);
+  const [selectedLanguage, setSelectedLanguage] = useState('en');
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   const { speakText, stopSpeaking, setAudioVolume } = useVoiceSynthesis(activeMode);
@@ -40,6 +42,10 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
     scrollToBottom();
   }, [messages, hackerOutput, currentTypingText]);
 
+  useEffect(() => {
+    setAudioVolume(volume);
+  }, [volume, setAudioVolume]);
+
   const scrollToBottom = () => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -47,10 +53,6 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
   const toggleMute = () => {
     setVolume(prev => prev > 0 ? 0 : 0.8);
   };
-
-  useEffect(() => {
-    setAudioVolume(volume);
-  }, [volume, setAudioVolume]);
 
   const addMessage = (role: 'user' | 'assistant', content: string) => {
     const newMessage: Message = {
@@ -69,7 +71,7 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
     
     for (let i = 0; i <= text.length; i++) {
       setCurrentTypingText(text.substring(0, i));
-      await new Promise(resolve => setTimeout(resolve, Math.random() * 30 + 20));
+      await new Promise(resolve => setTimeout(resolve, Math.random() * 20 + 10));
     }
     
     setIsTyping(false);
@@ -91,23 +93,25 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
     addMessage('user', message);
     
     try {
-      // Simulate processing delay
-      await new Promise(resolve => setTimeout(resolve, 800));
+      // Format chat history for the AI service
+      const chatHistory = messages.map(msg => ({
+        role: msg.role,
+        content: msg.content
+      }));
       
-      // Generate a simple response
-      const responses = [
-        "I understand you're asking about " + message.split(' ').slice(0, 3).join(' ') + ". Let me help with that.",
-        "I've analyzed your query about " + message.split(' ').slice(0, 3).join(' ') + " and here's what I found.",
-        "Based on your question about " + message.split(' ').slice(0, 3).join(' ') + ", I can provide the following information.",
-        "I've processed your request regarding " + message.split(' ').slice(0, 3).join(' ') + " and here's my response."
-      ];
+      // Generate response from OpenAI
+      const response = await generateAIResponse(message, chatHistory, selectedLanguage);
       
-      const response = responses[Math.floor(Math.random() * responses.length)];
-      
+      // Display the response with typing effect
       await simulateTyping(response);
       
+      // Speak the response if in voice or face mode
       if (activeMode === 'voice' || activeMode === 'face') {
+        setAudioPlaying(true);
+        setIsSpeaking(true);
         await speakText(response);
+        setAudioPlaying(false);
+        setIsSpeaking(false);
       }
     } catch (error) {
       console.error("Error processing message:", error);
@@ -127,6 +131,16 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
     
     processUserMessage(messageToSend);
     setInput('');
+  };
+
+  const handleLanguageChange = (languageCode: string) => {
+    setSelectedLanguage(languageCode);
+    toast({
+      title: "Language Changed",
+      description: `JARVIS will now respond in ${
+        supportedLanguages.find(lang => lang.code === languageCode)?.name || languageCode
+      }`,
+    });
   };
 
   if (activeMode === 'hacker') {
@@ -151,6 +165,8 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
         isTyping={isTyping}
         currentTypingText={currentTypingText}
         isProcessing={isProcessing}
+        selectedLanguage={selectedLanguage}
+        onLanguageChange={handleLanguageChange}
       />
       
       <div ref={chatEndRef}></div>

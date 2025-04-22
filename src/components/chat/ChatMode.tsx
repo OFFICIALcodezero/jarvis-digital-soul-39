@@ -3,6 +3,7 @@ import React from 'react';
 import { Message } from '@/types/chat';
 import { Button } from '@/components/ui/button';
 import { Volume2 } from 'lucide-react';
+import LanguageSelector from './LanguageSelector';
 
 interface ChatModeProps {
   messages: Message[];
@@ -11,6 +12,8 @@ interface ChatModeProps {
   isTyping: boolean;
   currentTypingText: string;
   isProcessing: boolean;
+  selectedLanguage?: string;
+  onLanguageChange?: (languageCode: string) => void;
 }
 
 const ChatMode: React.FC<ChatModeProps> = ({
@@ -20,9 +23,18 @@ const ChatMode: React.FC<ChatModeProps> = ({
   isTyping,
   currentTypingText,
   isProcessing,
+  selectedLanguage = 'en',
+  onLanguageChange = () => {},
 }) => {
   return (
     <div className="flex-1 p-4 overflow-y-auto">
+      <div className="flex justify-end mb-2">
+        <LanguageSelector 
+          selectedLanguage={selectedLanguage} 
+          onLanguageChange={onLanguageChange} 
+        />
+      </div>
+
       {messages.map(message => (
         <div 
           key={message.id}
