@@ -1,9 +1,13 @@
 
 import React from 'react';
-import JarvisCore from '../components/JarvisCore';
+import ChatInterface from '../components/ChatInterface';
 
 const Index = () => {
-  return <JarvisCore />;
+  return (
+    <div className="h-screen">
+      <ChatInterface />
+    </div>
+  );
 };
 
 export default Index;
