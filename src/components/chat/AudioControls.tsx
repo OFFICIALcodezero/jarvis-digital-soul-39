@@ -1,62 +1,67 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Volume, VolumeX, Square } from 'lucide-react';
+import { Slider } from '@/components/ui/slider';
+import { Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
 
 interface AudioControlsProps {
+  isMicActive: boolean;
+  isVoiceEnabled: boolean;
   volume: number;
-  setVolume: (volume: number) => void;
-  audioPlaying: boolean;
-  stopSpeaking: () => void;
-  toggleMute: () => void;
+  onMicToggle: () => void;
+  onVoiceToggle: () => void;
+  onVolumeChange: (value: number[]) => void;
 }
 
 const AudioControls: React.FC<AudioControlsProps> = ({
+  isMicActive,
+  isVoiceEnabled,
   volume,
-  setVolume,
-  audioPlaying,
-  stopSpeaking,
-  toggleMute,
+  onMicToggle,
+  onVoiceToggle,
+  onVolumeChange
 }) => {
   return (
-    <div className="p-2 flex items-center justify-end space-x-2 border-t border-jarvis/10">
+    <div className="flex items-center gap-3">
       <Button
-        variant="ghost"
-        size="sm"
-        className="h-8 text-jarvis/70 hover:text-jarvis hover:bg-jarvis/10"
-        onClick={toggleMute}
+        variant="outline"
+        size="icon"
+        onClick={onMicToggle}
+        className={`${
+          isMicActive 
+            ? 'bg-[#33c3f0]/20 border-[#33c3f0] text-[#33c3f0]' 
+            : 'bg-transparent border-[#33c3f0]/30 text-[#8a8a9b]'
+        } hover:bg-[#33c3f0]/30 hover:text-[#d6d6ff]`}
       >
-        {volume === 0 ? (
-          <VolumeX className="h-4 w-4 mr-1" />
-        ) : (
-          <Volume className="h-4 w-4 mr-1" />
-        )}
-        {volume === 0 ? 'Unmute' : 'Mute'}
+        {isMicActive ? <Mic className="h-4 w-4" /> : <MicOff className="h-4 w-4" />}
       </Button>
       
-      {audioPlaying && (
+      <div className="flex items-center gap-3">
         <Button
-          variant="ghost"
-          size="sm"
-          className="h-8 text-jarvis/70 hover:text-jarvis hover:bg-jarvis/10"
-          onClick={stopSpeaking}
+          variant="outline"
+          size="icon"
+          onClick={onVoiceToggle}
+          className={`${
+            isVoiceEnabled 
+              ? 'bg-[#33c3f0]/20 border-[#33c3f0] text-[#33c3f0]' 
+              : 'bg-transparent border-[#33c3f0]/30 text-[#8a8a9b]'
+          } hover:bg-[#33c3f0]/30 hover:text-[#d6d6ff]`}
         >
-          <Square className="h-4 w-4 mr-1" />
-          Stop
+          {isVoiceEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
         </Button>
-      )}
-      
-      <div className="flex items-center space-x-2">
-        <span className="text-xs text-gray-400">Volume:</span>
-        <input
-          type="range"
-          min="0"
-          max="1"
-          step="0.1"
-          value={volume}
-          onChange={(e) => setVolume(parseFloat(e.target.value))}
-          className="w-24 accent-jarvis"
-        />
+        
+        {isVoiceEnabled && (
+          <div className="w-24">
+            <Slider
+              value={[volume]}
+              min={0}
+              max={100}
+              step={1}
+              onValueChange={onVolumeChange}
+              className="[&>span]:bg-[#33c3f0]"
+            />
+          </div>
+        )}
       </div>
     </div>
   );
