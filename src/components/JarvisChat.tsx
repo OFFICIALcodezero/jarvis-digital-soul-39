@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { toast } from './ui/use-toast';
 import { getApiKey } from '../utils/apiKeyManager';
 import { useVoiceSynthesis } from '../hooks/useVoiceSynthesis';
+import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
 import { Message, JarvisChatProps, ConversationContext, UserPreference } from '../types/chat';
 import HackerMode from './chat/HackerMode';
 import ChatMode from './chat/ChatMode';
@@ -13,7 +14,7 @@ import { generateAIResponse, getUserMemory, updateUserMemory } from '@/services/
 const JarvisChat: React.FC<JarvisChatProps> = ({ 
   activeMode, 
   setIsSpeaking, 
-  isListening 
+  isListening: parentIsListening 
 }) => {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -210,11 +211,37 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
     toggleMute,
     onVolumeChange: (values: number[]) => setVolume(values[0])
   };
+  
+  const { 
+    isListening, 
+    transcript, 
+    startListening, 
+    stopListening, 
+    clearTranscript 
+  } = useSpeechRecognition();
+
+  // Voice mode effect
+  useEffect(() => {
+    if (activeMode === 'voice' || activeMode === 'face') {
+      if (parentIsListening && !isListening) {
+        startListening();
+      } else if (!parentIsListening && isListening) {
+        stopListening();
+      }
+    }
+  }, [activeMode, parentIsListening, isListening, startListening, stopListening]);
+
+  // Process voice input
+  useEffect(() => {
+    if (transcript && (activeMode === 'voice' || activeMode === 'face')) {
+      setInput(transcript);
+      clearTranscript();
+      handleSendMessage();
+    }
+  }, [transcript]);
 
   if (activeMode === 'hacker') {
-    return (
-      <HackerMode hackerOutput={hackerOutput} setHackerOutput={setHackerOutput} />
-    );
+    return <HackerMode hackerOutput={hackerOutput} setHackerOutput={setHackerOutput} />;
   }
 
   return (
@@ -225,18 +252,25 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
       
       <ChatMode {...chatModeProps} />
       
-      {/* Suggestion chips */}
       {!isProcessing && messages.length < 3 && (
         <MessageSuggestions 
           suggestions={getSuggestions()} 
-          onSuggestionClick={handleSendMessage}
+          onSuggestionClick={processUserMessage}
         />
       )}
       
       <div ref={chatEndRef}></div>
       
       {(activeMode === 'voice' || activeMode === 'face') && (
-        <AudioControls {...audioControlsProps} />
+        <AudioControls 
+          volume={volume}
+          audioPlaying={audioPlaying}
+          stopSpeaking={stopSpeaking}
+          toggleMute={toggleMute}
+          onVolumeChange={(values) => setVolume(values[0])}
+          isMicActive={isListening}
+          onMicToggle={() => isListening ? stopListening() : startListening()}
+        />
       )}
       
       <MessageInput
