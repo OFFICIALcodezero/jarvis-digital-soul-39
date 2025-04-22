@@ -100,7 +100,7 @@ const StartupSequence = () => {
         <div className="w-full glass-morphism p-6 rounded-2xl mb-8">
           <div className="mb-6">
             <h2 className="text-xl font-semibold text-[#33c3f0] mb-2">{currentPhase}</h2>
-            <Progress value={progress} className="h-2 bg-black/50" indicatorClassName="bg-gradient-to-r from-[#1eaedb] to-[#33c3f0]" />
+            <Progress value={progress} className="h-2 bg-black/50" />
             <p className="text-right text-sm text-[#8a8a9b] mt-1">{Math.round(progress)}%</p>
           </div>
           

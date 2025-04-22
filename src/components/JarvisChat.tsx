@@ -12,6 +12,24 @@ import ChatMode from './chat/ChatMode';
 import AudioControls from './chat/AudioControls';
 import { generateAIResponse, getUserMemory, updateUserMemory } from '@/services/aiService';
 
+// This is a temporary mock implementation
+const defaultHackerModeProps = {
+  hackerOutput: '',
+  setHackerOutput: () => {}
+};
+
+// This is a temporary mock implementation
+const defaultChatModeProps = {
+  messages: [],
+  speakText: async () => {},
+  audioPlaying: false,
+  isTyping: false,
+  currentTypingText: '',
+  isProcessing: false,
+  selectedLanguage: 'en',
+  onLanguageChange: () => {}
+};
+
 const JarvisChat: React.FC<JarvisChatProps> = ({ 
   activeMode, 
   setIsSpeaking, 
@@ -213,12 +231,33 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
     return suggestions.sort(() => 0.5 - Math.random()).slice(0, 3);
   };
 
+  const hackerModeProps = {
+    hackerOutput,
+    setHackerOutput
+  };
+
+  const chatModeProps = {
+    messages,
+    speakText,
+    audioPlaying,
+    isTyping,
+    currentTypingText,
+    isProcessing,
+    selectedLanguage,
+    onLanguageChange: handleLanguageChange
+  };
+
+  const audioControlsProps = {
+    volume,
+    audioPlaying,
+    stopSpeaking,
+    toggleMute,
+    onVolumeChange: (values: number[]) => setVolume(values[0])
+  };
+
   if (activeMode === 'hacker') {
     return (
-      <HackerMode 
-        hackerOutput={hackerOutput}
-        setHackerOutput={setHackerOutput}
-      />
+      <HackerMode {...hackerModeProps} />
     );
   }
 
@@ -228,16 +267,7 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
         <h2 className="text-jarvis font-medium">JARVIS Chat Interface</h2>
       </div>
       
-      <ChatMode
-        messages={messages}
-        speakText={speakText}
-        audioPlaying={audioPlaying}
-        isTyping={isTyping}
-        currentTypingText={currentTypingText}
-        isProcessing={isProcessing}
-        selectedLanguage={selectedLanguage}
-        onLanguageChange={handleLanguageChange}
-      />
+      <ChatMode {...chatModeProps} />
       
       {/* Suggestion chips */}
       {!isProcessing && messages.length < 3 && (
@@ -258,12 +288,12 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
       <div ref={chatEndRef}></div>
       
       {(activeMode === 'voice' || activeMode === 'face') && (
-        <AudioControls
+        <AudioControls 
           volume={volume}
-          setVolume={setVolume}
           audioPlaying={audioPlaying}
           stopSpeaking={stopSpeaking}
           toggleMute={toggleMute}
+          onVolumeChange={(values) => setVolume(values[0])} 
         />
       )}
       
