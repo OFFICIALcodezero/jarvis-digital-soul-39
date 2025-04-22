@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -5,47 +6,38 @@
 
 @layer base {
   :root {
-    --background: 200 70% 5%;
-    --foreground: 200 20% 96%;
+    --background: 240 10% 7%;
+    --foreground: 0 0% 98%;
 
-    --card: 200 70% 8%;
-    --card-foreground: 200 20% 96%;
+    --card: 240 10% 10%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 200 70% 5%;
-    --popover-foreground: 200 20% 96%;
+    --popover: 240 10% 7%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 195 84% 48%;
-    --primary-foreground: 200 20% 96%;
+    --primary: 180 100% 50%; /* Neon cyan */
+    --primary-foreground: 240 10% 3.9%;
 
-    --secondary: 200 30% 16%;
-    --secondary-foreground: 200 20% 96%;
+    --secondary: 293 67% 47%; /* Electric purple */
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 200 30% 16%;
-    --muted-foreground: 200 20% 65%;
+    --muted: 240 10% 15%;
+    --muted-foreground: 240 5% 64.9%;
 
-    --accent: 195 84% 48%;
-    --accent-foreground: 200 20% 96%;
+    --accent: 293 67% 47%;
+    --accent-foreground: 0 0% 98%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 200 20% 96%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 200 30% 18%;
-    --input: 200 30% 18%;
-    --ring: 195 84% 48%;
+    --border: 240 10% 15%;
+    --input: 240 10% 15%;
+    --ring: 180 100% 50%;
 
-    --radius: 0.5rem;
+    --radius: 1rem;
 
-    --sidebar-background: 200 70% 5%;
-    --sidebar-foreground: 200 20% 96%;
-    --sidebar-primary: 195 84% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 200 30% 16%;
-    --sidebar-accent-foreground: 200 20% 96%;
-    --sidebar-border: 200 30% 18%;
-    --sidebar-ring: 195 84% 48%;
-
-    --jarvis: #0ea5e9;
-    --jarvis-glow: rgba(14, 165, 233, 0.6);
+    --jarvis: #00FFFF;
+    --jarvis-glow: rgba(0, 255, 255, 0.6);
   }
 }
 
@@ -55,7 +47,7 @@
   }
 
   body {
-    @apply bg-background text-foreground overflow-x-hidden;
+    @apply bg-background text-foreground overflow-x-hidden font-sans;
   }
 }
 
@@ -70,11 +62,12 @@
   }
   
   .jarvis-border {
-    @apply border border-jarvis/50 shadow-jarvis-glow;
+    @apply border border-jarvis/50 shadow-jarvis-glow rounded-xl;
   }
   
   .jarvis-panel {
-    @apply bg-black/40 backdrop-blur-sm jarvis-border rounded-md overflow-hidden;
+    @apply bg-black/40 backdrop-blur-lg jarvis-border rounded-xl overflow-hidden 
+           transition-all duration-300 hover:shadow-jarvis-glow;
   }
   
   .scan-line {
@@ -84,16 +77,26 @@
 
   /* Enhanced Logo Style */
   .jarvis-logo {
-    @apply font-bold tracking-wider text-transparent bg-clip-text;
-    background-image: linear-gradient(to bottom, #0ea5e9, #33C3F0);
-    text-shadow: 0 0 15px rgba(14, 165, 233, 0.7);
+    @apply font-bold tracking-wider text-transparent bg-clip-text font-poppins;
+    background-image: linear-gradient(to bottom, #00FFFF, #BF40BF);
+    text-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
+  }
+
+  /* Glass Card */
+  .glass-card {
+    @apply bg-black/30 backdrop-blur-lg border border-white/10 rounded-xl
+           shadow-[0_4px_12px_rgba(0,255,255,0.15)] transition-all duration-300;
+  }
+  
+  .glass-card:hover {
+    @apply border-jarvis/30 shadow-jarvis-glow;
   }
 
   /* New UI Components */
   .tech-grid {
     background-image: 
-      linear-gradient(rgba(14, 165, 233, 0.1) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(14, 165, 233, 0.1) 1px, transparent 1px);
+      linear-gradient(rgba(0, 255, 255, 0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 255, 255, 0.07) 1px, transparent 1px);
     background-size: 20px 20px;
     @apply absolute inset-0 z-0;
   }
@@ -105,9 +108,14 @@
 
   .jarvis-btn {
     @apply relative overflow-hidden bg-black/50 text-jarvis border border-jarvis/30 
-           px-4 py-2 rounded-md transition-all duration-300
-           hover:border-jarvis/80 hover:shadow-[0_0_15px_rgba(14,165,233,0.5)]
+           px-4 py-2 rounded-xl transition-all duration-300
+           hover:border-jarvis/80 hover:shadow-[0_0_15px_rgba(0,255,255,0.5)]
            active:bg-jarvis/10;
+  }
+  
+  .jarvis-btn-purple {
+    @apply border-purple-500/30 text-jarvis-purple
+           hover:border-purple-500/80 hover:shadow-[0_0_15px_rgba(191,64,191,0.5)];
   }
 
   .typing-effect::after {
@@ -121,7 +129,16 @@
     border-radius: 50%;
     transform: scale(0);
     animation: ripple 0.8s linear;
-    background-color: rgba(14, 165, 233, 0.3);
+    background-color: rgba(0, 255, 255, 0.3);
+  }
+
+  /* Modal Component */
+  .midnight-modal {
+    @apply fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm;
+  }
+  
+  .midnight-modal-content {
+    @apply glass-card max-w-md w-full p-6 max-h-[90vh] overflow-auto;
   }
 
   /* Enhanced Animation Keyframes */
@@ -196,7 +213,7 @@
   }
   
   .command-suggestion {
-    @apply px-3 py-2 rounded-md bg-jarvis/10 border border-jarvis/20 
+    @apply px-3 py-2 rounded-xl bg-jarvis/10 border border-jarvis/20 
            transition-all duration-300 cursor-pointer text-sm
            hover:bg-jarvis/20 hover:border-jarvis/40;
   }

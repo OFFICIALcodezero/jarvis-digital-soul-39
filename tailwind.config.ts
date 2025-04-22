@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -18,6 +19,10 @@ export default {
       }
     },
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        poppins: ['Poppins', 'sans-serif'],
+      },
       colors: {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
@@ -53,10 +58,11 @@ export default {
           foreground: 'hsl(var(--card-foreground))'
         },
         jarvis: {
-          DEFAULT: '#0ea5e9',
-          dark: '#001A33',
-          light: '#33C3F0',
-          glow: '#66E1FF'
+          DEFAULT: '#00FFFF', // Neon cyan
+          purple: '#BF40BF', // Electric purple
+          dark: '#121212', // Dark background
+          light: '#FFFFFF', // Soft white
+          glow: 'rgba(0, 255, 255, 0.6)' // Cyan glow
         },
         sidebar: {
           DEFAULT: 'hsl(var(--sidebar-background))',
@@ -71,12 +77,14 @@ export default {
       },
       backgroundImage: {
         'circuit-pattern': "url('/lovable-uploads/00ddfeb8-acf7-4356-9166-884c0b47bcaf.png')",
-        'circuit-overlay': "linear-gradient(to bottom, rgba(0, 26, 51, 0.9), rgba(0, 26, 51, 0.7))",
-        'jarvis-gradient': "linear-gradient(135deg, #0ea5e9 0%, #33C3F0 100%)",
+        'circuit-overlay': "linear-gradient(to bottom, rgba(18, 18, 18, 0.9), rgba(18, 18, 18, 0.7))",
+        'jarvis-gradient': "linear-gradient(135deg, #00FFFF 0%, #BF40BF 100%)",
+        'neon-grid': "linear-gradient(#00FFFF11 1px, transparent 1px), linear-gradient(90deg, #00FFFF11 1px, transparent 1px)",
       },
       boxShadow: {
-        'jarvis-glow': '0 0 20px 2px rgba(51, 195, 240, 0.3)',
-        'jarvis-pulse': '0 0 30px 5px rgba(51, 195, 240, 0.5)',
+        'jarvis-glow': '0 0 20px 2px rgba(0, 255, 255, 0.3)',
+        'jarvis-pulse': '0 0 30px 5px rgba(0, 255, 255, 0.5)',
+        'purple-glow': '0 0 20px 2px rgba(191, 64, 191, 0.3)',
       },
       borderRadius: {
         lg: 'var(--radius)',
