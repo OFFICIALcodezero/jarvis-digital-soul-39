@@ -1,3 +1,4 @@
+
 import { toast } from '@/components/ui/use-toast';
 
 export interface WeatherData {
@@ -73,11 +74,10 @@ const mockWeatherData: WeatherData = {
 };
 
 export const getWeatherForecast = async (query: WeatherQuery = {}): Promise<WeatherData> => {
-  // In a real implementation, you would call a weather API here
-  // For demo purposes, we'll return mock data
+  // In a real implementation, you would call a weather API here using coordinates.
+  // For demo, return the mock data and echo back the "location" if provided.
   return new Promise((resolve) => {
     setTimeout(() => {
-      // Update the location if provided
       if (query.location) {
         const data = { ...mockWeatherData, location: query.location };
         resolve(data);
