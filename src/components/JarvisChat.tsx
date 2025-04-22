@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useVoiceSynthesis } from '../hooks/useVoiceSynthesis';
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
@@ -6,6 +7,12 @@ import HackerMode from './chat/HackerMode';
 import ChatLayout from './chat/ChatLayout';
 import FaceRecognition from './FaceRecognition';
 import { useChatLogic } from '@/hooks/useChatLogic';
+import JarvisDashboard from './JarvisDashboard';
+import { processSkillCommand, isSkillCommand } from '@/services/skillsService';
+import { WeatherData } from '@/services/weatherService';
+import { NewsArticle } from '@/services/newsService';
+import { CalendarEvent } from '@/services/timeCalendarService';
+import { getDailyBriefing } from '@/services/dailyBriefingService';
 
 const JarvisChat: React.FC<JarvisChatProps> = ({ 
   activeMode, 
@@ -20,6 +27,10 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
   const [audioPlaying, setAudioPlaying] = useState(false);
   const [volume, setVolume] = useState(80);
   const [faceRecognitionActive, setFaceRecognitionActive] = useState(false);
+  const [showDashboard, setShowDashboard] = useState(true);
+  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
+  const [newsArticles, setNewsArticles] = useState<NewsArticle[]>([]);
+  const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
 
   const {
     messages,
@@ -45,23 +56,218 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
     setAudioVolume(volume / 100);
   }, [volume, setAudioVolume]);
 
+  // Play daily briefing when UI is first loaded
+  useEffect(() => {
+    if (activeMode !== 'hacker') {
+      playDailyBriefing();
+    }
+  }, [activeMode]);
+
+  const playDailyBriefing = async () => {
+    try {
+      const { text, briefing } = await getDailyBriefing();
+      
+      // Update UI data
+      if (briefing) {
+        if (briefing.weather) {
+          setWeatherData({
+            location: briefing.weather.location,
+            current: {
+              temp: briefing.weather.temperature,
+              condition: briefing.weather.condition,
+              icon: 'cloud-sun', // Default icon
+              humidity: 60, // Default humidity
+              windSpeed: 5 // Default wind speed
+            },
+            forecast: [
+              {
+                date: 'Today',
+                maxTemp: briefing.weather.temperature + 5,
+                minTemp: briefing.weather.temperature - 5,
+                condition: briefing.weather.forecast,
+                icon: 'cloud-sun' // Default icon
+              },
+              // Add more days with mock data
+              {
+                date: 'Tomorrow',
+                maxTemp: 75,
+                minTemp: 65,
+                condition: 'Partly Cloudy',
+                icon: 'cloud-sun'
+              },
+              {
+                date: 'Wednesday',
+                maxTemp: 77,
+                minTemp: 64,
+                condition: 'Sunny',
+                icon: 'sun'
+              },
+              {
+                date: 'Thursday',
+                maxTemp: 72,
+                minTemp: 62,
+                condition: 'Rain',
+                icon: 'cloud-rain'
+              }
+            ]
+          });
+        }
+        
+        if (briefing.news) {
+          setNewsArticles(briefing.news.map((item, index) => ({
+            title: item.topHeadline,
+            source: item.source,
+            summary: item.topHeadline,
+            category: index === 0 ? 'technology' : index === 1 ? 'world' : 'science',
+            publishedAt: new Date().toISOString()
+          })));
+        }
+        
+        if (briefing.calendar && briefing.calendar.nextEvent) {
+          setCalendarEvents([
+            {
+              title: briefing.calendar.nextEvent.title,
+              time: briefing.calendar.nextEvent.time,
+              date: new Date().toLocaleDateString()
+            }
+          ]);
+        }
+      }
+      
+      // Add briefing to chat
+      const briefingMessage = {
+        id: Date.now().toString(),
+        role: 'assistant' as const,
+        content: text,
+        timestamp: new Date()
+      };
+      
+      // No need to speak the briefing right away
+      // setIsSpeaking(true);
+      // await speakText(text);
+      // setIsSpeaking(false);
+    } catch (error) {
+      console.error('Error playing daily briefing:', error);
+    }
+  };
+
   const toggleMute = () => {
     setVolume(prev => prev > 0 ? 0 : 80);
   };
 
   const getSuggestions = (): string[] => {
     return [
-      "What can you help me with?",
-      "Tell me a joke",
       "What's the weather like today?",
-      "Explain quantum computing"
+      "Tell me the latest news",
+      "What time is it?",
+      "What's on my schedule today?",
+      "Give me a daily briefing"
     ];
   };
 
   const handleSendMessage = async () => {
     if (!input.trim()) return;
     
-    const result = await processUserMessage(input);
+    let result;
+    
+    // Check if this is a skill command
+    if (isSkillCommand(input)) {
+      const skillResponse = await processSkillCommand(input);
+      
+      // Add user message to chat
+      const userMessage = {
+        id: Date.now().toString(),
+        role: 'user' as const,
+        content: input,
+        timestamp: new Date()
+      };
+      
+      // Add skill response to chat
+      const assistantMessage = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant' as const,
+        content: skillResponse.text,
+        timestamp: new Date()
+      };
+      
+      // Update UI data based on skill type
+      if (skillResponse.skillType === 'weather' && skillResponse.data) {
+        setWeatherData(skillResponse.data);
+      } else if (skillResponse.skillType === 'news' && skillResponse.data) {
+        setNewsArticles(skillResponse.data);
+      } else if (skillResponse.skillType === 'calendar' && skillResponse.data && skillResponse.data.events) {
+        setCalendarEvents(skillResponse.data.events);
+      } else if (skillResponse.skillType === 'briefing' && skillResponse.data) {
+        // Update all widget data
+        if (skillResponse.data.weather) {
+          setWeatherData({
+            location: skillResponse.data.weather.location,
+            current: {
+              temp: skillResponse.data.weather.temperature,
+              condition: skillResponse.data.weather.condition,
+              icon: 'cloud-sun',
+              humidity: 60,
+              windSpeed: 5
+            },
+            forecast: [{
+              date: 'Today',
+              maxTemp: skillResponse.data.weather.temperature + 5,
+              minTemp: skillResponse.data.weather.temperature - 5,
+              condition: skillResponse.data.weather.forecast,
+              icon: 'cloud-sun'
+            },
+            {
+              date: 'Tomorrow',
+              maxTemp: 75,
+              minTemp: 65,
+              condition: 'Partly Cloudy',
+              icon: 'cloud-sun'
+            },
+            {
+              date: 'Wednesday',
+              maxTemp: 77,
+              minTemp: 64,
+              condition: 'Sunny',
+              icon: 'sun'
+            },
+            {
+              date: 'Thursday',
+              maxTemp: 72,
+              minTemp: 62,
+              condition: 'Rain',
+              icon: 'cloud-rain'
+            }]
+          });
+        }
+        
+        if (skillResponse.data.news) {
+          setNewsArticles(skillResponse.data.news.map((item: any, index: number) => ({
+            title: item.topHeadline,
+            source: item.source,
+            summary: item.topHeadline,
+            category: index === 0 ? 'technology' : index === 1 ? 'world' : 'science',
+            publishedAt: new Date().toISOString()
+          })));
+        }
+        
+        if (skillResponse.data.calendar && skillResponse.data.calendar.nextEvent) {
+          setCalendarEvents([{
+            title: skillResponse.data.calendar.nextEvent.title,
+            time: skillResponse.data.calendar.nextEvent.time,
+            date: new Date().toLocaleDateString()
+          }]);
+        }
+      }
+      
+      result = {
+        shouldSpeak: skillResponse.shouldSpeak,
+        text: skillResponse.text
+      };
+    } else {
+      // Process normal user message
+      result = await processUserMessage(input);
+    }
+    
     setInput('');
     
     if (result?.shouldSpeak) {
@@ -131,27 +337,40 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
           </div>
         )}
         
-        <ChatLayout
-          messages={messages}
-          input={input}
-          setInput={setInput}
-          isTyping={isTyping}
-          currentTypingText={currentTypingText}
-          isProcessing={isProcessing}
-          selectedLanguage={selectedLanguage}
-          onLanguageChange={setSelectedLanguage}
-          audioPlaying={audioPlaying}
-          volume={volume}
-          onVolumeChange={(values: number[]) => setVolume(values[0])}
-          stopSpeaking={stopSpeaking}
-          toggleMute={toggleMute}
-          isListening={isListening}
-          activeAssistant={activeAssistant}
-          inputMode={inputMode}
-          setInputMode={setInputMode}
-          handleSendMessage={handleSendMessage}
-          getSuggestions={getSuggestions}
-        />
+        <div className="flex-1 flex flex-col">
+          {/* Dashboard */}
+          {showDashboard && (
+            <div className="p-3 bg-black/20 border-b border-jarvis/20">
+              <JarvisDashboard 
+                weatherData={weatherData || undefined}
+                newsArticles={newsArticles.length > 0 ? newsArticles : undefined}
+                calendarEvents={calendarEvents.length > 0 ? calendarEvents : undefined}
+              />
+            </div>
+          )}
+          
+          <ChatLayout
+            messages={messages}
+            input={input}
+            setInput={setInput}
+            isTyping={isTyping}
+            currentTypingText={currentTypingText}
+            isProcessing={isProcessing}
+            selectedLanguage={selectedLanguage}
+            onLanguageChange={setSelectedLanguage}
+            audioPlaying={audioPlaying}
+            volume={volume}
+            onVolumeChange={(values: number[]) => setVolume(values[0])}
+            stopSpeaking={stopSpeaking}
+            toggleMute={toggleMute}
+            isListening={isListening}
+            activeAssistant={activeAssistant}
+            inputMode={inputMode}
+            setInputMode={setInputMode}
+            handleSendMessage={handleSendMessage}
+            getSuggestions={getSuggestions}
+          />
+        </div>
       </div>
     </div>
   );

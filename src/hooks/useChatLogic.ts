@@ -6,6 +6,7 @@ import { Message, ConversationContext } from '@/types/chat';
 import { generateAssistantResponse } from '@/services/aiAssistantService';
 import { getUserMemory, updateUserMemory } from '@/services/aiService';
 import { AssistantType } from '@/pages/JarvisInterface';
+import { processSkillCommand, isSkillCommand } from '@/services/skillsService';
 
 export const useChatLogic = (
   activeMode: 'normal' | 'voice' | 'face' | 'hacker',
@@ -82,7 +83,7 @@ export const useChatLogic = (
   };
 
   const processUserMessage = async (message: string) => {
-    if (!apiKey) {
+    if (!apiKey && !isSkillCommand(message)) {
       toast({
         title: "OpenAI API Key Required",
         description: "Please set your OpenAI API key in the controls panel.",
@@ -96,6 +97,17 @@ export const useChatLogic = (
     
     try {
       updateUserMemory(message);
+      
+      // First, check if this is a skill command
+      if (isSkillCommand(message)) {
+        const skillResponse = await processSkillCommand(message);
+        await simulateTyping(skillResponse.text);
+        
+        setIsProcessing(false);
+        return { shouldSpeak: skillResponse.shouldSpeak, text: skillResponse.text };
+      }
+      
+      // If not a skill command, proceed with normal AI processing
       const chatHistory = messages.map(msg => ({
         role: msg.role,
         content: msg.content
