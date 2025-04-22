@@ -209,6 +209,11 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
     try {
       const params = parseImageRequest(prompt);
       const img = await generateImage(params);
+      
+      const matchesPrompt = checkImageMatchesPrompt(img);
+      let responseText = matchesPrompt 
+        ? `Here is what I created for you. ${img.prompt}`
+        : `Here's my attempt to create ${img.prompt}. If this doesn't match what you wanted, you can try again or refine the prompt.`;
 
       setMessages(msgsNow => [
         ...msgsNow.filter(m => !(m.generatedImage && m.generatedImage.url === '')),
@@ -222,7 +227,7 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
       ]);
       setActiveImage(img);
 
-      await speakText(`Here is what I created for you. ${img.prompt}`);
+      await speakText(responseText);
     } catch (e) {
       setMessages(msgsNow => [
         ...msgsNow.filter(m => !(m.generatedImage && m.generatedImage.url === '')),
@@ -411,6 +416,8 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
     onRegenerate: () => void
   }) => {
     const [refinePrompt, setRefinePrompt] = useState('');
+    const matchesPrompt = checkImageMatchesPrompt(image);
+    
     return (
       <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 animate-fade-in transition-all">
         <div className="bg-black/90 rounded-xl shadow-2xl border-2 border-jarvis/40 overflow-hidden p-6 w-[90vw] max-w-2xl">
@@ -424,6 +431,12 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
             <div className="text-center mb-3 text-lg text-jarvis font-bold animate-fade-in">
               "{image.prompt}"
             </div>
+            {!matchesPrompt && (
+              <div className="text-yellow-400 text-sm mb-3 flex items-center">
+                <AlertCircle className="w-4 h-4 mr-1" />
+                This might not match your request exactly.
+              </div>
+            )}
             <div className="flex flex-row gap-2 justify-center">
               <button onClick={onRegenerate} className="bg-jarvis/20 px-4 py-2 rounded text-jarvis font-bold hover:bg-jarvis/30 transition animate-fade-in flex items-center">
                 Regenerate

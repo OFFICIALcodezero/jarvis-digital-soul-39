@@ -1,8 +1,9 @@
+
 import React, { useState } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download, Image, RefreshCcw, SquarePlus } from "lucide-react";
-import { GeneratedImage } from "@/services/imageGenerationService";
+import { Download, Image, RefreshCcw, SquarePlus, AlertCircle } from "lucide-react";
+import { GeneratedImage, checkImageMatchesPrompt } from "@/services/imageGenerationService";
 
 interface GeneratedImageCardProps {
   image: GeneratedImage;
@@ -13,6 +14,7 @@ interface GeneratedImageCardProps {
 const GeneratedImageCard: React.FC<GeneratedImageCardProps> = ({ image, onRegenerate, onRefine }) => {
   const [refinePrompt, setRefinePrompt] = useState("");
   const [showControls, setShowControls] = useState(false);
+  const matchesPrompt = checkImageMatchesPrompt(image);
 
   const handleDownload = () => {
     const link = document.createElement('a');
@@ -37,6 +39,12 @@ const GeneratedImageCard: React.FC<GeneratedImageCardProps> = ({ image, onRegene
             className="w-full h-full object-cover rounded-lg border border-jarvis/20"
             loading="lazy"
           />
+          {!matchesPrompt && onRegenerate && (
+            <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white p-1 text-xs flex items-center">
+              <AlertCircle className="w-3 h-3 mr-1 text-yellow-400" />
+              <span>This might not match your request. <button onClick={onRegenerate} className="text-jarvis underline">Try again?</button></span>
+            </div>
+          )}
         </div>
         <p className="text-xs text-jarvis/80 italic mt-4 mb-2 px-2 text-center">
           "{image.prompt}"
