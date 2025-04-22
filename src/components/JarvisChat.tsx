@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useVoiceSynthesis } from '../hooks/useVoiceSynthesis';
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
@@ -36,7 +35,7 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
     scrollToBottom,
   } = useChatLogic(activeMode, setIsSpeaking, activeAssistant, inputMode);
 
-  const { speakText, stopSpeaking, setAudioVolume, setVoiceId } = useVoiceSynthesis(activeMode);
+  const { speakText, stopSpeaking, setAudioVolume, isPlaying, voices, selectedVoice, setSelectedVoice } = useVoiceSynthesis(activeMode);
 
   useEffect(() => {
     scrollToBottom();
