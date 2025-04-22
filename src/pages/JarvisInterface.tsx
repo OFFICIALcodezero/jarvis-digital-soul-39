@@ -25,6 +25,7 @@ const JarvisInterface = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [activeAssistant, setActiveAssistant] = useState<AssistantType>('jarvis');
   const [inputMode, setInputMode] = useState<'voice' | 'text'>('text');
+  const [hackerOutput, setHackerOutput] = useState<string>('');
   const isMobile = useIsMobile();
   
   // Control panel options
@@ -139,8 +140,8 @@ const JarvisInterface = () => {
             </TabsContent>
             <TabsContent value="hacker" className="h-[calc(100%-40px)]">
               <HackerMode 
-                hackerOutput=""
-                setHackerOutput={() => {}}
+                hackerOutput={hackerOutput}
+                setHackerOutput={setHackerOutput}
               />
             </TabsContent>
           </Tabs>
