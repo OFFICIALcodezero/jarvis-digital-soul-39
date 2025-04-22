@@ -1,20 +1,38 @@
+
 import React, { useState, useRef, useEffect } from 'react';
-import { toast } from './ui/use-toast';
+import { toast } from '@/components/ui/use-toast';
 import { getApiKey } from '../utils/apiKeyManager';
 import { useVoiceSynthesis } from '../hooks/useVoiceSynthesis';
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
-import { Message, JarvisChatProps, ConversationContext, UserPreference } from '../types/chat';
+import { Message, ConversationContext, UserPreference } from '../types/chat';
 import HackerMode from './chat/HackerMode';
 import ChatMode from './chat/ChatMode';
 import AudioControls from './chat/AudioControls';
 import MessageInput from './chat/MessageInput';
 import MessageSuggestions from './chat/MessageSuggestions';
-import { generateAIResponse, getUserMemory, updateUserMemory } from '@/services/aiService';
+import FaceRecognition from './FaceRecognition';
+import { getUserMemory, updateUserMemory } from '@/services/aiService';
+import { generateAssistantResponse, getAssistantVoiceId } from '@/services/aiAssistantService';
+import { AssistantType } from '@/pages/JarvisInterface';
+
+export interface JarvisChatProps {
+  activeMode: 'normal' | 'voice' | 'face' | 'hacker';
+  setIsSpeaking: (isSpeaking: boolean) => void;
+  isListening: boolean;
+  activeAssistant: AssistantType;
+  setActiveAssistant: (assistant: AssistantType) => void;
+  inputMode: 'voice' | 'text';
+  setInputMode: (mode: 'voice' | 'text') => void;
+}
 
 const JarvisChat: React.FC<JarvisChatProps> = ({ 
   activeMode, 
   setIsSpeaking, 
-  isListening: parentIsListening 
+  isListening: parentIsListening,
+  activeAssistant,
+  setActiveAssistant,
+  inputMode,
+  setInputMode
 }) => {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -30,17 +48,18 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [hackerOutput, setHackerOutput] = useState('');
   const [audioPlaying, setAudioPlaying] = useState(false);
-  const [volume, setVolume] = useState(0.8);
+  const [volume, setVolume] = useState(80);
   const [selectedLanguage, setSelectedLanguage] = useState('en');
   const [conversationContext, setConversationContext] = useState<ConversationContext>({
     recentTopics: [],
     userPreferences: getUserMemory(),
     sessionStartTime: new Date()
   });
+  const [faceRecognitionActive, setFaceRecognitionActive] = useState(false);
   
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  const { speakText, stopSpeaking, setAudioVolume } = useVoiceSynthesis(activeMode);
+  const { speakText, stopSpeaking, setAudioVolume, setVoiceId } = useVoiceSynthesis(activeMode);
   const apiKey = getApiKey('openai');
 
   useEffect(() => {
@@ -48,8 +67,14 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
   }, [messages, hackerOutput, currentTypingText]);
 
   useEffect(() => {
-    setAudioVolume(volume);
+    setAudioVolume(volume / 100);
   }, [volume, setAudioVolume]);
+
+  // Set voice based on active assistant
+  useEffect(() => {
+    const voiceId = getAssistantVoiceId(activeAssistant);
+    setVoiceId(voiceId);
+  }, [activeAssistant, setVoiceId]);
 
   useEffect(() => {
     // Update conversation context every time user memory changes
@@ -59,12 +84,21 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
     }));
   }, [messages]);
 
+  // Automatically activate face recognition in face mode
+  useEffect(() => {
+    if (activeMode === 'face') {
+      setFaceRecognitionActive(true);
+    } else {
+      setFaceRecognitionActive(false);
+    }
+  }, [activeMode]);
+
   const scrollToBottom = () => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const toggleMute = () => {
-    setVolume(prev => prev > 0 ? 0 : 0.8);
+    setVolume(prev => prev > 0 ? 0 : 80);
   };
 
   const addMessage = (role: 'user' | 'assistant', content: string) => {
@@ -134,14 +168,19 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
         content: msg.content
       }));
       
-      // Generate response from OpenAI
-      const response = await generateAIResponse(message, chatHistory, selectedLanguage);
+      // Generate response from selected AI assistant
+      const response = await generateAssistantResponse(
+        message, 
+        chatHistory, 
+        activeAssistant,
+        selectedLanguage
+      );
       
       // Display the response with typing effect
       await simulateTyping(response);
       
-      // Speak the response if in voice or face mode
-      if (activeMode === 'voice' || activeMode === 'face') {
+      // Speak the response if in voice or face mode or if input mode is voice
+      if (activeMode === 'voice' || activeMode === 'face' || inputMode === 'voice') {
         setAudioPlaying(true);
         setIsSpeaking(true);
         await speakText(response);
@@ -201,7 +240,7 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
     currentTypingText,
     isProcessing,
     selectedLanguage,
-    onLanguageChange: (languageCode: string) => {}
+    onLanguageChange: (languageCode: string) => setSelectedLanguage(languageCode)
   };
 
   const audioControlsProps = {
@@ -209,7 +248,13 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
     audioPlaying,
     stopSpeaking,
     toggleMute,
-    onVolumeChange: (values: number[]) => setVolume(values[0])
+    onVolumeChange: (values: number[]) => setVolume(values[0]),
+    isMicActive: parentIsListening,
+    onMicToggle: () => {},
+    activeAssistant,
+    onAssistantChange: setActiveAssistant,
+    inputMode,
+    onInputModeChange: setInputMode
   };
   
   const { 
@@ -222,64 +267,82 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
 
   // Voice mode effect
   useEffect(() => {
-    if (activeMode === 'voice' || activeMode === 'face') {
+    if ((activeMode === 'voice' || activeMode === 'face' || inputMode === 'voice')) {
       if (parentIsListening && !isListening) {
         startListening();
       } else if (!parentIsListening && isListening) {
         stopListening();
       }
     }
-  }, [activeMode, parentIsListening, isListening, startListening, stopListening]);
+  }, [activeMode, parentIsListening, isListening, startListening, stopListening, inputMode]);
 
   // Process voice input
   useEffect(() => {
-    if (transcript && (activeMode === 'voice' || activeMode === 'face')) {
+    if (transcript && (activeMode === 'voice' || activeMode === 'face' || inputMode === 'voice')) {
       setInput(transcript);
       clearTranscript();
       handleSendMessage();
     }
   }, [transcript]);
 
+  // Handle face detection events
+  const handleFaceDetected = (faceData: any) => {
+    // In a real app, we could analyze facial expressions to enhance interactions
+    console.log("Face detected:", faceData);
+  };
+
+  const handleFaceNotDetected = () => {
+    // Could pause interactions when no face is detected
+    console.log("Face not detected");
+  };
+
   if (activeMode === 'hacker') {
     return <HackerMode hackerOutput={hackerOutput} setHackerOutput={setHackerOutput} />;
   }
 
   return (
-    <div className="jarvis-panel flex-1 flex flex-col">
+    <div className="jarvis-panel flex-1 flex flex-col h-full">
       <div className="p-3 bg-black/60 border-b border-jarvis/20">
-        <h2 className="text-jarvis font-medium">JARVIS Chat Interface</h2>
+        <h2 className="text-jarvis font-medium">
+          {activeAssistant.toUpperCase()} Chat Interface
+        </h2>
       </div>
       
-      <ChatMode {...chatModeProps} />
-      
-      {!isProcessing && messages.length < 3 && (
-        <MessageSuggestions 
-          suggestions={getSuggestions()} 
-          onSuggestionClick={processUserMessage}
-        />
-      )}
-      
-      <div ref={chatEndRef}></div>
-      
-      {(activeMode === 'voice' || activeMode === 'face') && (
-        <AudioControls 
-          volume={volume}
-          audioPlaying={audioPlaying}
-          stopSpeaking={stopSpeaking}
-          toggleMute={toggleMute}
-          onVolumeChange={(values) => setVolume(values[0])}
-          isMicActive={isListening}
-          onMicToggle={() => isListening ? stopListening() : startListening()}
-        />
-      )}
-      
-      <MessageInput
-        input={input}
-        setInput={setInput}
-        handleSendMessage={handleSendMessage}
-        isProcessing={isProcessing}
-        isListening={isListening}
-      />
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+        <div className={`${activeMode === 'face' ? 'md:w-[320px] p-3' : 'hidden'} bg-black/30 border-r border-jarvis/20`}>
+          <FaceRecognition 
+            isActive={faceRecognitionActive}
+            toggleActive={() => setFaceRecognitionActive(!faceRecognitionActive)}
+            onFaceDetected={handleFaceDetected}
+            onFaceNotDetected={handleFaceNotDetected}
+          />
+        </div>
+        
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <ChatMode {...chatModeProps} />
+          
+          {!isProcessing && messages.length < 3 && (
+            <MessageSuggestions 
+              suggestions={getSuggestions()} 
+              onSuggestionClick={processUserMessage}
+            />
+          )}
+          
+          <div ref={chatEndRef}></div>
+          
+          <div className="p-3 bg-black/30 border-t border-jarvis/20">
+            <AudioControls {...audioControlsProps} />
+          </div>
+          
+          <MessageInput
+            input={input}
+            setInput={setInput}
+            handleSendMessage={handleSendMessage}
+            isProcessing={isProcessing}
+            isListening={isListening}
+          />
+        </div>
+      </div>
     </div>
   );
 };

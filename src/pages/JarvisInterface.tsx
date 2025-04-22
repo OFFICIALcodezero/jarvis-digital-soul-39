@@ -13,7 +13,9 @@ import ChatMode from '@/components/chat/ChatMode';
 import HackerMode from '@/components/chat/HackerMode';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Mic, Brain, Sparkles, Cpu } from 'lucide-react';
+import { Mic, Brain, Sparkles, Cpu, Bot } from 'lucide-react';
+
+export type AssistantType = 'jarvis' | 'chatgpt' | 'alexa' | 'siri' | 'gemini';
 
 const JarvisInterface = () => {
   const [mode, setMode] = useState<'chat' | 'hacker'>('chat');
@@ -21,6 +23,8 @@ const JarvisInterface = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [activeAssistant, setActiveAssistant] = useState<AssistantType>('jarvis');
+  const [inputMode, setInputMode] = useState<'voice' | 'text'>('text');
   const isMobile = useIsMobile();
   
   // Control panel options
@@ -58,6 +62,13 @@ const JarvisInterface = () => {
     } else {
       setMode('chat');
     }
+    
+    // Auto-set input mode based on selected interface mode
+    if (id === 'voice' || id === 'face') {
+      setInputMode('voice');
+    } else {
+      setInputMode('text');
+    }
   };
   
   return (
@@ -79,6 +90,12 @@ const JarvisInterface = () => {
             <div className="h-2 w-2 rounded-full mr-2 bg-jarvis"></div>
             <span className="text-jarvis">System Online</span>
           </div>
+          {activeAssistant !== 'jarvis' && (
+            <div className="flex items-center text-sm">
+              <Bot className="h-3 w-3 mr-1 text-jarvis" />
+              <span className="text-jarvis capitalize">{activeAssistant} enabled</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -110,15 +127,14 @@ const JarvisInterface = () => {
               <TabsTrigger value="hacker" className="data-[state=active]:bg-[#33c3f0]/20">Hacker Mode</TabsTrigger>
             </TabsList>
             <TabsContent value="chat" className="h-[calc(100%-40px)]">
-              <ChatMode 
-                messages={[]}
-                speakText={async () => {}}
-                audioPlaying={false}
-                isTyping={false}
-                currentTypingText=""
-                isProcessing={false}
-                selectedLanguage="en"
-                onLanguageChange={() => {}}
+              <JarvisChat 
+                activeMode={activeMode}
+                setIsSpeaking={setIsSpeaking}
+                isListening={isListening}
+                activeAssistant={activeAssistant}
+                setActiveAssistant={setActiveAssistant}
+                inputMode={inputMode}
+                setInputMode={setInputMode}
               />
             </TabsContent>
             <TabsContent value="hacker" className="h-[calc(100%-40px)]">
