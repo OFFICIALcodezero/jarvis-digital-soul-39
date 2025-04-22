@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useVoiceSynthesis } from '../hooks/useVoiceSynthesis';
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
@@ -14,9 +13,9 @@ import { NewsArticle } from '@/services/newsService';
 import { CalendarEvent } from '@/services/timeCalendarService';
 import { getDailyBriefing } from '@/services/dailyBriefingService';
 
-const JarvisChat: React.FC<JarvisChatProps> = ({ 
-  activeMode, 
-  setIsSpeaking, 
+const JarvisChat: React.FC<JarvisChatProps> = ({
+  activeMode,
+  setIsSpeaking,
   isListening: parentIsListening,
   activeAssistant,
   setActiveAssistant,
@@ -56,7 +55,6 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
     setAudioVolume(volume / 100);
   }, [volume, setAudioVolume]);
 
-  // Play daily briefing when UI is first loaded
   useEffect(() => {
     if (activeMode !== 'hacker') {
       playDailyBriefing();
@@ -67,7 +65,6 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
     try {
       const { text, briefing } = await getDailyBriefing();
       
-      // Update UI data
       if (briefing) {
         if (briefing.weather) {
           setWeatherData({
@@ -75,9 +72,9 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
             current: {
               temp: briefing.weather.temperature,
               condition: briefing.weather.condition,
-              icon: 'cloud-sun', // Default icon
-              humidity: 60, // Default humidity
-              windSpeed: 5 // Default wind speed
+              icon: 'cloud-sun',
+              humidity: 60,
+              windSpeed: 5
             },
             forecast: [
               {
@@ -85,9 +82,8 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
                 maxTemp: briefing.weather.temperature + 5,
                 minTemp: briefing.weather.temperature - 5,
                 condition: briefing.weather.forecast,
-                icon: 'cloud-sun' // Default icon
+                icon: 'cloud-sun'
               },
-              // Add more days with mock data
               {
                 date: 'Tomorrow',
                 maxTemp: 75,
@@ -134,7 +130,6 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
         }
       }
       
-      // Add briefing to chat
       const briefingMessage = {
         id: Date.now().toString(),
         role: 'assistant' as const,
@@ -142,10 +137,9 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
         timestamp: new Date()
       };
       
-      // No need to speak the briefing right away
-      // setIsSpeaking(true);
-      // await speakText(text);
-      // setIsSpeaking(false);
+      setIsSpeaking(true);
+      await speakText(text);
+      setIsSpeaking(false);
     } catch (error) {
       console.error('Error playing daily briefing:', error);
     }
@@ -170,11 +164,9 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
     
     let result;
     
-    // Check if this is a skill command
     if (isSkillCommand(input)) {
       const skillResponse = await processSkillCommand(input);
       
-      // Add user message to chat
       const userMessage = {
         id: Date.now().toString(),
         role: 'user' as const,
@@ -182,7 +174,6 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
         timestamp: new Date()
       };
       
-      // Add skill response to chat
       const assistantMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant' as const,
@@ -190,7 +181,6 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
         timestamp: new Date()
       };
       
-      // Update UI data based on skill type
       if (skillResponse.skillType === 'weather' && skillResponse.data) {
         setWeatherData(skillResponse.data);
       } else if (skillResponse.skillType === 'news' && skillResponse.data) {
@@ -198,7 +188,6 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
       } else if (skillResponse.skillType === 'calendar' && skillResponse.data && skillResponse.data.events) {
         setCalendarEvents(skillResponse.data.events);
       } else if (skillResponse.skillType === 'briefing' && skillResponse.data) {
-        // Update all widget data
         if (skillResponse.data.weather) {
           setWeatherData({
             location: skillResponse.data.weather.location,
@@ -264,7 +253,6 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
         text: skillResponse.text
       };
     } else {
-      // Process normal user message
       result = await processUserMessage(input);
     }
     
@@ -324,7 +312,7 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
           {activeAssistant.toUpperCase()} Chat Interface
         </h2>
       </div>
-      
+
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
         {activeMode === 'face' && (
           <div className="md:w-[320px] p-3 bg-black/30 border-r border-jarvis/20">
@@ -336,19 +324,14 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
             />
           </div>
         )}
-        
+
         <div className="flex-1 flex flex-col">
-          {/* Dashboard */}
           {showDashboard && (
             <div className="p-3 bg-black/20 border-b border-jarvis/20">
-              <JarvisDashboard 
-                weatherData={weatherData || undefined}
-                newsArticles={newsArticles.length > 0 ? newsArticles : undefined}
-                calendarEvents={calendarEvents.length > 0 ? calendarEvents : undefined}
-              />
+              <JarvisDashboard />
             </div>
           )}
-          
+
           <ChatLayout
             messages={messages}
             input={input}

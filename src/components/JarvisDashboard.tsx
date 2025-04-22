@@ -14,13 +14,13 @@ interface JarvisDashboardProps {
   calendarEvents?: CalendarEvent[];
 }
 
-const JarvisDashboard: React.FC<JarvisDashboardProps> = ({ 
+const JarvisDashboard: React.FC<JarvisDashboardProps> = ({
   weatherData,
   newsArticles,
   calendarEvents
 }) => {
   const [currentTime, setCurrentTime] = React.useState<string>('');
-  
+
   React.useEffect(() => {
     // Update time every second
     const updateTime = () => {
@@ -39,7 +39,7 @@ const JarvisDashboard: React.FC<JarvisDashboardProps> = ({
     
     return () => clearInterval(interval);
   }, []);
-  
+
   return (
     <div className="jarvis-dashboard p-4 space-y-4">
       {/* Time display */}
@@ -47,36 +47,36 @@ const JarvisDashboard: React.FC<JarvisDashboardProps> = ({
         <Clock className="h-5 w-5 text-[#33c3f0]" />
         <div className="text-xl text-[#33c3f0]">{currentTime}</div>
       </div>
-      
-      {/* Widgets */}
+
+      {/* Widgets REMOVED from default UI: Weather, News, Calendar */}
+      {/* 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {weatherData && (
           <WeatherWidget data={weatherData} />
         )}
-        
         {newsArticles && newsArticles.length > 0 && (
           <NewsWidget articles={newsArticles} />
         )}
-        
         {calendarEvents && calendarEvents.length > 0 && (
           <CalendarWidget events={calendarEvents} />
         )}
       </div>
-      
-      {/* Compact row for mobile view */}
+      */}
+
+      {/* Compact row for mobile view REMOVED */}
+      {/* 
       <div className="md:hidden space-y-2 mt-2">
         {weatherData && (
           <WeatherWidget data={weatherData} isCompact={true} />
         )}
-        
         {newsArticles && newsArticles.length > 0 && (
           <NewsWidget articles={newsArticles} isCompact={true} />
         )}
-        
         {calendarEvents && calendarEvents.length > 0 && (
           <CalendarWidget events={calendarEvents} isCompact={true} />
         )}
       </div>
+      */}
     </div>
   );
 };
