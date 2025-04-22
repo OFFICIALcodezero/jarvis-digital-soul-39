@@ -1,6 +1,6 @@
 
 import React from 'react';
-import JarvisCore from './JarvisCore';
+import JarvisCore from './core/JarvisCore';
 import JarvisAvatar from './JarvisAvatar';
 import SystemData from './SystemData';
 
@@ -26,13 +26,13 @@ const JarvisCentralCore: React.FC<JarvisCentralCoreProps> = ({
           isSpeaking={isSpeaking} 
           isListening={isListening} 
           isProcessing={isProcessing}
-          pulseIntensity={isSpeaking ? 0.7 : isListening ? 0.3 : 0}
         />
       </div>
       
       {activeMode === 'face' && (
         <div className="mt-4 mb-2">
           <JarvisAvatar 
+            activeMode={activeMode}
             isSpeaking={isSpeaking} 
             isListening={isListening}
           />
