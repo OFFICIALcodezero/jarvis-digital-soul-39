@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useVoiceSynthesis } from '../hooks/useVoiceSynthesis';
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
@@ -168,26 +167,43 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
 
   const handleSendMessage = async () => {
     if (!input.trim()) return;
-    
+
     let result;
-    
+
     if (isSkillCommand(input)) {
       const skillResponse = await processSkillCommand(input);
-      
+
       const userMessage = {
         id: Date.now().toString(),
-        role: 'user' as const,
+        role: "user" as const,
         content: input,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
-      
-      const assistantMessage = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant' as const,
-        content: skillResponse.text,
-        timestamp: new Date()
-      };
-      
+
+      if (skillResponse.skillType === "image" && skillResponse.data) {
+        messages.push(userMessage as any);
+
+        setMessages((prev: any) => [
+          ...prev,
+          {
+            id: (Date.now() + 1).toString(),
+            role: "assistant",
+            content: "",
+            timestamp: new Date(),
+            generatedImage: skillResponse.data,
+          },
+        ]);
+        setInput("");
+        setShowImageGenerator(false);
+
+        setIsSpeaking(true);
+        await speakText(
+          `Here is the image I created based on your prompt: ${skillResponse.data.prompt}`
+        );
+        setIsSpeaking(false);
+        return;
+      }
+
       if (skillResponse.skillType === 'weather' && skillResponse.data) {
         setWeatherData(skillResponse.data);
       } else if (skillResponse.skillType === 'news' && skillResponse.data) {
@@ -257,17 +273,17 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
         setGeneratedImage(skillResponse.data);
         setShowImageGenerator(true);
       }
-      
+
       result = {
         shouldSpeak: skillResponse.shouldSpeak,
-        text: skillResponse.text
+        text: skillResponse.text,
       };
     } else {
       result = await processUserMessage(input);
     }
-    
-    setInput('');
-    
+
+    setInput("");
+
     if (result?.shouldSpeak) {
       setAudioPlaying(true);
       setIsSpeaking(true);
