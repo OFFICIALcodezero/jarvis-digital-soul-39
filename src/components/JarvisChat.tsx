@@ -1,16 +1,16 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send } from 'lucide-react';
+import { Send, Brain } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { toast } from './ui/use-toast';
 import { getApiKey } from '../utils/apiKeyManager';
 import { useVoiceSynthesis } from '../hooks/useVoiceSynthesis';
-import { Message, JarvisChatProps } from '../types/chat';
+import { Message, JarvisChatProps, ConversationContext, UserPreference } from '../types/chat';
 import HackerMode from './chat/HackerMode';
 import ChatMode from './chat/ChatMode';
 import AudioControls from './chat/AudioControls';
-import { generateAIResponse } from '@/services/aiService';
+import { generateAIResponse, getUserMemory, updateUserMemory } from '@/services/aiService';
 
 const JarvisChat: React.FC<JarvisChatProps> = ({ 
   activeMode, 
@@ -33,6 +33,12 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
   const [audioPlaying, setAudioPlaying] = useState(false);
   const [volume, setVolume] = useState(0.8);
   const [selectedLanguage, setSelectedLanguage] = useState('en');
+  const [conversationContext, setConversationContext] = useState<ConversationContext>({
+    recentTopics: [],
+    userPreferences: getUserMemory(),
+    sessionStartTime: new Date()
+  });
+  
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   const { speakText, stopSpeaking, setAudioVolume } = useVoiceSynthesis(activeMode);
@@ -45,6 +51,14 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
   useEffect(() => {
     setAudioVolume(volume);
   }, [volume, setAudioVolume]);
+
+  useEffect(() => {
+    // Update conversation context every time user memory changes
+    setConversationContext(prev => ({
+      ...prev,
+      userPreferences: getUserMemory()
+    }));
+  }, [messages]);
 
   const scrollToBottom = () => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -63,6 +77,25 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
     };
     
     setMessages(prev => [...prev, newMessage]);
+    
+    // Update recent topics if this is an assistant message
+    if (role === 'assistant') {
+      setConversationContext(prev => {
+        const topics = [...prev.recentTopics];
+        // Simple topic extraction - would be more sophisticated in production
+        const simpleTopic = content.split(' ').slice(0, 3).join(' ') + '...';
+        
+        if (!topics.includes(simpleTopic)) {
+          topics.unshift(simpleTopic);
+          if (topics.length > 5) topics.pop(); // Keep only most recent 5 topics
+        }
+        
+        return {
+          ...prev,
+          recentTopics: topics
+        };
+      });
+    }
   };
 
   const simulateTyping = async (text: string) => {
@@ -93,6 +126,9 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
     addMessage('user', message);
     
     try {
+      // Update user memory
+      updateUserMemory(message);
+      
       // Format chat history for the AI service
       const chatHistory = messages.map(msg => ({
         role: msg.role,
@@ -152,6 +188,31 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
     });
   };
 
+  const getSuggestions = (): string[] => {
+    // Simple suggestions based on conversation history and context
+    const suggestions = [
+      "What can you help me with?",
+      "Tell me a joke",
+      "What's the weather like today?",
+      "Explain quantum computing"
+    ];
+    
+    // Add personalized suggestions if we have user preferences
+    const userPrefs = conversationContext.userPreferences;
+    
+    if (userPrefs.name) {
+      suggestions.push(`What's my name?`);
+    }
+    
+    if (userPrefs.interests && userPrefs.interests.length > 0) {
+      const randomInterest = userPrefs.interests[Math.floor(Math.random() * userPrefs.interests.length)];
+      suggestions.push(`Tell me more about ${randomInterest}`);
+    }
+    
+    // Return random 3 suggestions
+    return suggestions.sort(() => 0.5 - Math.random()).slice(0, 3);
+  };
+
   if (activeMode === 'hacker') {
     return (
       <HackerMode 
@@ -177,6 +238,22 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
         selectedLanguage={selectedLanguage}
         onLanguageChange={handleLanguageChange}
       />
+      
+      {/* Suggestion chips */}
+      {!isProcessing && messages.length < 3 && (
+        <div className="px-4 mb-4 flex flex-wrap gap-2">
+          {getSuggestions().map((suggestion, index) => (
+            <button
+              key={index}
+              onClick={() => handleSendMessage(suggestion)}
+              className="bg-jarvis/10 text-jarvis text-xs px-3 py-1.5 rounded-full flex items-center hover:bg-jarvis/20 transition-colors"
+            >
+              <Brain className="w-3 h-3 mr-1.5" />
+              {suggestion}
+            </button>
+          ))}
+        </div>
+      )}
       
       <div ref={chatEndRef}></div>
       

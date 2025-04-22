@@ -27,3 +27,15 @@ export interface ChatModeProps {
   selectedLanguage: string;
   onLanguageChange: (languageCode: string) => void;
 }
+
+export interface UserPreference {
+  name?: string;
+  interests?: string[];
+  lastInteractions?: { topic: string, timestamp: Date }[];
+}
+
+export interface ConversationContext {
+  recentTopics: string[];
+  userPreferences: UserPreference;
+  sessionStartTime: Date;
+}
