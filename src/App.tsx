@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Toaster } from "sonner";
 import "./App.css";
@@ -15,7 +14,6 @@ function App() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   
-  // Mode icons and names for the status bar
   const modeIcons = {
     normal: Brain,
     voice: Mic,
@@ -45,6 +43,8 @@ function App() {
           <JarvisAvatar 
             activeMode={activeMode} 
             isSpeaking={isSpeaking} 
+            isListening={isListening}
+            isProcessing={isProcessing}
           />
           <JarvisChat 
             activeMode={activeMode}

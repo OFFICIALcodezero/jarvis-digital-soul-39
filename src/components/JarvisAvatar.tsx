@@ -1,14 +1,21 @@
-
 import React from 'react';
 import { JarvisMode } from './JarvisCore';
 import JarvisFaceAI from './JarvisFaceAI';
+import JarvisCore from './core/JarvisCore';
 
 interface JarvisAvatarProps {
   activeMode: JarvisMode;
   isSpeaking: boolean;
+  isListening?: boolean;
+  isProcessing?: boolean;
 }
 
-const JarvisAvatar: React.FC<JarvisAvatarProps> = ({ activeMode, isSpeaking }) => {
+const JarvisAvatar: React.FC<JarvisAvatarProps> = ({ 
+  activeMode, 
+  isSpeaking,
+  isListening = false,
+  isProcessing = false
+}) => {
   return (
     <div className="jarvis-panel relative h-[350px] flex items-center justify-center group">
       {/* Tech background */}
@@ -22,19 +29,19 @@ const JarvisAvatar: React.FC<JarvisAvatarProps> = ({ activeMode, isSpeaking }) =
         <div className="jarvis-logo text-sm">J.A.R.V.I.S</div>
       </div>
       
-      {/* Avatar Background */}
+      {/* Core Background */}
       <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
-        <div className="w-64 h-64 rounded-full bg-jarvis/5 absolute"></div>
-        <div className="w-48 h-48 rounded-full bg-jarvis/10 absolute animate-pulse-slow"></div>
-        <div className="w-56 h-56 rounded-full border border-jarvis/30 absolute"></div>
+        <JarvisCore
+          isSpeaking={isSpeaking}
+          isListening={isListening}
+          isProcessing={isProcessing}
+        />
       </div>
       
-      {/* Animated circles */}
-      <div className="absolute w-[280px] h-[280px] rounded-full border border-jarvis/20 animate-pulse-slow"></div>
-      <div className="absolute w-[320px] h-[320px] rounded-full border border-jarvis/10 animate-pulse-slow" style={{ animationDelay: '0.7s' }}></div>
-      
-      {/* JarvisFaceAI Component */}
-      <JarvisFaceAI isSpeaking={isSpeaking} className="z-[1]" />
+      {/* JarvisFaceAI Component - only show in face mode */}
+      {activeMode === 'face' && (
+        <JarvisFaceAI isSpeaking={isSpeaking} className="z-[1]" />
+      )}
       
       {/* Status Indicator */}
       <div className={`absolute bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-1 rounded-full text-xs ${

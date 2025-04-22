@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -77,6 +76,20 @@ export default {
           "50%": { opacity: "0.5" },
           "100%": { opacity: "0" },
         },
+        "spin-slow": {
+          "0%": { transform: "rotate(0deg)" },
+          "100%": { transform: "rotate(360deg)" }
+        },
+        "float": {
+          "0%, 100%": { 
+            transform: "translateY(0px) translateX(0px)",
+            opacity: "0.6"
+          },
+          "50%": { 
+            transform: "translateY(-10px) translateX(5px)",
+            opacity: "0.8"
+          }
+        }
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -85,6 +98,8 @@ export default {
         "blink": "blink 1s step-start infinite",
         "matrix-fall": "matrix-fall 20s linear forwards",
         "flash": "flash 0.5s ease-in-out",
+        "spin-slow": "spin-slow 3s linear infinite",
+        "float": "float 3s ease-in-out infinite",
       },
     },
   },
