@@ -25,11 +25,6 @@ const getWeatherIcon = (condition: string) => {
   return <CloudSun className="h-8 w-8 text-[#33c3f0]" />;
 };
 
-// Convert Fahrenheit to Celsius
-function toCelsius(f: number) {
-  return Math.round(((f - 32) * 5) / 9);
-}
-
 const WeatherWidget: React.FC<WeatherWidgetProps> = ({ data, isCompact = false }) => {
   if (!data) return null;
 
@@ -41,7 +36,7 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ data, isCompact = false }
             {getWeatherIcon(data.current.condition)}
             <div className="ml-2">
               <div className="text-lg font-bold text-white">
-                {toCelsius(data.current.temp)}°C
+                {data.current.temp}°C
               </div>
               <div className="text-xs text-[#33c3f0]/80">{data.location}</div>
             </div>
@@ -62,7 +57,7 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ data, isCompact = false }
       <div className="flex items-center mb-4">
         {getWeatherIcon(data.current.condition)}
         <div className="ml-3">
-          <div className="text-2xl font-bold">{toCelsius(data.current.temp)}°C</div>
+          <div className="text-2xl font-bold">{data.current.temp}°C</div>
           <div className="text-sm text-gray-300">{data.current.condition}</div>
         </div>
         <div className="ml-auto">
@@ -80,7 +75,7 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ data, isCompact = false }
           <div key={index} className="text-center">
             <div className="text-xs text-gray-400">{day.date}</div>
             <div className="my-1">{getWeatherIcon(day.condition)}</div>
-            <div className="text-xs font-medium">{toCelsius(day.maxTemp)}°</div>
+            <div className="text-xs font-medium">{day.maxTemp}°C</div>
           </div>
         ))}
       </div>

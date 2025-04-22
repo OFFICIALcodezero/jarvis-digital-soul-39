@@ -1,4 +1,3 @@
-
 import { toast } from '@/components/ui/use-toast';
 
 export interface WeatherData {
@@ -28,7 +27,7 @@ export interface WeatherQuery {
 const mockWeatherData: WeatherData = {
   location: "New York, NY",
   current: {
-    temp: 72,
+    temp: 22,
     condition: "Partly cloudy",
     icon: "cloud-sun",
     humidity: 65,
@@ -37,36 +36,36 @@ const mockWeatherData: WeatherData = {
   forecast: [
     {
       date: "Today",
-      maxTemp: 75,
-      minTemp: 62,
+      maxTemp: 24,
+      minTemp: 17,
       condition: "Partly cloudy",
       icon: "cloud-sun"
     },
     {
       date: "Tomorrow",
-      maxTemp: 82,
-      minTemp: 65,
+      maxTemp: 28,
+      minTemp: 18,
       condition: "Sunny",
       icon: "sun"
     },
     {
       date: "Wednesday",
-      maxTemp: 79,
-      minTemp: 68,
+      maxTemp: 26,
+      minTemp: 20,
       condition: "Rain",
       icon: "cloud-rain"
     },
     {
       date: "Thursday",
-      maxTemp: 71,
-      minTemp: 60,
+      maxTemp: 22,
+      minTemp: 16,
       condition: "Cloudy",
       icon: "cloud"
     },
     {
       date: "Friday",
-      maxTemp: 68,
-      minTemp: 58,
+      maxTemp: 20,
+      minTemp: 14,
       condition: "Rain",
       icon: "cloud-rain"
     }
@@ -119,14 +118,14 @@ export const getWeatherResponse = async (query: string): Promise<{text: string, 
     
     // Generate response based on query
     if (query.toLowerCase().includes("tomorrow")) {
-      responseText = `Tomorrow's forecast for ${weatherData.location}: ${weatherData.forecast[1].condition} with a high of ${weatherData.forecast[1].maxTemp}°F and a low of ${weatherData.forecast[1].minTemp}°F.`;
+      responseText = `Tomorrow's forecast for ${weatherData.location}: ${weatherData.forecast[1].condition} with a high of ${weatherData.forecast[1].maxTemp}°C and a low of ${weatherData.forecast[1].minTemp}°C.`;
     } else if (query.toLowerCase().includes("week") || query.toLowerCase().includes("forecast")) {
-      responseText = `Here's your ${weatherData.location} 5-day forecast: Today: ${weatherData.current.condition}, ${weatherData.current.temp}°F. `;
+      responseText = `Here's your ${weatherData.location} 5-day forecast: Today: ${weatherData.current.condition}, ${weatherData.current.temp}°C. `;
       weatherData.forecast.slice(1).forEach(day => {
-        responseText += `${day.date}: ${day.condition}, high of ${day.maxTemp}°F. `;
+        responseText += `${day.date}: ${day.condition}, high of ${day.maxTemp}°C. `;
       });
     } else {
-      responseText = `Current weather in ${weatherData.location}: ${weatherData.current.condition}, ${weatherData.current.temp}°F with ${weatherData.current.humidity}% humidity and wind at ${weatherData.current.windSpeed} mph.`;
+      responseText = `Current weather in ${weatherData.location}: ${weatherData.current.condition}, ${weatherData.current.temp}°C with ${weatherData.current.humidity}% humidity and wind at ${weatherData.current.windSpeed} mph.`;
     }
     
     return { text: responseText, data: weatherData };
