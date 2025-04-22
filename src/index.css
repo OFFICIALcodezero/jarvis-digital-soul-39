@@ -24,10 +24,13 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-midnight text-foreground;
     margin: 0;
     padding: 0;
     overflow-x: hidden;
+    background-image: radial-gradient(circle at 50% 50%, rgba(30, 174, 219, 0.03) 0%, transparent 80%);
+    background-size: 100% 100%;
+    background-attachment: fixed;
   }
 }
 
@@ -41,6 +44,48 @@
   
   .bg-circuit-pattern {
     background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 50 L40 50 M60 50 L80 50 M50 20 L50 40 M50 60 L50 80 M30 30 L40 40 M60 60 L70 70 M70 30 L60 40 M30 70 L40 60' stroke='%231eaedb' stroke-width='0.5' fill='none' opacity='0.3'/%3E%3Ccircle cx='50' cy='50' r='2' fill='%231eaedb' opacity='0.3'/%3E%3Ccircle cx='50' cy='20' r='2' fill='%231eaedb' opacity='0.3'/%3E%3Ccircle cx='50' cy='80' r='2' fill='%231eaedb' opacity='0.3'/%3E%3Ccircle cx='20' cy='50' r='2' fill='%231eaedb' opacity='0.3'/%3E%3Ccircle cx='80' cy='50' r='2' fill='%231eaedb' opacity='0.3'/%3E%3Ccircle cx='30' cy='30' r='2' fill='%231eaedb' opacity='0.3'/%3E%3Ccircle cx='70' cy='30' r='2' fill='%231eaedb' opacity='0.3'/%3E%3Ccircle cx='30' cy='70' r='2' fill='%231eaedb' opacity='0.3'/%3E%3Ccircle cx='70' cy='70' r='2' fill='%231eaedb' opacity='0.3'/%3E%3C/svg%3E");
+  }
+  
+  .tech-grid {
+    background-size: 40px 40px;
+    background-image: 
+      linear-gradient(to right, rgba(30, 174, 219, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(30, 174, 219, 0.05) 1px, transparent 1px);
+    background-position: center;
+  }
+  
+  .jarvis-panel {
+    @apply bg-black/20 backdrop-blur-sm border border-jarvis/20 rounded-lg overflow-hidden shadow-[0_0_15px_rgba(14,165,233,0.15)];
+  }
+  
+  .holographic-text {
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-jarvis via-jarvisLight to-jarvis animate-pulse-subtle;
+  }
+  
+  .core-glow {
+    box-shadow: 0 0 30px rgba(30, 174, 219, 0.3), 0 0 15px rgba(139, 92, 246, 0.2) inset;
+  }
+  
+  .ring-pulse {
+    box-shadow: 0 0 0 rgba(30, 174, 219, 0.4);
+  }
+  
+  .particle-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -1;
+  }
+  
+  .particle {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background-color: rgba(30, 174, 219, 0.7);
+    border-radius: 50%;
   }
 }
 

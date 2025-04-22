@@ -135,11 +135,20 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
 
   const handleLanguageChange = (languageCode: string) => {
     setSelectedLanguage(languageCode);
+    const languages = {
+      en: "English",
+      es: "Spanish",
+      fr: "French",
+      de: "German",
+      it: "Italian",
+      pt: "Portuguese",
+      ru: "Russian",
+      ja: "Japanese",
+      zh: "Chinese"
+    };
     toast({
       title: "Language Changed",
-      description: `JARVIS will now respond in ${
-        supportedLanguages.find(lang => lang.code === languageCode)?.name || languageCode
-      }`,
+      description: `JARVIS will now respond in ${languages[languageCode as keyof typeof languages] || languageCode}`,
     });
   };
 

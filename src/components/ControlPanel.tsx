@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ToggleLeft, ToggleRight, User, Users, Cpu } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface ControlOption {
   id: string;
@@ -16,41 +16,60 @@ interface ControlPanelProps {
 
 const ControlPanel: React.FC<ControlPanelProps> = ({ options, onToggle }) => {
   return (
-    <div className="flex flex-wrap justify-center gap-3 my-4">
-      {options.map((option) => (
-        <button
-          key={option.id}
-          onClick={() => onToggle(option.id)}
-          className={`
-            group relative flex flex-col items-center justify-center 
-            w-20 h-20 md:w-24 md:h-24 rounded-lg p-2
-            transition-all duration-300 hover:scale-105
-            border border-cyan-500/30 backdrop-blur-sm
-            ${option.active 
-              ? 'bg-cyan-900/50 text-cyan-300 shadow-[0_0_15px_rgba(30,174,219,0.3)]' 
-              : 'bg-slate-800/50 text-slate-400'
-            }
-          `}
-        >
-          <div className="absolute inset-0 rounded-lg bg-gradient-to-tr from-cyan-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-          
-          <div className="flex items-center justify-center h-10">
-            {option.icon}
-          </div>
-          
-          <div className="mt-2 text-xs text-center">
-            {option.label}
-          </div>
-          
-          <div className="absolute bottom-2 right-2">
-            {option.active ? (
-              <ToggleRight className="w-4 h-4 text-cyan-400" />
-            ) : (
-              <ToggleLeft className="w-4 h-4" />
+    <div className="jarvis-panel p-3 rounded-lg">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {options.map((option) => (
+          <button
+            key={option.id}
+            onClick={() => onToggle(option.id)}
+            className={cn(
+              "flex flex-col items-center justify-center p-3 rounded-md transition-all duration-300 relative overflow-hidden group",
+              option.active 
+                ? "bg-jarvis/10 shadow-[0_0_10px_rgba(30,174,219,0.15)]" 
+                : "bg-black/20 hover:bg-black/30"
             )}
-          </div>
-        </button>
-      ))}
+          >
+            {/* Background pulse effect when active */}
+            {option.active && (
+              <div className="absolute inset-0 bg-jarvis/5 animate-pulse-subtle"></div>
+            )}
+            
+            {/* Icon wrapper */}
+            <div className={cn(
+              "relative w-10 h-10 mb-2 flex items-center justify-center rounded-full",
+              option.active 
+                ? "bg-gradient-to-br from-jarvisDark to-jarvis text-white" 
+                : "bg-gray-800 text-gray-400"
+            )}>
+              {/* Animated border when active */}
+              {option.active && (
+                <div className="absolute -inset-1 rounded-full border border-jarvis/30 animate-spin-slow opacity-70"></div>
+              )}
+              
+              {React.cloneElement(option.icon as React.ReactElement, { 
+                className: cn(
+                  "w-5 h-5",
+                  option.active ? "animate-pulse-subtle" : ""
+                )
+              })}
+            </div>
+            
+            {/* Label */}
+            <span className={cn(
+              "text-xs font-medium",
+              option.active ? "text-jarvis" : "text-gray-400"
+            )}>
+              {option.label}
+            </span>
+            
+            {/* Bottom active indicator */}
+            <div className={cn(
+              "absolute bottom-0 left-0 h-[2px] w-full bg-jarvis scale-x-0 group-hover:scale-x-100 transition-transform duration-300",
+              option.active ? "scale-x-100" : ""
+            )}></div>
+          </button>
+        ))}
+      </div>
     </div>
   );
 };

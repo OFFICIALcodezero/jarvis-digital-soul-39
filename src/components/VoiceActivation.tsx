@@ -16,6 +16,35 @@ const VoiceActivation: React.FC<VoiceActivationProps> = ({
   const [transcript, setTranscript] = useState('');
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const [recognitionSupported, setRecognitionSupported] = useState(true);
+  const [activationDetected, setActivationDetected] = useState(false);
+  
+  // Sound effect for activation
+  const playActivationSound = () => {
+    try {
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioContext) {
+        const audioCtx = new AudioContext();
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(770, audioCtx.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(1100, audioCtx.currentTime + 0.1);
+        
+        gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.05);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 0.3);
+      }
+    } catch (error) {
+      console.error("Could not play activation sound:", error);
+    }
+  };
 
   useEffect(() => {
     if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
@@ -43,8 +72,16 @@ const VoiceActivation: React.FC<VoiceActivationProps> = ({
         const currentTranscript = finalTranscript || interimTranscript;
         setTranscript(currentTranscript);
 
-        // Check for trigger phrase
-        if (currentTranscript.toLowerCase().includes('hey jarvis')) {
+        // Check for trigger phrase "Hey Jarvis"
+        const isActivated = currentTranscript.toLowerCase().includes('hey jarvis');
+        
+        if (isActivated && !activationDetected) {
+          setActivationDetected(true);
+          playActivationSound();
+          
+          // Visual feedback for activation
+          setTimeout(() => setActivationDetected(false), 2000);
+          
           // Extract command after "hey jarvis"
           const commandParts = currentTranscript.toLowerCase().split('hey jarvis');
           if (commandParts.length > 1 && commandParts[1].trim()) {
@@ -68,7 +105,7 @@ const VoiceActivation: React.FC<VoiceActivationProps> = ({
       console.error('Speech recognition not supported in this browser');
       setRecognitionSupported(false);
     }
-  }, [onCommandReceived, isListening, toggleListening]);
+  }, [onCommandReceived, isListening, toggleListening, activationDetected]);
 
   useEffect(() => {
     const recognition = recognitionRef.current;
@@ -90,10 +127,10 @@ const VoiceActivation: React.FC<VoiceActivationProps> = ({
     return (
       <div className="relative">
         <button 
-          className="relative flex items-center justify-center w-14 h-14 rounded-full bg-slate-800/50 border border-red-500/30 group"
+          className="relative flex items-center justify-center w-12 h-12 rounded-full jarvis-panel border border-red-500/30 group"
           onClick={() => alert("Speech recognition is not supported in your browser")}
         >
-          <MicOff className="w-6 h-6 text-red-400" />
+          <MicOff className="w-5 h-5 text-red-400" />
         </button>
       </div>
     );
@@ -103,25 +140,35 @@ const VoiceActivation: React.FC<VoiceActivationProps> = ({
     <div className="relative">
       <button 
         onClick={toggleListening}
-        className={`relative flex items-center justify-center w-14 h-14 rounded-full ${
-          isListening ? 'bg-cyan-900/50' : 'bg-slate-800/50'
-        } transition-all duration-300 border border-cyan-500/30 group`}
+        className={`relative flex items-center justify-center w-12 h-12 rounded-full jarvis-panel ${
+          isListening || activationDetected ? 'border border-jarvis' : ''
+        } transition-all duration-300 group`}
       >
-        <div className={`absolute inset-0 rounded-full ${
-          isListening ? 'animate-ping-slow bg-cyan-600/20' : ''
-        }`}></div>
-        
-        {isListening ? (
-          <Mic className="w-6 h-6 text-cyan-400 animate-pulse" />
-        ) : (
-          <MicOff className="w-6 h-6 text-slate-400" />
+        {/* Animated rings when active */}
+        {isListening && (
+          <>
+            <div className="absolute inset-0 rounded-full animate-ping-slow bg-jarvis/20"></div>
+            <div className="absolute inset-0 rounded-full animate-ping-slow delay-300 bg-jarvis/10"></div>
+          </>
         )}
         
-        <div className={`absolute -bottom-12 text-xs ${
-          transcript ? 'opacity-100' : 'opacity-0'
-        } transition-opacity text-cyan-300 max-w-[200px] truncate`}>
-          {transcript}
-        </div>
+        {/* Activation flash */}
+        {activationDetected && (
+          <div className="absolute inset-0 rounded-full bg-jarvis/30 animate-pulse"></div>
+        )}
+        
+        {isListening ? (
+          <Mic className="w-5 h-5 text-jarvis animate-pulse" />
+        ) : (
+          <MicOff className="w-5 h-5 text-gray-400" />
+        )}
+        
+        {/* Transcript display */}
+        {transcript && (
+          <div className="absolute -bottom-12 text-xs max-w-[200px] bg-black/60 px-3 py-1 rounded-full text-jarvis truncate">
+            {transcript}
+          </div>
+        )}
       </button>
     </div>
   );

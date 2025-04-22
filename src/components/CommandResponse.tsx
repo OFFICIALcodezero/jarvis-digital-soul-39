@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
+import { cn } from '@/lib/utils';
 
 interface CommandResponseProps {
   message: string;
@@ -8,43 +9,88 @@ interface CommandResponseProps {
 
 const CommandResponse: React.FC<CommandResponseProps> = ({ message, isTyping }) => {
   const [displayedText, setDisplayedText] = useState('');
-  const [charIndex, setCharIndex] = useState(0);
+  const [cursorVisible, setCursorVisible] = useState(true);
+  const typewriterRef = useRef<NodeJS.Timeout | null>(null);
   const messageRef = useRef(message);
-  const typingSpeed = 30; // milliseconds per character
-  
+
+  // Typing effect
   useEffect(() => {
     // Reset typing animation when message changes
     if (message !== messageRef.current) {
       setDisplayedText('');
-      setCharIndex(0);
       messageRef.current = message;
     }
-  }, [message]);
+    
+    if (isTyping) {
+      let i = 0;
+      setDisplayedText('');
+      
+      // Clear any existing interval
+      if (typewriterRef.current) {
+        clearInterval(typewriterRef.current);
+      }
+      
+      // Set up typewriter effect
+      typewriterRef.current = setInterval(() => {
+        if (i < message.length) {
+          setDisplayedText(prev => prev + message.charAt(i));
+          i++;
+        } else {
+          if (typewriterRef.current) {
+            clearInterval(typewriterRef.current);
+          }
+        }
+      }, 30); // Speed of typing
+    } else {
+      setDisplayedText(message);
+    }
+    
+    return () => {
+      if (typewriterRef.current) {
+        clearInterval(typewriterRef.current);
+      }
+    };
+  }, [message, isTyping]);
   
+  // Blinking cursor effect
   useEffect(() => {
-    if (!isTyping || charIndex >= messageRef.current.length) return;
+    const cursorInterval = setInterval(() => {
+      setCursorVisible(prev => !prev);
+    }, 500);
     
-    const timer = setTimeout(() => {
-      setDisplayedText(prev => prev + messageRef.current.charAt(charIndex));
-      setCharIndex(prev => prev + 1);
-    }, typingSpeed);
-    
-    return () => clearTimeout(timer);
-  }, [charIndex, isTyping]);
+    return () => clearInterval(cursorInterval);
+  }, []);
 
   return (
-    <div className="bg-slate-800/50 rounded-lg p-4 border border-cyan-500/30 min-h-[120px] backdrop-blur-sm">
-      <div className="flex items-center mb-2">
-        <div className="w-3 h-3 rounded-full bg-cyan-400 mr-2 animate-pulse"></div>
-        <h3 className="text-cyan-300 font-medium">JARVIS RESPONSE</h3>
+    <div className="jarvis-panel p-5 min-h-[100px] flex items-center justify-center relative group">
+      {/* Scanner line effect */}
+      <div className="absolute inset-0 overflow-hidden rounded-lg pointer-events-none">
+        <div 
+          className={cn(
+            "absolute h-[2px] w-full bg-gradient-to-r from-transparent via-jarvis to-transparent opacity-20",
+            isTyping ? "animate-wave" : "opacity-0"
+          )}
+          style={{ 
+            top: '50%',
+            animationDuration: '3s'
+          }}
+        ></div>
       </div>
       
-      <div className="text-slate-200 font-mono leading-relaxed">
-        {displayedText}
-        {isTyping && charIndex < messageRef.current.length && (
-          <span className="inline-block w-2 h-4 bg-cyan-400 ml-1 animate-blink"></span>
-        )}
+      <div className="relative text-lg md:text-xl font-medium holographic-text">
+        {isTyping ? displayedText : message}
+        <span className={cn(
+          "inline-block w-2 h-5 ml-1 bg-jarvis transform translate-y-1",
+          cursorVisible && isTyping ? "opacity-100" : "opacity-0",
+          "transition-opacity duration-150"
+        )}></span>
       </div>
+      
+      {/* Edge glow on hover */}
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 border border-jarvis/20 rounded-lg transition-opacity duration-300 pointer-events-none"
+           style={{ 
+             boxShadow: '0 0 15px rgba(30, 174, 219, 0.2)' 
+           }}></div>
     </div>
   );
 };

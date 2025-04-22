@@ -19,11 +19,11 @@ export interface LanguageOption {
 
 export interface ChatModeProps {
   messages: Message[];
-  speakText: (text: string) => void;
+  speakText: (text: string) => Promise<void>;
   audioPlaying: boolean;
   isTyping: boolean;
   currentTypingText: string;
   isProcessing: boolean;
-  selectedLanguage?: string;
-  onLanguageChange?: (languageCode: string) => void;
+  selectedLanguage: string;
+  onLanguageChange: (languageCode: string) => void;
 }
