@@ -1,3 +1,4 @@
+
 export interface Message {
   id: string;
   role: 'user' | 'assistant';
@@ -9,6 +10,10 @@ export interface JarvisChatProps {
   activeMode: 'normal' | 'voice' | 'face' | 'hacker';
   setIsSpeaking: (isSpeaking: boolean) => void;
   isListening: boolean;
+  activeAssistant: 'jarvis';
+  setActiveAssistant: (assistant: 'jarvis') => void;
+  inputMode: 'voice' | 'text';
+  setInputMode: (mode: 'voice' | 'text') => void;
 }
 
 export interface LanguageOption {

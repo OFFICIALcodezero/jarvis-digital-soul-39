@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { Mic, MicOff, Volume2, VolumeX, Zap, Bot, MessageSquare } from 'lucide-react';
+import { Mic, MicOff, Volume2, VolumeX, MessageSquare } from 'lucide-react';
 
 interface AudioControlsProps {
   isMicActive?: boolean;
@@ -12,8 +12,7 @@ interface AudioControlsProps {
   audioPlaying?: boolean;
   stopSpeaking?: () => void;
   toggleMute?: () => void;
-  activeAssistant?: 'jarvis' | 'chatgpt' | 'alexa' | 'siri' | 'gemini';
-  onAssistantChange?: (assistant: 'jarvis' | 'chatgpt' | 'alexa' | 'siri' | 'gemini') => void;
+  activeAssistant?: 'jarvis';
   inputMode?: 'voice' | 'text';
   onInputModeChange?: (mode: 'voice' | 'text') => void;
 }
@@ -27,7 +26,6 @@ const AudioControls: React.FC<AudioControlsProps> = ({
   stopSpeaking,
   toggleMute,
   activeAssistant = 'jarvis',
-  onAssistantChange,
   inputMode = 'text',
   onInputModeChange
 }) => {
@@ -102,27 +100,6 @@ const AudioControls: React.FC<AudioControlsProps> = ({
             <Mic className="h-3 w-3 mr-1" />
             Voice
           </Button>
-        </div>
-      )}
-      
-      {onAssistantChange && (
-        <div className="flex flex-wrap gap-2">
-          {['jarvis', 'chatgpt', 'alexa', 'siri', 'gemini'].map((assistant) => (
-            <Button
-              key={assistant}
-              variant="outline"
-              size="sm"
-              onClick={() => onAssistantChange(assistant as any)}
-              className={`${
-                activeAssistant === assistant 
-                  ? 'bg-[#33c3f0]/20 border-[#33c3f0] text-[#33c3f0]' 
-                  : 'bg-transparent border-[#33c3f0]/30 text-[#8a8a9b]'
-              } hover:bg-[#33c3f0]/30 hover:text-[#d6d6ff] text-xs`}
-            >
-              <Bot className="h-3 w-3 mr-1" />
-              {assistant.charAt(0).toUpperCase() + assistant.slice(1)}
-            </Button>
-          ))}
         </div>
       )}
     </div>
