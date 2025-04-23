@@ -16,7 +16,7 @@ export interface GeneratedImage {
   resolution?: string;
 }
 
-// Expanded mock image database with more specific object categories
+// Expanded mock image database with more specific categories and creative themes
 const MOCK_IMAGES: Record<string, string> = {
   // Animals
   'dog': 'https://images.unsplash.com/photo-1543466835-00a7907e9de1',
@@ -26,12 +26,19 @@ const MOCK_IMAGES: Record<string, string> = {
   'lion': 'https://images.unsplash.com/photo-1546182990-dffeafbe841d',
   'tiger': 'https://images.unsplash.com/photo-1549366021-9f761d450615',
   'bear': 'https://images.unsplash.com/photo-1530595467537-0b5996c41f2d',
+  'fish': 'https://images.unsplash.com/photo-1524704654690-b56c05c78a00',
   
   // People & Activities
   'person': 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80',
   'astronaut': 'https://images.unsplash.com/photo-1454789548928-9efd52dc4031',
   'scientist': 'https://images.unsplash.com/photo-1507413245164-6160d8298b31',
   'athlete': 'https://images.unsplash.com/photo-1517649763962-0c623066013b',
+  'woman': 'https://images.unsplash.com/photo-1557555187-23d685287bc3',
+  'man': 'https://images.unsplash.com/photo-1564564321837-a57b7070ac4f',
+  'child': 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9',
+  'dancer': 'https://images.unsplash.com/photo-1508807526345-15e9b5f4eaff',
+  'disco': 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6a3',
+  'dancing': 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6a3',
   
   // Vehicles
   'car': 'https://images.unsplash.com/photo-1542362567-b07e54358753',
@@ -40,6 +47,7 @@ const MOCK_IMAGES: Record<string, string> = {
   'bicycle': 'https://images.unsplash.com/photo-1485965120184-e220f721d03e',
   'spacecraft': 'https://images.unsplash.com/photo-1541185933-ef5d8ed016c2',
   'ship': 'https://images.unsplash.com/photo-1508953633818-212e7d14a1a4',
+  'skateboard': 'https://images.unsplash.com/photo-1572776685600-aca8c3456159',
   
   // Nature
   'mountain': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b',
@@ -56,23 +64,36 @@ const MOCK_IMAGES: Record<string, string> = {
   'building': 'https://images.unsplash.com/photo-1486325212027-8081e485255e',
   'street': 'https://images.unsplash.com/photo-1557531365-e8b22d93dbd0',
   'bridge': 'https://images.unsplash.com/photo-1526458170104-7e546a843a8a',
+  'nightclub': 'https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2',
   
   // Technology
   'robot': 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e',
   'computer': 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97',
   'smartphone': 'https://images.unsplash.com/photo-1592750475507-f85ef3c41a47',
+  'dj': 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad',
   
   // Space
   'space': 'https://images.unsplash.com/photo-1614732414444-096e5f1122d5',
   'galaxy': 'https://images.unsplash.com/photo-1506703719100-a0b3a51e1278',
   'planet': 'https://images.unsplash.com/photo-1614314169000-4ba70ab510aa',
   'stars': 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a',
+  'intergalactic': 'https://images.unsplash.com/photo-1506703719100-a0b3a51e1278',
   
   // Food
   'food': 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c',
   'fruit': 'https://images.unsplash.com/photo-1519996529931-28324d5a630e',
   'pizza': 'https://images.unsplash.com/photo-1513104890138-7c749659a591',
   'coffee': 'https://images.unsplash.com/photo-1509042239860-f550ce710b93',
+  
+  // Creative/Fantasy Elements
+  'fantasy': 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23',
+  'cyberpunk': 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d',
+  'steampunk': 'https://images.unsplash.com/photo-1599501887769-8ec19ec1aa4b',
+  'magical': 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23',
+  'futuristic': 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b',
+  'neon': 'https://images.unsplash.com/photo-1549605659-32d82da3a059',
+  'cosmic': 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a',
+  'underwater': 'https://images.unsplash.com/photo-1523496568862-1adcede3de19',
   
   // Generic categories
   'nature': 'https://images.unsplash.com/photo-1469474968028-56623f02e42e',
@@ -83,58 +104,98 @@ const MOCK_IMAGES: Record<string, string> = {
   'default': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe'
 };
 
-// Breed-specific dog images
-const DOG_BREEDS: Record<string, string> = {
-  'golden retriever': 'https://images.unsplash.com/photo-1608096299210-db7e38487075',
-  'labrador': 'https://images.unsplash.com/photo-1591769225440-811ad7d6eab7',
-  'german shepherd': 'https://images.unsplash.com/photo-1612130772748-829076694f58',
-  'husky': 'https://images.unsplash.com/photo-1521717804554-86655ca00f2d',
-  'poodle': 'https://images.unsplash.com/photo-1561565496-ce93e980202a',
-  'bulldog': 'https://images.unsplash.com/photo-1523567353450-084a52e5fb21',
-  'beagle': 'https://images.unsplash.com/photo-1529927066849-79b791a69825'
+// Creative combinations
+const CREATIVE_COMBOS: Record<string, string> = {
+  'fish disco': 'https://images.unsplash.com/photo-1524704654690-b56c05c78a00',
+  'cat sunglasses': 'https://images.unsplash.com/photo-1606214174585-fe31582dc6ee',
+  'cat skateboard': 'https://images.unsplash.com/photo-1606214174585-fe31582dc6ee',
+  'robot dj': 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad',
+  'woman dancing': 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6a3',
+  'disco dancing': 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6a3',
+  'intergalactic party': 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad',
+  'night city': 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df',
 };
 
-// Car models and types
-const CAR_TYPES: Record<string, string> = {
-  'sports car': 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d',
-  'suv': 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf',
-  'sedan': 'https://images.unsplash.com/photo-1533106418989-88406c7cc8ca',
-  'truck': 'https://images.unsplash.com/photo-1616711906333-23e9279b509c',
-  'electric': 'https://images.unsplash.com/photo-1560958089-b8a1929cea89',
-  'vintage': 'https://images.unsplash.com/photo-1567626143565-a48250161a7c',
-  'futuristic': 'https://images.unsplash.com/photo-1592819695396-064b9572a660'
+// Style-specific image collections
+const STYLE_IMAGES: Record<string, string[]> = {
+  'realistic': [
+    'https://images.unsplash.com/photo-1543466835-00a7907e9de1',
+    'https://images.unsplash.com/photo-1490730141103-6cac27aaab94',
+    'https://images.unsplash.com/photo-1540206395-68808572332f'
+  ],
+  'anime': [
+    'https://images.unsplash.com/photo-1564466809058-bf4114d55352',
+    'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f',
+    'https://images.unsplash.com/photo-1559981421-3e0c0d7e6f21'
+  ],
+  '3d': [
+    'https://images.unsplash.com/photo-1622737133809-d95047b9e673',
+    'https://images.unsplash.com/photo-1618172193763-c511deb635ca',
+    'https://images.unsplash.com/photo-1617396900799-f4ec2b43c7ae'
+  ],
+  'abstract': [
+    'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe',
+    'https://images.unsplash.com/photo-1557672172-298e090bd0f1',
+    'https://images.unsplash.com/photo-1567095761054-7a02e69e5c43'
+  ],
+  'painting': [
+    'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5',
+    'https://images.unsplash.com/photo-1531913764164-f85c52d7e3a8',
+    'https://images.unsplash.com/photo-1578301978693-85fa9c0320b9'
+  ],
+  'pixel': [
+    'https://images.unsplash.com/photo-1506744038136-46273834b3fb',
+    'https://images.unsplash.com/photo-1597524689192-0ce880c4a8d4', 
+    'https://images.unsplash.com/photo-1621544066407-29bea859fb03'
+  ],
+  'sci-fi': [
+    'https://images.unsplash.com/photo-1462331940025-496dfbfc7564',
+    'https://images.unsplash.com/photo-1532453288672-3a27e9be9efd',
+    'https://images.unsplash.com/photo-1506784365847-bbad939e9335'
+  ],
+  'fantasy': [
+    'https://images.unsplash.com/photo-1518709268805-4e9042af9f23',
+    'https://images.unsplash.com/photo-1536300007881-7e482242baa5',
+    'https://images.unsplash.com/photo-1574610758891-5b809b6e6e2e'
+  ]
 };
 
-const getMockImageUrl = (prompt: string): string => {
+// Helper function to get a random image from an array
+const getRandomImage = (images: string[]): string => {
+  const randomIndex = Math.floor(Math.random() * images.length);
+  return images[randomIndex];
+};
+
+const getMockImageUrl = (prompt: string, style?: string): string => {
   const lowerPrompt = prompt.toLowerCase();
   
-  // First check for specific dog breeds
-  for (const [breed, url] of Object.entries(DOG_BREEDS)) {
-    if (lowerPrompt.includes(breed)) {
+  // First check for creative combinations
+  for (const [combination, url] of Object.entries(CREATIVE_COMBOS)) {
+    if (lowerPrompt.includes(combination)) {
+      console.log(`Found creative combination match: ${combination}`);
       return url;
     }
   }
   
-  // Then check for specific car types
-  for (const [carType, url] of Object.entries(CAR_TYPES)) {
-    if (lowerPrompt.includes(carType)) {
-      return url;
-    }
+  // Then check for specific style
+  if (style && STYLE_IMAGES[style]) {
+    console.log(`Using specific style: ${style}`);
+    return getRandomImage(STYLE_IMAGES[style]);
   }
   
-  // Style-specific checks
+  // Style-specific checks from prompt
   if (lowerPrompt.includes('pixel') || lowerPrompt.includes('pixel art')) 
-    return 'https://images.unsplash.com/photo-1506744038136-46273834b3fb';
+    return getRandomImage(STYLE_IMAGES['pixel']);
   if (lowerPrompt.includes('sci-fi') || lowerPrompt.includes('science fiction')) 
-    return 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564';
+    return getRandomImage(STYLE_IMAGES['sci-fi']);
   if (lowerPrompt.includes('fantasy') || lowerPrompt.includes('magical')) 
-    return 'https://images.unsplash.com/photo-1470770841072-f978cf4d019e';
+    return getRandomImage(STYLE_IMAGES['fantasy']);
   if (lowerPrompt.includes('anime') || lowerPrompt.includes('cartoon')) 
-    return 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f';
+    return getRandomImage(STYLE_IMAGES['anime']);
   if (lowerPrompt.includes('painting') || lowerPrompt.includes('oil painting')) 
-    return 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5';
+    return getRandomImage(STYLE_IMAGES['painting']);
   if (lowerPrompt.includes('3d') || lowerPrompt.includes('render')) 
-    return 'https://images.unsplash.com/photo-1622737133809-d95047b9e673';
+    return getRandomImage(STYLE_IMAGES['3d']);
     
   // Attempt to find content-specific images
   // First split the prompt into words and check each significant word
@@ -148,20 +209,31 @@ const getMockImageUrl = (prompt: string): string => {
     }
     
     if (MOCK_IMAGES[word]) {
+      console.log(`Found direct word match: ${word}`);
       return MOCK_IMAGES[word];
+    }
+  }
+  
+  // Check for two-word combinations
+  for (let i = 0; i < words.length - 1; i++) {
+    const twoWordCombo = `${words[i]} ${words[i+1]}`;
+    if (CREATIVE_COMBOS[twoWordCombo]) {
+      console.log(`Found two-word combo: ${twoWordCombo}`);
+      return CREATIVE_COMBOS[twoWordCombo];
     }
   }
   
   // Then check for partial matches in the complete prompt
   for (const [keyword, url] of Object.entries(MOCK_IMAGES)) {
     if (lowerPrompt.includes(keyword)) {
+      console.log(`Found keyword in prompt: ${keyword}`);
       return url;
     }
   }
   
-  // If we reach here, no specific match was found
+  // If we reach here, no specific match was found - choose a random abstract image
   console.log('No specific match found for prompt: ', prompt);
-  return MOCK_IMAGES.default;
+  return getRandomImage(STYLE_IMAGES['abstract']);
 };
 
 export const generateImage = async (params: ImageGenerationParams): Promise<GeneratedImage> => {
@@ -169,7 +241,8 @@ export const generateImage = async (params: ImageGenerationParams): Promise<Gene
     // Simulated loading time
     await new Promise(resolve => setTimeout(resolve, 1400));
     
-    const imageUrl = getMockImageUrl(params.prompt);
+    // Using the style parameter when getting a mock image
+    const imageUrl = getMockImageUrl(params.prompt, params.style);
     
     // Log for debugging
     console.log(`Generating image for prompt: "${params.prompt}" with style: ${params.style || 'default'}`);
@@ -233,7 +306,9 @@ export const checkImageMatchesPrompt = (image: GeneratedImage): boolean => {
   // In a real implementation, this would use AI to check if the image matches the prompt
   // For this mock implementation, we'll simulate checking based on the URL
   
-  // If the image URL is the default/abstract one, assume it didn't match well
-  return image.url !== MOCK_IMAGES.default && image.url !== MOCK_IMAGES.abstract;
+  // If the image URL is from the abstract collection, assume it didn't match well
+  const isAbstractImage = STYLE_IMAGES['abstract'].some(url => image.url === url);
+  const isRandomDefault = image.url === MOCK_IMAGES.default;
+  
+  return !isAbstractImage && !isRandomDefault;
 };
-

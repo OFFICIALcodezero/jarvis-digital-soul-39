@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Download, Sparkles, Palette } from "lucide-react";
 import { GeneratedImage, checkImageMatchesPrompt } from "@/services/imageGenerationService";
 
 interface ImageOverlayProps {
@@ -12,7 +12,23 @@ interface ImageOverlayProps {
 
 const ImageOverlay: React.FC<ImageOverlayProps> = ({ image, onClose, onRefine, onRegenerate }) => {
   const [refinePrompt, setRefinePrompt] = useState('');
+  const [showStyleOptions, setShowStyleOptions] = useState(false);
   const matchesPrompt = checkImageMatchesPrompt(image);
+
+  const styleOptions = [
+    { name: 'realistic', label: 'Realistic' },
+    { name: 'anime', label: 'Anime' },
+    { name: '3d', label: '3D Render' },
+    { name: 'abstract', label: 'Abstract' },
+    { name: 'painting', label: 'Painting' },
+    { name: 'pixel', label: 'Pixel Art' },
+    { name: 'sci-fi', label: 'Sci-Fi' },
+    { name: 'fantasy', label: 'Fantasy' }
+  ];
+
+  const applyStyle = (style: string) => {
+    onRefine(`in ${style} style`);
+  };
 
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 animate-fade-in transition-all">
@@ -33,8 +49,34 @@ const ImageOverlay: React.FC<ImageOverlayProps> = ({ image, onClose, onRefine, o
               This might not match your request exactly.
             </div>
           )}
-          <div className="flex flex-row gap-2 justify-center">
+          
+          <div className="flex flex-wrap gap-2 justify-center mb-4">
+            <button 
+              onClick={() => setShowStyleOptions(!showStyleOptions)} 
+              className="bg-jarvis/20 px-3 py-1 rounded text-jarvis font-semibold hover:bg-jarvis/40 transition flex items-center"
+            >
+              <Palette className="w-4 h-4 mr-1" />
+              {showStyleOptions ? 'Hide Styles' : 'Style Options'}
+            </button>
+            
+            {showStyleOptions && (
+              <div className="w-full flex flex-wrap gap-2 justify-center mt-2 animate-fade-in">
+                {styleOptions.map(style => (
+                  <button
+                    key={style.name}
+                    onClick={() => applyStyle(style.name)}
+                    className="bg-black/60 border border-jarvis/30 px-2 py-1 rounded text-jarvis/80 text-xs hover:bg-jarvis/20 transition"
+                  >
+                    {style.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          
+          <div className="flex flex-row gap-2 justify-center flex-wrap">
             <button onClick={onRegenerate} className="bg-jarvis/20 px-4 py-2 rounded text-jarvis font-bold hover:bg-jarvis/30 transition animate-fade-in flex items-center">
+              <Sparkles className="w-4 h-4 mr-1" />
               Regenerate
             </button>
             <form
@@ -50,7 +92,7 @@ const ImageOverlay: React.FC<ImageOverlayProps> = ({ image, onClose, onRefine, o
                 className="bg-black/60 border border-jarvis/30 rounded px-3 py-1 text-white outline-none"
                 type="text"
                 value={refinePrompt}
-                placeholder="Refine (e.g. add neon lights)"
+                placeholder="Refine (e.g. add neon lights, cyberpunk style)"
                 onChange={e => setRefinePrompt(e.target.value)}
               />
               <button type="submit" className="bg-jarvis/20 px-3 py-1 rounded text-jarvis font-semibold hover:bg-jarvis/40 transition">
@@ -69,6 +111,7 @@ const ImageOverlay: React.FC<ImageOverlayProps> = ({ image, onClose, onRefine, o
               target="_blank"
               rel="noopener noreferrer"
             >
+              <Download className="w-3 h-3 inline mr-1" />
               Download
             </a>
           </div>
