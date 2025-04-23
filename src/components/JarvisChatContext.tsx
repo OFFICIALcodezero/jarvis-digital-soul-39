@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, useMemo } from "react";
 import { useVoiceSynthesis } from '../hooks/useVoiceSynthesis';
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
@@ -27,6 +28,7 @@ interface ChatContextType {
   stopSpeaking: () => void;
   setIsSpeaking: (on: boolean) => void;
   isSpeaking: boolean;
+  audioPlaying: boolean; // Added this property
   volume: number;
   setVolume: (v: number) => void;
   toggleMute: () => void;
@@ -93,7 +95,10 @@ export const JarvisChatProvider: React.FC<{ children: React.ReactNode } & Jarvis
     setMessages
   } = useChatLogic(activeMode, setIsSpeaking, activeAssistant, inputMode);
 
-  const { speakText, stopSpeaking, setAudioVolume } = useVoiceSynthesis(activeMode);
+  const { speakText, stopSpeaking, setAudioVolume, isPlaying } = useVoiceSynthesis(activeMode);
+
+  // Map isPlaying from useVoiceSynthesis to audioPlaying for the context
+  const audioPlaying = isPlaying;
 
   useEffect(() => { scrollToBottom(); }, [messages, currentTypingText]);
 
@@ -185,6 +190,7 @@ export const JarvisChatProvider: React.FC<{ children: React.ReactNode } & Jarvis
     stopSpeaking,
     setIsSpeaking: _setIsSpeaking,
     isSpeaking,
+    audioPlaying, // Added audioPlaying to the context value
     volume,
     setVolume,
     toggleMute,
@@ -349,8 +355,8 @@ export const JarvisChatProvider: React.FC<{ children: React.ReactNode } & Jarvis
     setShowDashboard,
   }), [
     messages, setMessages, input, setInput, isTyping, currentTypingText, isProcessing, selectedLanguage,
-    setSelectedLanguage, chatEndRef, speakText, stopSpeaking, _setIsSpeaking, isSpeaking, volume, setVolume,
-    toggleMute, parentIsListening, inputMode, setInputMode, activeAssistant, setActiveAssistant, activeMode,
+    setSelectedLanguage, chatEndRef, speakText, stopSpeaking, _setIsSpeaking, isSpeaking, audioPlaying, // Added audioPlaying to the dependencies
+    volume, setVolume, toggleMute, parentIsListening, inputMode, setInputMode, activeAssistant, setActiveAssistant, activeMode,
     weatherData, setWeatherData, newsArticles, setNewsArticles, calendarEvents, setCalendarEvents, activeImage,
     showDashboard, setShowDashboard
   ]);
