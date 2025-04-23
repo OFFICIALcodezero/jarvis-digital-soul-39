@@ -73,6 +73,17 @@ export const CREATIVE_COMBOS = {
   'sunset over mountains': 'https://images.unsplash.com/photo-1465919292275-c60ba49da6ae?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
 };
 
+// Famous people & mock demo images
+export const FAMOUS_PEOPLE_IMAGES: Record<string, string> = {
+  "elon musk": "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+  "narendra modi": "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+  "barack obama": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+  "donald trump": "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+  "albert einstein": "https://images.unsplash.com/photo-1552058544-f2b08422138a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+  "bill gates": "https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+  // add more as needed
+};
+
 /**
  * Get a random image from the specified style array
  */
@@ -100,14 +111,21 @@ export function getMockImageUrl(prompt: string, style?: string): string {
     (lowerPrompt.includes('sunset') && lowerPrompt.includes('mountain')) ||
     lowerPrompt.includes('sunset over mountain') ||
     lowerPrompt.includes('sunset over mountains') ||
-    lowerPrompt.includes('sunset mountains') // catch more phrasings
+    lowerPrompt.includes('sunset mountains')
   ) {
     return CREATIVE_COMBOS['sunset over mountains'] ||
       CREATIVE_COMBOS['sunset mountains'] ||
       MOCK_IMAGES.sunset;
   }
 
-  // Check for prompts about people first, higher priority
+  // Detect famous people in the prompt (prioritize over generic people)
+  for (const person in FAMOUS_PEOPLE_IMAGES) {
+    if (lowerPrompt.includes(person)) {
+      return FAMOUS_PEOPLE_IMAGES[person];
+    }
+  }
+
+  // Check for prompts about people (generic), higher priority than landscape etc
   if (
     lowerPrompt.includes('person') ||
     lowerPrompt.includes('people') ||
@@ -120,10 +138,7 @@ export function getMockImageUrl(prompt: string, style?: string): string {
     lowerPrompt.includes('girl') ||
     lowerPrompt.includes('boy')
   ) {
-    // You can swap in different people-related placeholder images here
-    return (
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-    );
+    return MOCK_IMAGES.portrait;
   }
 
   // Style-specific images
