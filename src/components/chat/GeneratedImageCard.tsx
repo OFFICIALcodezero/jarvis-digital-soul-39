@@ -1,9 +1,10 @@
+
 import React, { useState } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Download, Image, RefreshCcw, SquarePlus, AlertCircle } from "lucide-react";
 import { checkImageMatchesPrompt } from "@/services/imagePromptChecker";
-import { GeneratedImage } from "@/services/imageGenerationService";
+import type { GeneratedImage } from "@/services/imageGenerationService";
 
 interface GeneratedImageCardProps {
   image: GeneratedImage;
@@ -14,9 +15,11 @@ interface GeneratedImageCardProps {
 const GeneratedImageCard: React.FC<GeneratedImageCardProps> = ({ image, onRegenerate, onRefine }) => {
   const [refinePrompt, setRefinePrompt] = useState("");
   const [showControls, setShowControls] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
   const matchesPrompt = checkImageMatchesPrompt(image);
 
   const handleDownload = () => {
+    // Create a link element
     const link = document.createElement('a');
     link.href = image.url;
     link.download = `jarvis-image-${Date.now()}.jpg`;
@@ -33,13 +36,27 @@ const GeneratedImageCard: React.FC<GeneratedImageCardProps> = ({ image, onRegene
     >
       <CardContent className="flex flex-col items-center pt-5">
         <div className="relative w-full h-56 overflow-hidden rounded-lg">
+          {!isLoaded && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+              <div className="animate-pulse flex space-x-2">
+                <div className="h-3 w-3 bg-jarvis rounded-full"></div>
+                <div className="h-3 w-3 bg-jarvis rounded-full animation-delay-200"></div>
+                <div className="h-3 w-3 bg-jarvis rounded-full animation-delay-400"></div>
+              </div>
+            </div>
+          )}
           <img
             src={image.url}
             alt={image.prompt}
-            className="w-full h-full object-cover rounded-lg border border-jarvis/20"
+            className={`w-full h-full object-cover rounded-lg border border-jarvis/20 transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
             loading="lazy"
+            onLoad={() => setIsLoaded(true)}
+            onError={(e) => {
+              console.error("Failed to load image:", e);
+              setIsLoaded(true); // Still mark as loaded to remove spinner
+            }}
           />
-          {!matchesPrompt && onRegenerate && (
+          {!matchesPrompt && onRegenerate && isLoaded && (
             <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white p-1 text-xs flex items-center">
               <AlertCircle className="w-3 h-3 mr-1 text-yellow-400" />
               <span>This might not match your request. <button onClick={onRegenerate} className="text-jarvis underline">Try again?</button></span>

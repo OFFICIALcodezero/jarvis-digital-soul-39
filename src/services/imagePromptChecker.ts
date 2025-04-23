@@ -1,8 +1,6 @@
 
+// Import type definition only to avoid circular dependencies
 import type { GeneratedImage } from "./imageGenerationService";
-
-// We're not re-exporting GeneratedImage anymore to avoid circular dependencies
-// export type { GeneratedImage };
 
 export const checkImageMatchesPrompt = (image: GeneratedImage): boolean => {
   // In a real implementation, this would use AI to check if the image matches the prompt

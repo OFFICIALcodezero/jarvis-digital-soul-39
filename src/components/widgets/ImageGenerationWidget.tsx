@@ -4,10 +4,11 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Download, Image, Loader2, Sparkles, Palette, Layers } from 'lucide-react';
+import { Download, Image, Loader2, Sparkles, Palette, Layers, RefreshCcw } from 'lucide-react';
 import { GeneratedImage, ImageGenerationParams, generateImage } from '@/services/imageGenerationService';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
+import { toast } from '@/components/ui/use-toast';
 
 interface ImageGenerationWidgetProps {
   initialPrompt?: string;
@@ -29,11 +30,13 @@ const ImageGenerationWidget: React.FC<ImageGenerationWidgetProps> = ({
   const [generatedImage, setGeneratedImage] = useState<GeneratedImage | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const handleGenerate = async () => {
     if (!prompt.trim()) return;
     
     setIsGenerating(true);
+    setImageLoaded(false);
     try {
       const params: ImageGenerationParams = {
         prompt: prompt.trim(),
@@ -48,8 +51,49 @@ const ImageGenerationWidget: React.FC<ImageGenerationWidgetProps> = ({
       if (onGenerate) {
         onGenerate(image);
       }
+      
+      toast({
+        title: "Image Generated",
+        description: "Your image has been successfully created!",
+      });
     } catch (error) {
       console.error('Error in image generation:', error);
+      toast({
+        title: "Generation Failed",
+        description: "Failed to generate image. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleRegenerateImage = async () => {
+    if (!generatedImage) return;
+    setIsGenerating(true);
+    setImageLoaded(false);
+    
+    try {
+      const params: ImageGenerationParams = {
+        prompt: generatedImage.prompt,
+        style: generatedImage.style as any,
+        resolution: generatedImage.resolution as any,
+        aspectRatio
+      };
+      
+      const image = await generateImage(params);
+      setGeneratedImage(image);
+      
+      if (onGenerate) {
+        onGenerate(image);
+      }
+      
+      toast({
+        title: "Image Regenerated",
+        description: "A new variation has been created!",
+      });
+    } catch (error) {
+      console.error('Error regenerating image:', error);
     } finally {
       setIsGenerating(false);
     }
@@ -64,6 +108,11 @@ const ImageGenerationWidget: React.FC<ImageGenerationWidgetProps> = ({
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    
+    toast({
+      title: "Image Downloaded",
+      description: "Your image has been saved.",
+    });
   };
 
   const styleOptions = [
@@ -96,10 +145,28 @@ const ImageGenerationWidget: React.FC<ImageGenerationWidgetProps> = ({
           <div className="flex flex-col items-center">
             <div className="relative w-full overflow-hidden rounded-md mb-4">
               <AspectRatio ratio={aspectRatio === "16:9" ? 16/9 : aspectRatio === "4:3" ? 4/3 : 1}>
+                {!imageLoaded && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10">
+                    <div className="animate-pulse flex space-x-2">
+                      <div className="h-3 w-3 bg-jarvis rounded-full"></div>
+                      <div className="h-3 w-3 bg-jarvis rounded-full animation-delay-200"></div>
+                      <div className="h-3 w-3 bg-jarvis rounded-full animation-delay-400"></div>
+                    </div>
+                  </div>
+                )}
                 <img 
                   src={generatedImage.url} 
                   alt={generatedImage.prompt}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-opacity duration-300"
+                  onLoad={() => setImageLoaded(true)}
+                  onError={() => {
+                    setImageLoaded(true);
+                    toast({
+                      title: "Image Error",
+                      description: "Failed to load the generated image.",
+                      variant: "destructive"
+                    });
+                  }}
                 />
               </AspectRatio>
             </div>
@@ -208,13 +275,28 @@ const ImageGenerationWidget: React.FC<ImageGenerationWidgetProps> = ({
       <CardFooter className="flex justify-between">
         {generatedImage ? (
           <>
-            <Button 
-              variant="outline" 
-              className="border-jarvis/30 text-jarvis hover:bg-jarvis/10"
-              onClick={() => setGeneratedImage(null)}
-            >
-              Create New
-            </Button>
+            <div className="flex space-x-2">
+              <Button 
+                variant="outline" 
+                className="border-jarvis/30 text-jarvis hover:bg-jarvis/10"
+                onClick={() => setGeneratedImage(null)}
+              >
+                Create New
+              </Button>
+              <Button
+                variant="outline"
+                className="border-jarvis/30 text-jarvis hover:bg-jarvis/10"
+                onClick={handleRegenerateImage}
+                disabled={isGenerating}
+              >
+                {isGenerating ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                ) : (
+                  <RefreshCcw className="w-4 h-4 mr-2" />
+                )}
+                Regenerate
+              </Button>
+            </div>
             <Button 
               className="bg-jarvis/20 text-jarvis hover:bg-jarvis/30 border border-jarvis/30"
               onClick={handleDownload}

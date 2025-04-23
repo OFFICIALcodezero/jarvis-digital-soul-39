@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useVoiceSynthesis } from '../hooks/useVoiceSynthesis';
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
@@ -234,6 +233,7 @@ const JarvisChat: React.FC<JarvisChatProps> = ({
 
       await speakText(responseText);
     } catch (e) {
+      console.error('Error generating image:', e);
       setMessages(msgsNow => [
         ...msgsNow.filter(m => !(m.generatedImage && m.generatedImage.url === '')),
         {
