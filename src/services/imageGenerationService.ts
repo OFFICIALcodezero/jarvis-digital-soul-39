@@ -26,6 +26,7 @@ export interface GeneratedImage {
   resolution?: string;
 }
 
+// Re-export necessary functions for backward compatibility
 export { parseImageRequest, checkImageMatchesPrompt };
 
 export const generateImage = async (params: ImageGenerationParams): Promise<GeneratedImage> => {
