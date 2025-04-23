@@ -3,6 +3,7 @@ import React from 'react';
 import JarvisCore from './core/JarvisCore';
 import JarvisAvatar from './JarvisAvatar';
 import SystemData from './SystemData';
+import { useJarvisChatContext } from './JarvisChatContext';
 
 interface JarvisCentralCoreProps {
   isSpeaking: boolean;
@@ -17,15 +18,27 @@ const JarvisCentralCore: React.FC<JarvisCentralCoreProps> = ({
   isProcessing,
   activeMode
 }) => {
+  const { messages } = useJarvisChatContext();
+  
+  // Check if an image is currently being generated
+  const isGeneratingImage = messages.some(msg => 
+    msg.generatedImage && msg.generatedImage.url === '' && 
+    msg.role === 'assistant'
+  );
+  
   return (
     <div className="flex-1 flex flex-col items-center justify-center relative">
       <div 
-        className={`jarvis-core-container ${isSpeaking ? 'animate-pulse' : ''} ${isProcessing ? 'animate-spin-slow' : ''}`}
+        className={`jarvis-core-container 
+          ${isSpeaking ? 'animate-pulse' : ''} 
+          ${isProcessing ? 'animate-spin-slow' : ''}
+          ${isGeneratingImage ? 'animate-glow-strong' : ''}
+        `}
       >
         <JarvisCore 
           isSpeaking={isSpeaking} 
           isListening={isListening} 
-          isProcessing={isProcessing}
+          isProcessing={isProcessing || isGeneratingImage}
         />
       </div>
       
@@ -52,6 +65,12 @@ const JarvisCentralCore: React.FC<JarvisCentralCoreProps> = ({
       {isListening && !isSpeaking && (
         <div className="absolute top-2 right-2 bg-jarvis/20 text-jarvis px-2 py-1 rounded-md text-xs border border-jarvis/30 animate-pulse">
           Listening
+        </div>
+      )}
+      
+      {isGeneratingImage && !isSpeaking && !isListening && (
+        <div className="absolute top-2 right-2 bg-jarvis/20 text-jarvis px-2 py-1 rounded-md text-xs border border-jarvis/30 animate-pulse">
+          Generating Image
         </div>
       )}
     </div>

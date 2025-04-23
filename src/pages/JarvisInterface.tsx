@@ -1,5 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import ChatInterface from '@/components/ChatInterface';
 import JarvisCore from '@/components/JarvisCore';
 import JarvisFaceAI from '@/components/JarvisFaceAI';
@@ -13,7 +13,7 @@ import ChatMode from '@/components/chat/ChatMode';
 import HackerMode from '@/components/chat/HackerMode';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Mic, Brain, Sparkles, Cpu, Bot, Volume2, VolumeX } from 'lucide-react';
+import { Mic, Brain, Sparkles, Cpu, Bot, Volume2, VolumeX, Image } from 'lucide-react';
 import { getApiKey } from '@/utils/apiKeyManager';
 import { toast } from '@/components/ui/use-toast';
 
@@ -36,7 +36,6 @@ const JarvisInterface = () => {
   const openAIKey = getApiKey('openai');
   
   useEffect(() => {
-    // Check for required API keys on component mount
     if (!elevenLabsKey && (activeMode === 'voice' || activeMode === 'face')) {
       toast({
         title: "ElevenLabs API Key Required",
@@ -54,7 +53,6 @@ const JarvisInterface = () => {
     }
   }, [elevenLabsKey, openAIKey, activeMode]);
   
-  // Control panel options
   const controlOptions = [
     {
       id: 'normal',
@@ -90,11 +88,9 @@ const JarvisInterface = () => {
       setMode('chat');
     }
     
-    // Auto-set input mode based on selected interface mode
     if (id === 'voice' || id === 'face') {
       setInputMode('voice');
       
-      // Check for ElevenLabs API key when switching to voice mode
       if (!elevenLabsKey) {
         toast({
           title: "ElevenLabs API Key Required",
@@ -114,10 +110,8 @@ const JarvisInterface = () => {
   
   return (
     <div className="relative min-h-screen flex flex-col bg-jarvis-bg text-white overflow-hidden">
-      {/* Upper background gradient */}
       <div className="absolute top-0 left-0 right-0 h-64 bg-gradient-to-b from-[#1eaedb]/10 to-transparent z-0"></div>
       
-      {/* Status Bar */}
       <div className="w-full jarvis-panel flex items-center justify-between p-3">
         <div className="flex items-center">
           <div className="text-xl font-bold text-jarvis text-glow mr-2">JARVIS</div>
@@ -127,6 +121,10 @@ const JarvisInterface = () => {
         </div>
         
         <div className="flex items-center space-x-4">
+          <Link to="/images" className="flex items-center text-jarvis hover:text-jarvis/80 transition-colors">
+            <Image className="h-4 w-4 mr-1" />
+            <span className="text-sm">Image Studio</span>
+          </Link>
           <div className="flex items-center text-sm">
             <div className="h-2 w-2 rounded-full mr-2 bg-jarvis"></div>
             <span className="text-jarvis">System Online</span>
@@ -149,9 +147,7 @@ const JarvisInterface = () => {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="flex-1 flex flex-col lg:flex-row gap-4 p-4 z-10">
-        {/* Central Core */}
         <div className="lg:w-1/3 order-2 lg:order-1">
           <div className="glass-morphism p-4 rounded-2xl h-full flex flex-col">
             <JarvisCentralCore 
@@ -170,7 +166,6 @@ const JarvisInterface = () => {
           </div>
         </div>
         
-        {/* Chat Interface */}
         <div className="lg:w-2/3 order-1 lg:order-2">
           <Tabs defaultValue="chat" className="h-full" onValueChange={(value) => setMode(value as 'chat' | 'hacker')}>
             <TabsList className="bg-black/50 border border-[#33c3f0]/20">
@@ -198,7 +193,6 @@ const JarvisInterface = () => {
         </div>
       </div>
       
-      {/* Control Panel */}
       <div className="p-4 z-10">
         <ControlPanel 
           options={controlOptions}
@@ -206,7 +200,6 @@ const JarvisInterface = () => {
         />
       </div>
       
-      {/* Lower background gradient */}
       <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[#1eaedb]/10 to-transparent z-0"></div>
     </div>
   );

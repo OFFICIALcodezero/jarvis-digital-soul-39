@@ -10,14 +10,17 @@ const JarvisChatMain: React.FC = () => {
     stopSpeaking, toggleMute, isListening, activeAssistant, inputMode, setInputMode, handleSendMessage
   } = useJarvisChatContext();
 
-  // For now, always pass getSuggestions inline
+  // Enhanced suggestions with more image generation examples
   const getSuggestions = (): string[] => [
     "What's the weather like today?",
     "Tell me the latest news",
     "What time is it?",
     "What's on my schedule today?",
     "Generate an image of a sunset over mountains",
-    "Create an image of a futuristic robot"
+    "Create an image of a futuristic robot",
+    "Draw a magical forest with glowing mushrooms",
+    "Show me an image of a disco-dancing fish in neon colors",
+    "Generate a cyberpunk city at night"
   ];
 
   return (

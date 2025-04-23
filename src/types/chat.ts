@@ -1,5 +1,4 @@
-
-import { GeneratedImage } from "@/services/imageGenerationService";
+import { GeneratedImage } from '@/services/imageGenerationService';
 
 export interface Message {
   id: string;

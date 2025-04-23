@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -117,6 +116,10 @@ export default {
         "rotate": {
           from: { transform: "rotate(0deg)" },
           to: { transform: "rotate(360deg)" }
+        },
+        "glow": {
+          "0%": { boxShadow: "0 0 5px #1eaedb, 0 0 10px #1eaedb, 0 0 15px #1eaedb" },
+          "100%": { boxShadow: "0 0 20px #1eaedb, 0 0 30px #1eaedb, 0 0 40px #1eaedb" }
         }
       },
       animation: {
@@ -126,6 +129,9 @@ export default {
         "fade-in": "fade-in 0.3s ease-out",
         "fade-out": "fade-out 0.3s ease-out",
         "rotate": "rotate 10s linear infinite",
+        "glow-strong": "glow 1.5s ease-in-out infinite alternate",
+        "ping-slow": "ping 3s cubic-bezier(0, 0, 0.2, 1) infinite",
+        "spin-slow": "spin 3s linear infinite",
       },
     },
   },
