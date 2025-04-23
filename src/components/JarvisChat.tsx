@@ -13,8 +13,9 @@ import { NewsArticle } from '@/services/newsService';
 import { CalendarEvent } from '@/services/timeCalendarService';
 import { getDailyBriefing } from '@/services/dailyBriefingService';
 import ImageGenerationWidget from './widgets/ImageGenerationWidget';
-import { GeneratedImage, generateImage, parseImageRequest } from '@/services/imageGenerationService';
+import { GeneratedImage, generateImage, parseImageRequest, checkImageMatchesPrompt } from '@/services/imageGenerationService';
 import GeneratedImageCard from './chat/GeneratedImageCard';
+import { Download, Image, RefreshCcw, SquarePlus, AlertCircle } from 'lucide-react';
 
 const JarvisChat: React.FC<JarvisChatProps> = ({
   activeMode,
