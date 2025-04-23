@@ -1,9 +1,9 @@
-
 import { getWeatherResponse } from './weatherService';
 import { getNewsResponse } from './newsService';
 import { getTimeCalendarResponse } from './timeCalendarService';
 import { getDailyBriefing } from './dailyBriefingService';
-import { parseImageRequest, generateImage } from './imageGenerationService';
+import { parseImageRequest } from './imagePromptParser';
+import { generateImage } from './imageGenerationService';
 
 export interface SkillResponse {
   text: string;
