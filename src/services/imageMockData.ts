@@ -1,4 +1,3 @@
-
 // Define image URLs for different categories
 export const STYLE_IMAGES = {
   'realistic': [
@@ -87,56 +86,80 @@ export function getRandomImage(styleArray: string[]): string {
  */
 export function getMockImageUrl(prompt: string, style?: string): string {
   console.log('Getting mock image for prompt: ' + prompt + ' with style: ' + style);
-  
+
   // First check if the prompt contains any of our creative combinations
   const creativeMatch = findCreativeCombo(prompt);
   if (creativeMatch) {
     console.log('Found creative combination match: ' + creativeMatch);
     return CREATIVE_COMBOS[creativeMatch];
   }
-  
-  // If a style is specified, use that
+
+  // Special case for sunsets over mountains (prioritize this before general keyword search)
+  const lowerPrompt = prompt.toLowerCase();
+  if (
+    (lowerPrompt.includes('sunset') && lowerPrompt.includes('mountain')) ||
+    lowerPrompt.includes('sunset over mountain') ||
+    lowerPrompt.includes('sunset over mountains') ||
+    lowerPrompt.includes('sunset mountains') // catch more phrasings
+  ) {
+    return CREATIVE_COMBOS['sunset over mountains'] ||
+      CREATIVE_COMBOS['sunset mountains'] ||
+      MOCK_IMAGES.sunset;
+  }
+
+  // Check for prompts about people first, higher priority
+  if (
+    lowerPrompt.includes('person') ||
+    lowerPrompt.includes('people') ||
+    lowerPrompt.includes('human') ||
+    lowerPrompt.includes('face') ||
+    lowerPrompt.includes('portrait') ||
+    lowerPrompt.includes('woman') ||
+    lowerPrompt.includes('man') ||
+    lowerPrompt.includes('child') ||
+    lowerPrompt.includes('girl') ||
+    lowerPrompt.includes('boy')
+  ) {
+    // You can swap in different people-related placeholder images here
+    return (
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+    );
+  }
+
+  // Style-specific images
   if (style && STYLE_IMAGES[style]) {
     return getRandomImage(STYLE_IMAGES[style]);
   }
-  
-  // Otherwise pick based on content keywords
-  const lowerPrompt = prompt.toLowerCase();
-  
-  // Special case for sunsets over mountains
-  if ((lowerPrompt.includes('sunset') && lowerPrompt.includes('mountain')) || 
-      lowerPrompt.includes('sunset over mountain')) {
-    return MOCK_IMAGES.sunset || CREATIVE_COMBOS['sunset mountains'];
-  }
-  
+
+  // Otherwise general keyword checks (making sure the order doesn't catch mountain/nature before the above)
   if (lowerPrompt.includes('sunset')) {
     return MOCK_IMAGES.sunset;
   }
-  
   if (lowerPrompt.includes('mountain')) {
     return MOCK_IMAGES.mountain;
   }
-  
   if (lowerPrompt.includes('landscape')) {
     return MOCK_IMAGES.landscape;
   }
-  
   if (lowerPrompt.includes('animal') || lowerPrompt.includes('cat') || lowerPrompt.includes('dog') || lowerPrompt.includes('bird')) {
     return MOCK_IMAGES.animal;
-  } else if (lowerPrompt.includes('nature') || lowerPrompt.includes('tree') || lowerPrompt.includes('forest') || lowerPrompt.includes('mountain')) {
+  }
+  if (lowerPrompt.includes('nature') || lowerPrompt.includes('tree') || lowerPrompt.includes('forest')) {
     return MOCK_IMAGES.nature;
-  } else if (lowerPrompt.includes('food') || lowerPrompt.includes('meal') || lowerPrompt.includes('dish') || lowerPrompt.includes('fruit')) {
+  }
+  if (lowerPrompt.includes('food') || lowerPrompt.includes('meal') || lowerPrompt.includes('dish') || lowerPrompt.includes('fruit')) {
     return MOCK_IMAGES.food;
-  } else if (lowerPrompt.includes('tech') || lowerPrompt.includes('computer') || lowerPrompt.includes('robot') || lowerPrompt.includes('future')) {
+  }
+  if (lowerPrompt.includes('tech') || lowerPrompt.includes('computer') || lowerPrompt.includes('robot') || lowerPrompt.includes('future')) {
     return MOCK_IMAGES.tech;
-  } else if (lowerPrompt.includes('city') || lowerPrompt.includes('urban') || lowerPrompt.includes('building') || lowerPrompt.includes('street')) {
+  }
+  if (lowerPrompt.includes('city') || lowerPrompt.includes('urban') || lowerPrompt.includes('building') || lowerPrompt.includes('street')) {
     return MOCK_IMAGES.city;
-  } else if (lowerPrompt.includes('person') || lowerPrompt.includes('face') || lowerPrompt.includes('portrait') || lowerPrompt.includes('people')) {
-    return MOCK_IMAGES.portrait;
-  } else if (lowerPrompt.includes('space') || lowerPrompt.includes('star') || lowerPrompt.includes('galaxy') || lowerPrompt.includes('universe')) {
+  }
+  if (lowerPrompt.includes('space') || lowerPrompt.includes('star') || lowerPrompt.includes('galaxy') || lowerPrompt.includes('universe')) {
     return MOCK_IMAGES.space;
   }
-  
+
   // Default to abstract if no matches
   return MOCK_IMAGES.default;
 }
