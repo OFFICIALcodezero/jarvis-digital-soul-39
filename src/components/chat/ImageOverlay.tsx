@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { AlertCircle, Download, Sparkles, Palette } from "lucide-react";
-import { GeneratedImage, checkImageMatchesPrompt } from "@/services/imagePromptChecker";
+import { checkImageMatchesPrompt } from "@/services/imagePromptChecker";
+import { GeneratedImage } from "@/services/imageGenerationService";
 
 interface ImageOverlayProps {
   image: GeneratedImage;

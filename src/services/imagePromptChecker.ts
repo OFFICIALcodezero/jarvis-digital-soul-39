@@ -1,5 +1,8 @@
+
 import { GeneratedImage } from "./imageGenerationService";
 import { STYLE_IMAGES, MOCK_IMAGES } from "./imageMockData";
+
+export { GeneratedImage };
 
 export const checkImageMatchesPrompt = (image: GeneratedImage): boolean => {
   // In a real implementation, this would use AI to check if the image matches the prompt

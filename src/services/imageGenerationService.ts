@@ -8,6 +8,8 @@ import {
   getRandomImage,
   getMockImageUrl
 } from './imageMockData';
+import { parseImageRequest } from './imagePromptParser';
+import { checkImageMatchesPrompt } from './imagePromptChecker';
 
 export interface ImageGenerationParams {
   prompt: string;
@@ -23,6 +25,8 @@ export interface GeneratedImage {
   style?: string;
   resolution?: string;
 }
+
+export { parseImageRequest, checkImageMatchesPrompt };
 
 export const generateImage = async (params: ImageGenerationParams): Promise<GeneratedImage> => {
   try {

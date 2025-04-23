@@ -149,10 +149,10 @@ export const getMockImageUrl = (prompt: string, style?: string): string => {
   const lowerPrompt = prompt.toLowerCase();
   
   // First check for creative combinations
-  for (const [combination, url] of Object.entries(CREATIVE_COMBOS)) {
+  for (const [combination, imageUrl] of Object.entries(CREATIVE_COMBOS)) {
     if (lowerPrompt.includes(combination)) {
       console.log(`Found creative combination match: ${combination}`);
-      return url;
+      return imageUrl;
     }
   }
   
@@ -189,7 +189,7 @@ export const getMockImageUrl = (prompt: string, style?: string): string => {
     
     if (MOCK_IMAGES[word]) {
       console.log(`Found direct word match: ${word}`);
-      return url;
+      return MOCK_IMAGES[word];
     }
   }
   
@@ -198,15 +198,15 @@ export const getMockImageUrl = (prompt: string, style?: string): string => {
     const twoWordCombo = `${words[i]} ${words[i+1]}`;
     if (CREATIVE_COMBOS[twoWordCombo]) {
       console.log(`Found two-word combo: ${twoWordCombo}`);
-      return url;
+      return CREATIVE_COMBOS[twoWordCombo];
     }
   }
   
   // Then check for partial matches in the complete prompt
-  for (const [keyword, url] of Object.entries(MOCK_IMAGES)) {
+  for (const [keyword, imageUrl] of Object.entries(MOCK_IMAGES)) {
     if (lowerPrompt.includes(keyword)) {
       console.log(`Found keyword in prompt: ${keyword}`);
-      return url;
+      return imageUrl;
     }
   }
   

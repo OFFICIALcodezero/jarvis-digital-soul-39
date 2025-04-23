@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Download, Image, RefreshCcw, SquarePlus, AlertCircle } from "lucide-react";
-import { GeneratedImage, checkImageMatchesPrompt } from "@/services/imagePromptChecker";
+import { checkImageMatchesPrompt } from "@/services/imagePromptChecker";
+import { GeneratedImage } from "@/services/imageGenerationService";
 
 interface GeneratedImageCardProps {
   image: GeneratedImage;

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useVoiceSynthesis } from '../hooks/useVoiceSynthesis';
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
@@ -12,7 +13,9 @@ import { NewsArticle } from '@/services/newsService';
 import { CalendarEvent } from '@/services/timeCalendarService';
 import { getDailyBriefing } from '@/services/dailyBriefingService';
 import ImageGenerationWidget from './widgets/ImageGenerationWidget';
-import { GeneratedImage, generateImage, parseImageRequest, checkImageMatchesPrompt } from '@/services/imageGenerationService';
+import { GeneratedImage, generateImage } from '@/services/imageGenerationService';
+import { parseImageRequest } from '@/services/imagePromptParser';
+import { checkImageMatchesPrompt } from '@/services/imagePromptChecker';
 import GeneratedImageCard from './chat/GeneratedImageCard';
 import { Download, Image, RefreshCcw, SquarePlus, AlertCircle } from 'lucide-react';
 import ImageOverlay from './chat/ImageOverlay';

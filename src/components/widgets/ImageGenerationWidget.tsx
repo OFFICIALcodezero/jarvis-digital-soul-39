@@ -1,10 +1,11 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Download, Image, Loader2, Sparkles, Palette, Layers } from 'lucide-react';
-import { GeneratedImage, ImageGenerationParams } from '@/services/imageGenerationService';
+import { GeneratedImage, ImageGenerationParams, generateImage } from '@/services/imageGenerationService';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 
