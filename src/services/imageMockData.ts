@@ -52,7 +52,10 @@ export const MOCK_IMAGES = {
   'city': 'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
   'portrait': 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
   'space': 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-  'abstract': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+  'abstract': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+  'sunset': 'https://images.unsplash.com/photo-1506815444479-bfdb1e96c566?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+  'mountain': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+  'landscape': 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
 };
 
 // Creative word combinations that will affect image selection
@@ -66,7 +69,9 @@ export const CREATIVE_COMBOS = {
   'dragon fire': 'https://images.unsplash.com/photo-1577493340887-b7bfff550145?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
   'alien landscape': 'https://images.unsplash.com/photo-1536697246787-1f7ae568d89a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
   'glowing forest': 'https://images.unsplash.com/photo-1565118531796-763e5082d113?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-  'cyberpunk street': 'https://images.unsplash.com/photo-1584801096196-56e3344004fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+  'cyberpunk street': 'https://images.unsplash.com/photo-1584801096196-56e3344004fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+  'sunset mountains': 'https://images.unsplash.com/photo-1465919292275-c60ba49da6ae?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+  'sunset over mountains': 'https://images.unsplash.com/photo-1465919292275-c60ba49da6ae?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
 };
 
 /**
@@ -97,6 +102,24 @@ export function getMockImageUrl(prompt: string, style?: string): string {
   
   // Otherwise pick based on content keywords
   const lowerPrompt = prompt.toLowerCase();
+  
+  // Special case for sunsets over mountains
+  if ((lowerPrompt.includes('sunset') && lowerPrompt.includes('mountain')) || 
+      lowerPrompt.includes('sunset over mountain')) {
+    return MOCK_IMAGES.sunset || CREATIVE_COMBOS['sunset mountains'];
+  }
+  
+  if (lowerPrompt.includes('sunset')) {
+    return MOCK_IMAGES.sunset;
+  }
+  
+  if (lowerPrompt.includes('mountain')) {
+    return MOCK_IMAGES.mountain;
+  }
+  
+  if (lowerPrompt.includes('landscape')) {
+    return MOCK_IMAGES.landscape;
+  }
   
   if (lowerPrompt.includes('animal') || lowerPrompt.includes('cat') || lowerPrompt.includes('dog') || lowerPrompt.includes('bird')) {
     return MOCK_IMAGES.animal;

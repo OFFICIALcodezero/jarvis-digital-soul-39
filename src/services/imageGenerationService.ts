@@ -34,8 +34,18 @@ export const generateImage = async (params: ImageGenerationParams): Promise<Gene
     // Simulated loading time
     await new Promise(resolve => setTimeout(resolve, 1400));
     
-    // Get mock image URL
-    const imageUrl = getMockImageUrl(params.prompt, params.style);
+    // Check for special cases in prompt
+    const lowerPrompt = params.prompt.toLowerCase();
+    let imageUrl;
+    
+    // Special handling for sunset over mountains
+    if ((lowerPrompt.includes('sunset') && lowerPrompt.includes('mountain')) || 
+        lowerPrompt.includes('sunset over mountain')) {
+      imageUrl = CREATIVE_COMBOS['sunset over mountains'] || MOCK_IMAGES.sunset;
+    } else {
+      // Get mock image URL using normal logic
+      imageUrl = getMockImageUrl(params.prompt, params.style);
+    }
 
     // Log for debugging
     console.log(`Generating image for prompt: "${params.prompt}" with style: ${params.style || 'default'}`);

@@ -1,3 +1,4 @@
+
 import { ImageGenerationParams } from "./imageGenerationService";
 
 // Enhanced style & image parameter parsing from prompt/user input.
@@ -21,6 +22,10 @@ export const parseImageRequest = (input: string): ImageGenerationParams => {
   else if (/pixel|pixel art|pixelated|retro game/i.test(input)) params.style = 'pixel';
   else if (/sci[\s\-]?fi|science fiction|futuristic/i.test(input)) params.style = 'sci-fi';
   else if (/fantasy|mythical|magical|dragon|elf|wizard/i.test(input)) params.style = 'fantasy';
+  else if (/sunset|evening|dusk/i.test(input) && /mountain|hill|peak/i.test(input)) {
+    // Special handling for sunset over mountains
+    params.style = 'realistic';
+  }
 
   // Check for resolution keywords
   if (/high(\s+)?(resolution|quality)|detailed|crisp/i.test(input)) params.resolution = '1024x1024';
