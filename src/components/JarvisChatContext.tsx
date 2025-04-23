@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, useMemo } from "react";
 import { useVoiceSynthesis } from '../hooks/useVoiceSynthesis';
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
@@ -28,7 +27,7 @@ interface ChatContextType {
   stopSpeaking: () => void;
   setIsSpeaking: (on: boolean) => void;
   isSpeaking: boolean;
-  audioPlaying: boolean; // Added this property
+  audioPlaying: boolean;
   volume: number;
   setVolume: (v: number) => void;
   toggleMute: () => void;
@@ -61,7 +60,6 @@ export const useJarvisChatContext = () => {
   return ctx;
 };
 
-// Provider component that contains most logic from old JarvisChat
 export const JarvisChatProvider: React.FC<{ children: React.ReactNode } & JarvisChatProps> = ({
   children,
   activeMode,
@@ -97,7 +95,6 @@ export const JarvisChatProvider: React.FC<{ children: React.ReactNode } & Jarvis
 
   const { speakText, stopSpeaking, setAudioVolume, isPlaying } = useVoiceSynthesis(activeMode);
 
-  // Map isPlaying from useVoiceSynthesis to audioPlaying for the context
   const audioPlaying = isPlaying;
 
   useEffect(() => { scrollToBottom(); }, [messages, currentTypingText]);
@@ -106,7 +103,6 @@ export const JarvisChatProvider: React.FC<{ children: React.ReactNode } & Jarvis
 
   const toggleMute = () => setVolume(prev => prev > 0 ? 0 : 80);
 
-  // IMAGE LOGIC (factored for overlay/components)
   const handleRefineImage = async (prevPrompt: string, refinement: string) => {
     const newPrompt = `${prevPrompt}. ${refinement}`;
     await handleImageGenerationFromPrompt(newPrompt, true);
@@ -190,7 +186,7 @@ export const JarvisChatProvider: React.FC<{ children: React.ReactNode } & Jarvis
     stopSpeaking,
     setIsSpeaking: _setIsSpeaking,
     isSpeaking,
-    audioPlaying, // Added audioPlaying to the context value
+    audioPlaying,
     volume,
     setVolume,
     toggleMute,
@@ -207,10 +203,8 @@ export const JarvisChatProvider: React.FC<{ children: React.ReactNode } & Jarvis
     calendarEvents,
     setCalendarEvents,
     handleSendMessage: async () => {
-      // moved from JarvisChat, preserve signature
       if (!input.trim()) return;
 
-      // Direct image prompt detection
       const isDirectImagePrompt = (msg: string) => {
         const lower = msg.toLowerCase();
         return (
@@ -355,7 +349,7 @@ export const JarvisChatProvider: React.FC<{ children: React.ReactNode } & Jarvis
     setShowDashboard,
   }), [
     messages, setMessages, input, setInput, isTyping, currentTypingText, isProcessing, selectedLanguage,
-    setSelectedLanguage, chatEndRef, speakText, stopSpeaking, _setIsSpeaking, isSpeaking, audioPlaying, // Added audioPlaying to the dependencies
+    setSelectedLanguage, chatEndRef, speakText, stopSpeaking, _setIsSpeaking, isSpeaking, audioPlaying,
     volume, setVolume, toggleMute, parentIsListening, inputMode, setInputMode, activeAssistant, setActiveAssistant, activeMode,
     weatherData, setWeatherData, newsArticles, setNewsArticles, calendarEvents, setCalendarEvents, activeImage,
     showDashboard, setShowDashboard
