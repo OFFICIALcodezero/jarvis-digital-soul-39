@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { AlertCircle, Download, Sparkles, Palette } from "lucide-react";
 import { checkImageMatchesPrompt } from "@/services/imagePromptChecker";
@@ -13,6 +14,7 @@ interface ImageOverlayProps {
 const ImageOverlay: React.FC<ImageOverlayProps> = ({ image, onClose, onRefine, onRegenerate }) => {
   const [refinePrompt, setRefinePrompt] = useState('');
   const [showStyleOptions, setShowStyleOptions] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const matchesPrompt = checkImageMatchesPrompt(image);
 
   const styleOptions = [
@@ -30,15 +32,26 @@ const ImageOverlay: React.FC<ImageOverlayProps> = ({ image, onClose, onRefine, o
     onRefine(`in ${style} style`);
   };
 
+  const fallbackImage = "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80";
+
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 animate-fade-in transition-all">
       <div className="bg-black/90 rounded-xl shadow-2xl border-2 border-jarvis/40 overflow-hidden p-6 w-[90vw] max-w-2xl">
         <div className="flex flex-col items-center">
           <img
-            src={image.url}
+            src={imageError ? fallbackImage : image.url}
             alt={image.prompt}
             className="max-h-[60vh] rounded-lg mb-4 shadow-lg animate-scale-in"
             style={{ objectFit: 'cover' }}
+            onError={(e) => {
+              console.error("Image failed to load in overlay:", image.url);
+              setImageError(true);
+              // Set the fallback source
+              const imgElement = e.target as HTMLImageElement;
+              if (imgElement) {
+                imgElement.src = fallbackImage;
+              }
+            }}
           />
           <div className="text-center mb-3 text-lg text-jarvis font-bold animate-fade-in">
             "{image.prompt}"
@@ -105,7 +118,7 @@ const ImageOverlay: React.FC<ImageOverlayProps> = ({ image, onClose, onRefine, o
           </div>
           <div className="mt-2 flex justify-center gap-4">
             <a
-              href={image.url}
+              href={imageError ? fallbackImage : image.url}
               download={`jarvis-image-${Date.now()}.jpg`}
               className="text-sm text-jarvis underline hover:text-jarvis/80"
               target="_blank"

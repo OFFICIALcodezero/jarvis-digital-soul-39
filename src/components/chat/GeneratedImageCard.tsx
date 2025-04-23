@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Download, Image, RefreshCcw, SquarePlus, AlertCircle } from "lucide-react";
 import { checkImageMatchesPrompt } from "@/services/imagePromptChecker";
 import type { GeneratedImage } from "@/services/imageGenerationService";
+import { toast } from "@/components/ui/use-toast";
 
 interface GeneratedImageCardProps {
   image: GeneratedImage;
@@ -16,6 +17,7 @@ const GeneratedImageCard: React.FC<GeneratedImageCardProps> = ({ image, onRegene
   const [refinePrompt, setRefinePrompt] = useState("");
   const [showControls, setShowControls] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
   const matchesPrompt = checkImageMatchesPrompt(image);
 
   const handleDownload = () => {
@@ -27,6 +29,8 @@ const GeneratedImageCard: React.FC<GeneratedImageCardProps> = ({ image, onRegene
     link.click();
     document.body.removeChild(link);
   };
+
+  const fallbackImage = "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80";
 
   return (
     <Card
@@ -46,14 +50,24 @@ const GeneratedImageCard: React.FC<GeneratedImageCardProps> = ({ image, onRegene
             </div>
           )}
           <img
-            src={image.url}
+            src={hasError ? fallbackImage : image.url}
             alt={image.prompt}
             className={`w-full h-full object-cover rounded-lg border border-jarvis/20 transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
             loading="lazy"
-            onLoad={() => setIsLoaded(true)}
+            onLoad={() => {
+              console.log("Image loaded successfully:", hasError ? fallbackImage : image.url);
+              setIsLoaded(true);
+            }}
             onError={(e) => {
               console.error("Failed to load image:", e);
+              setHasError(true);
               setIsLoaded(true); // Still mark as loaded to remove spinner
+              
+              // Try with the fallback image instead
+              const imgElement = e.target as HTMLImageElement;
+              if (!hasError && imgElement) {
+                imgElement.src = fallbackImage;
+              }
             }}
           />
           {!matchesPrompt && onRegenerate && isLoaded && (

@@ -1,71 +1,72 @@
+
 // Define image URLs for different categories
 export const STYLE_IMAGES = {
   'realistic': [
-    'https://images.unsplash.com/photo-1526336024174-e58f5cdd8e13',
-    'https://images.unsplash.com/photo-1507146426996-ef05306b995a',
-    'https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead'
+    'https://images.unsplash.com/photo-1526336024174-e58f5cdd8e13?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1507146426996-ef05306b995a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
   ],
   'anime': [
-    'https://images.unsplash.com/photo-1578632767115-351597cf2477',
-    'https://images.unsplash.com/photo-1586410073908-ada3a1f91bc2',
-    'https://images.unsplash.com/photo-1541562232579-512a21360020'
+    'https://images.unsplash.com/photo-1578632767115-351597cf2477?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1586410073908-ada3a1f91bc2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1541562232579-512a21360020?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
   ],
   '3d': [
-    'https://images.unsplash.com/photo-1569282229551-a217ef5896fc',
-    'https://images.unsplash.com/photo-1616161560417-66d4db5892ec',
-    'https://images.unsplash.com/photo-1635776062127-d379bfcba9f9'
+    'https://images.unsplash.com/photo-1569282229551-a217ef5896fc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1616161560417-66d4db5892ec?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1635776062127-d379bfcba9f9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
   ],
   'abstract': [
-    'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe',
-    'https://images.unsplash.com/photo-1557672172-298e090bd0f1',
-    'https://images.unsplash.com/photo-1567095761054-7a02e69e5c43'
+    'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1557672172-298e090bd0f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1567095761054-7a02e69e5c43?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
   ],
   'painting': [
-    'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5',
-    'https://images.unsplash.com/photo-1544967082-d9d25d867d66',
-    'https://images.unsplash.com/photo-1580136579312-94651dfd596d'
+    'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1544967082-d9d25d867d66?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1580136579312-94651dfd596d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
   ],
   'pixel': [
-    'https://images.unsplash.com/photo-1633350356762-04815f41a757',
-    'https://images.unsplash.com/photo-1636457742446-9b15a7522cd1',
-    'https://images.unsplash.com/photo-1628569407502-80ed608fb517'
+    'https://images.unsplash.com/photo-1633350356762-04815f41a757?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1636457742446-9b15a7522cd1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1628569407502-80ed608fb517?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
   ],
   'sci-fi': [
-    'https://images.unsplash.com/photo-1462331940025-496dfbfc7564',
-    'https://images.unsplash.com/photo-1506318137071-a8e063b4bec0',
-    'https://images.unsplash.com/photo-1528722828814-77b9b83aafb2'
+    'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1506318137071-a8e063b4bec0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1528722828814-77b9b83aafb2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
   ],
   'fantasy': [
-    'https://images.unsplash.com/photo-1518709268805-4e9042af9f23',
-    'https://images.unsplash.com/photo-1534447677768-be436bb09401',
-    'https://images.unsplash.com/photo-1481018085669-2bc6e4f00eed'
+    'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1534447677768-be436bb09401?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1481018085669-2bc6e4f00eed?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
   ]
 };
 
 export const MOCK_IMAGES = {
-  'default': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe',
-  'animal': 'https://images.unsplash.com/photo-1484406566174-9da000fda645',
-  'nature': 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e',
-  'food': 'https://images.unsplash.com/photo-1504674900247-0877df9cc836',
-  'tech': 'https://images.unsplash.com/photo-1531297484001-80022131f5a1',
-  'city': 'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b',
-  'portrait': 'https://images.unsplash.com/photo-1534528741775-53994a69daeb',
-  'space': 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564',
-  'abstract': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe'
+  'default': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+  'animal': 'https://images.unsplash.com/photo-1484406566174-9da000fda645?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+  'nature': 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+  'food': 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+  'tech': 'https://images.unsplash.com/photo-1531297484001-80022131f5a1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+  'city': 'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+  'portrait': 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+  'space': 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+  'abstract': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
 };
 
 // Creative word combinations that will affect image selection
 export const CREATIVE_COMBOS = {
-  'disco dancing': 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6a3',
-  'fish disco': 'https://images.unsplash.com/photo-1524704654690-b56c05c78a00',
-  'space cat': 'https://images.unsplash.com/photo-1543852786-1cf6624b9987',
-  'robot dog': 'https://images.unsplash.com/photo-1589254065909-b7086229d08c',
-  'flying car': 'https://images.unsplash.com/photo-1511618938258-76d46a7b2261',
-  'underwater city': 'https://images.unsplash.com/photo-1518639192441-8fce0a366e2e',
-  'dragon fire': 'https://images.unsplash.com/photo-1577493340887-b7bfff550145',
-  'alien landscape': 'https://images.unsplash.com/photo-1536697246787-1f7ae568d89a',
-  'glowing forest': 'https://images.unsplash.com/photo-1565118531796-763e5082d113',
-  'cyberpunk street': 'https://images.unsplash.com/photo-1584801096196-56e3344004fb'
+  'disco dancing': 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6a3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+  'fish disco': 'https://images.unsplash.com/photo-1524704654690-b56c05c78a00?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+  'space cat': 'https://images.unsplash.com/photo-1543852786-1cf6624b9987?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+  'robot dog': 'https://images.unsplash.com/photo-1589254065909-b7086229d08c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+  'flying car': 'https://images.unsplash.com/photo-1511618938258-76d46a7b2261?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+  'underwater city': 'https://images.unsplash.com/photo-1518639192441-8fce0a366e2e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+  'dragon fire': 'https://images.unsplash.com/photo-1577493340887-b7bfff550145?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+  'alien landscape': 'https://images.unsplash.com/photo-1536697246787-1f7ae568d89a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+  'glowing forest': 'https://images.unsplash.com/photo-1565118531796-763e5082d113?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+  'cyberpunk street': 'https://images.unsplash.com/photo-1584801096196-56e3344004fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
 };
 
 /**
@@ -80,11 +81,12 @@ export function getRandomImage(styleArray: string[]): string {
  * Get a mock image URL based on prompt and style
  */
 export function getMockImageUrl(prompt: string, style?: string): string {
-  console.log('Found creative combination match: ' + findCreativeCombo(prompt));
+  console.log('Getting mock image for prompt: ' + prompt + ' with style: ' + style);
   
   // First check if the prompt contains any of our creative combinations
   const creativeMatch = findCreativeCombo(prompt);
   if (creativeMatch) {
+    console.log('Found creative combination match: ' + creativeMatch);
     return CREATIVE_COMBOS[creativeMatch];
   }
   
