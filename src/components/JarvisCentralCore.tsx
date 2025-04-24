@@ -3,6 +3,7 @@ import React from 'react';
 import JarvisCore from './core/JarvisCore';
 import JarvisAvatar from './JarvisAvatar';
 import { useJarvisChat } from '../contexts/JarvisChatProvider';
+import { Progress } from '@/components/ui/progress';
 
 interface JarvisCentralCoreProps {
   isSpeaking: boolean;
@@ -17,10 +18,7 @@ const JarvisCentralCore: React.FC<JarvisCentralCoreProps> = ({
   isProcessing,
   activeMode
 }) => {
-  const jarvisChat = useJarvisChat();
-  
-  // Since 'messages' may not exist in the context, let's provide a fallback
-  const isGeneratingImage = false; // Simplified fallback
+  const { isGeneratingImage, generationProgress } = useJarvisChat();
   
   return (
     <div className="flex-1 flex flex-col items-center justify-center relative">
@@ -38,6 +36,13 @@ const JarvisCentralCore: React.FC<JarvisCentralCoreProps> = ({
         />
       </div>
       
+      {isGeneratingImage && (
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40">
+          <Progress value={generationProgress} className="h-2 bg-black/40" />
+          <p className="text-xs text-jarvis mt-1 text-center">Generating Image: {Math.round(generationProgress)}%</p>
+        </div>
+      )}
+      
       {activeMode === 'face' && (
         <div className="mt-4 mb-2">
           <JarvisAvatar 
@@ -47,8 +52,6 @@ const JarvisCentralCore: React.FC<JarvisCentralCoreProps> = ({
           />
         </div>
       )}
-      
-      {/* Removed SystemData component */}
       
       {isSpeaking && (
         <div className="absolute top-2 right-2 bg-jarvis/20 text-jarvis px-2 py-1 rounded-md text-xs border border-jarvis/30 animate-pulse">

@@ -4,25 +4,35 @@ import ImageOverlay from "./chat/ImageOverlay";
 import { useJarvisChat } from "../contexts/JarvisChatProvider";
 
 const JarvisImageOverlayHandler: React.FC = () => {
-  const { activeImage, setActiveImage } = useJarvisChat();
+  const { activeImage, setActiveImage, handleRefineImage } = useJarvisChat();
 
   if (!activeImage) return null;
 
-  const handleRefineImage = (refinement: string) => {
-    // Simplified for now
-    setActiveImage(null);
+  const handleRefinementSubmit = async (refinement: string) => {
+    try {
+      if (activeImage) {
+        await handleRefineImage(activeImage.prompt, refinement);
+      }
+    } catch (error) {
+      console.error("Error refining image:", error);
+    }
   };
 
-  const handleRegenerate = () => {
-    // Simplified for now
-    setActiveImage(null);
+  const handleRegenerate = async () => {
+    try {
+      if (activeImage) {
+        await handleRefineImage(activeImage.prompt, "same but better quality");
+      }
+    } catch (error) {
+      console.error("Error regenerating image:", error);
+    }
   };
 
   return (
     <ImageOverlay
       image={activeImage}
       onClose={() => setActiveImage(null)}
-      onRefine={handleRefineImage}
+      onRefine={handleRefinementSubmit}
       onRegenerate={handleRegenerate}
     />
   );

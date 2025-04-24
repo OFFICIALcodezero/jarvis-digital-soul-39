@@ -1,10 +1,12 @@
 
-import React, { useState } from 'react';
-import { Sparkles, Download, Loader, Heart, PenLine, Repeat, Image as ImageIcon } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Sparkles, Download, Loader, Heart, PenLine, Repeat, Image as ImageIcon, Mic, StopCircle } from 'lucide-react';
 import { generateImage, ImageGenerationParams, GeneratedImage } from '@/services/imageGenerationService';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/components/ui/use-toast';
+import { Progress } from '@/components/ui/progress';
+import { useJarvisChat } from '@/contexts/JarvisChatProvider';
 
 interface ImageGenerationToolProps {
   onImageGenerated?: (image: GeneratedImage) => void;
@@ -15,8 +17,11 @@ const ImageGenerationTool: React.FC<ImageGenerationToolProps> = ({ onImageGenera
   const [generatingImage, setGeneratingImage] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<GeneratedImage | null>(null);
   const [selectedStyle, setSelectedStyle] = useState<string | null>(null);
-  const [selectedFormat, setSelectedFormat] = useState<'1:1' | '16:9'>('1:1');
+  const [selectedFormat, setSelectedFormat] = useState<'1:1' | '16:9' | '4:3' | '3:2'>('1:1');
   const [imageError, setImageError] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [progressValue, setProgressValue] = useState(0);
+  const { isGeneratingImage, generationProgress } = useJarvisChat();
 
   const styles = [
     { id: 'realistic', label: 'Realistic', icon: '📷' },
@@ -29,6 +34,87 @@ const ImageGenerationTool: React.FC<ImageGenerationToolProps> = ({ onImageGenera
     { id: 'fantasy', label: 'Fantasy', icon: '🧙' }
   ];
 
+  const formatOptions = [
+    { id: '1:1', label: 'Square', width: 6, height: 6 },
+    { id: '16:9', label: 'Widescreen', width: 8, height: 6 },
+    { id: '4:3', label: 'Standard', width: 8, height: 6 },
+    { id: '3:2', label: 'Portrait', width: 6, height: 8 }
+  ];
+
+  useEffect(() => {
+    let recognitionInstance: SpeechRecognition | null = null;
+
+    if (isListening) {
+      try {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognitionInstance = new SpeechRecognition();
+        recognitionInstance.continuous = true;
+        recognitionInstance.interimResults = true;
+        recognitionInstance.lang = 'en-US';
+
+        recognitionInstance.onresult = (event) => {
+          const transcript = Array.from(event.results)
+            .map(result => result[0].transcript)
+            .join('');
+          
+          // Extract image prompt from voice command
+          if (transcript.toLowerCase().includes('jarvis generate') || 
+              transcript.toLowerCase().includes('create image') ||
+              transcript.toLowerCase().includes('make image')) {
+            
+            const promptRegex = /(?:jarvis,? generate|create image|make image)(?:\s+of|about)?(?:\s+an?)?(?:\s+image\s+of)?\s+(.+)/i;
+            const match = transcript.match(promptRegex);
+            
+            if (match && match[1]) {
+              setPrompt(match[1]);
+              setIsListening(false);
+              if (recognitionInstance) {
+                recognitionInstance.stop();
+              }
+            }
+          }
+        };
+
+        recognitionInstance.onend = () => {
+          setIsListening(false);
+        };
+
+        recognitionInstance.onerror = (event) => {
+          console.error('Speech recognition error:', event.error);
+          setIsListening(false);
+          toast({
+            title: "Voice Input Error",
+            description: "There was an issue with voice recognition. Please try again or type your prompt.",
+            variant: "destructive"
+          });
+        };
+
+        recognitionInstance.start();
+      } catch (error) {
+        console.error('Speech recognition not supported:', error);
+        setIsListening(false);
+        toast({
+          title: "Voice Input Not Supported",
+          description: "Your browser doesn't support voice recognition. Please type your prompt instead.",
+          variant: "destructive"
+        });
+      }
+    }
+
+    return () => {
+      if (recognitionInstance) {
+        recognitionInstance.stop();
+      }
+    };
+  }, [isListening]);
+
+  useEffect(() => {
+    // Sync progress with context
+    if (isGeneratingImage) {
+      setProgressValue(generationProgress);
+    }
+  }, [isGeneratingImage, generationProgress]);
+
   const handleGenerate = async () => {
     if (!prompt.trim()) {
       toast({
@@ -39,9 +125,30 @@ const ImageGenerationTool: React.FC<ImageGenerationToolProps> = ({ onImageGenera
       return;
     }
 
+    // Check for potentially inappropriate content
+    const inappropriateTerms = ['nude', 'naked', 'pornographic', 'explicit', 'violence', 'gore', 'illegal'];
+    const lowerPrompt = prompt.toLowerCase();
+    
+    if (inappropriateTerms.some(term => lowerPrompt.includes(term))) {
+      toast({
+        title: "Inappropriate Content Detected",
+        description: "I cannot generate images with inappropriate or explicit content. Please modify your request.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setGeneratingImage(true);
     setGeneratedImage(null);
     setImageError(false);
+    setProgressValue(0);
+    
+    const progressInterval = setInterval(() => {
+      setProgressValue(prev => {
+        const newProgress = prev + Math.random() * 15;
+        return newProgress > 95 ? 95 : newProgress;
+      });
+    }, 500);
 
     try {
       const params: ImageGenerationParams = {
@@ -62,6 +169,8 @@ const ImageGenerationTool: React.FC<ImageGenerationToolProps> = ({ onImageGenera
         description: "Your image has been created successfully!",
         variant: "default"
       });
+      
+      setProgressValue(100);
     } catch (error) {
       console.error('Error generating image:', error);
       toast({
@@ -70,7 +179,21 @@ const ImageGenerationTool: React.FC<ImageGenerationToolProps> = ({ onImageGenera
         variant: "destructive"
       });
     } finally {
+      clearInterval(progressInterval);
       setGeneratingImage(false);
+    }
+  };
+
+  const handleVoiceInput = () => {
+    if (isListening) {
+      setIsListening(false);
+    } else {
+      setIsListening(true);
+      toast({
+        title: "Voice Input Activated",
+        description: "Say 'Jarvis, generate an image of...' and your prompt",
+        variant: "default"
+      });
     }
   };
 
@@ -103,16 +226,38 @@ const ImageGenerationTool: React.FC<ImageGenerationToolProps> = ({ onImageGenera
     <div className="flex flex-col gap-4 bg-black/30 border border-jarvis/20 rounded-lg p-4">
       <div className="flex items-center mb-2">
         <Sparkles className="w-5 h-5 mr-2 text-jarvis" />
-        <h2 className="text-lg font-semibold text-white">JARVIS Image Generator</h2>
+        <h2 className="text-lg font-semibold text-white">JARVIS Advanced Image Generator</h2>
       </div>
       
       <div className="flex flex-col gap-3">
-        <Textarea
-          placeholder="Describe the image you want to generate... (e.g., 'a futuristic city at sunset' or 'a disco-dancing fish in a neon suit')"
-          value={prompt}
-          onChange={e => setPrompt(e.target.value)}
-          className="bg-black/50 text-white border-jarvis/30 placeholder-gray-400 min-h-[80px]"
-        />
+        <div className="relative">
+          <Textarea
+            placeholder="Describe the image you want to generate in detail... (e.g., 'a cyberpunk fish DJ at an underwater rave with neon lights' or 'an ancient robot meditating on a mountain at sunrise')"
+            value={prompt}
+            onChange={e => setPrompt(e.target.value)}
+            className="bg-black/50 text-white border-jarvis/30 placeholder-gray-400 min-h-[80px] pr-10"
+          />
+          <Button 
+            onClick={handleVoiceInput}
+            className={`absolute right-2 top-2 p-1 h-auto rounded-full ${
+              isListening ? 'bg-jarvis/40 text-white animate-pulse' : 'bg-black/60 text-jarvis/70'
+            }`}
+            size="icon"
+            type="button"
+          >
+            {isListening ? (
+              <StopCircle className="h-4 w-4" />
+            ) : (
+              <Mic className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
+        
+        {isListening && (
+          <div className="bg-jarvis/10 border border-jarvis/30 p-2 rounded-md text-xs text-jarvis animate-pulse">
+            Listening for voice command... Say "Jarvis, generate an image of..."
+          </div>
+        )}
         
         <div className="flex flex-wrap gap-3 mb-2">
           <div className="flex items-center gap-2">
@@ -139,32 +284,25 @@ const ImageGenerationTool: React.FC<ImageGenerationToolProps> = ({ onImageGenera
         <div className="flex items-center gap-2 mb-3">
           <span className="text-sm text-gray-300">Format:</span>
           <div className="flex gap-1">
-            <button
-              onClick={() => setSelectedFormat('1:1')}
-              className={`p-1 rounded transition flex items-center ${
-                selectedFormat === '1:1' 
-                  ? 'bg-jarvis/40 text-white' 
-                  : 'bg-black/40 text-gray-300 hover:bg-jarvis/20'
-              }`}
-              title="Square (1:1)"
-            >
-              <div className="w-6 h-6 flex items-center justify-center border border-current">
-                <span className="text-xs">1:1</span>
-              </div>
-            </button>
-            <button
-              onClick={() => setSelectedFormat('16:9')}
-              className={`p-1 rounded transition flex items-center ${
-                selectedFormat === '16:9' 
-                  ? 'bg-jarvis/40 text-white' 
-                  : 'bg-black/40 text-gray-300 hover:bg-jarvis/20'
-              }`}
-              title="Widescreen (16:9)"
-            >
-              <div className="w-8 h-6 flex items-center justify-center border border-current">
-                <span className="text-xs">16:9</span>
-              </div>
-            </button>
+            {formatOptions.map(format => (
+              <button
+                key={format.id}
+                onClick={() => setSelectedFormat(format.id as any)}
+                className={`p-1 rounded transition flex items-center ${
+                  selectedFormat === format.id 
+                    ? 'bg-jarvis/40 text-white' 
+                    : 'bg-black/40 text-gray-300 hover:bg-jarvis/20'
+                }`}
+                title={format.label}
+              >
+                <div 
+                  className={`flex items-center justify-center border border-current`}
+                  style={{ width: `${format.width/2}rem`, height: `${format.height/3}rem` }}
+                >
+                  <span className="text-xs">{format.id}</span>
+                </div>
+              </button>
+            ))}
           </div>
         </div>
         
@@ -190,19 +328,21 @@ const ImageGenerationTool: React.FC<ImageGenerationToolProps> = ({ onImageGenera
       {(generatingImage || generatedImage) && (
         <div className="mt-4">
           <div className={`relative rounded-lg overflow-hidden border border-jarvis/30 ${
-            selectedFormat === '16:9' ? 'aspect-video' : 'aspect-square'
+            getFormatClass(selectedFormat)
           }`}>
             {generatingImage ? (
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/70">
                 <div className="animate-pulse mb-3">
                   <Sparkles className="w-12 h-12 text-jarvis animate-spin-slow" />
                 </div>
-                <div className="text-jarvis text-sm">Generating your masterpiece...</div>
-                <div className="mt-2 flex space-x-2">
-                  <div className="w-2 h-2 rounded-full bg-jarvis/60 animate-bounce"></div>
-                  <div className="w-2 h-2 rounded-full bg-jarvis/60 animate-bounce" style={{ animationDelay: "0.2s" }}></div>
-                  <div className="w-2 h-2 rounded-full bg-jarvis/60 animate-bounce" style={{ animationDelay: "0.4s" }}></div>
+                <div className="text-jarvis text-sm mb-4">Creating your masterpiece...</div>
+                <div className="w-48 h-2 bg-black/40 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-jarvis/60 transition-all duration-300 rounded-full"
+                    style={{ width: `${progressValue}%` }}
+                  ></div>
                 </div>
+                <div className="mt-2 text-xs text-jarvis/80">{Math.round(progressValue)}%</div>
               </div>
             ) : generatedImage && (
               <>
@@ -258,6 +398,22 @@ const ImageGenerationTool: React.FC<ImageGenerationToolProps> = ({ onImageGenera
       )}
     </div>
   );
+};
+
+// Helper function to get CSS class based on selected format
+const getFormatClass = (format: string): string => {
+  switch (format) {
+    case '1:1':
+      return 'aspect-square';
+    case '16:9':
+      return 'aspect-video';
+    case '4:3':
+      return 'aspect-[4/3]';
+    case '3:2':
+      return 'aspect-[3/2]';
+    default:
+      return 'aspect-square';
+  }
 };
 
 export default ImageGenerationTool;
