@@ -9,27 +9,77 @@ export interface SkillResponse {
   text: string;
   data?: any;
   shouldSpeak: boolean;
-  skillType: 'weather' | 'news' | 'time' | 'calendar' | 'briefing' | 'image' | 'system' | 'security' | 'analysis' | 'general' | 'unknown';
+  skillType: 'weather' | 'news' | 'time' | 'calendar' | 'briefing' | 'image' | 'system' | 'security' | 'analysis' | 'combat' | 'flight' | 'power' | 'general' | 'unknown';
 }
 
-// Simulate system status
+// Enhanced system status simulation
 const getSystemStatus = () => {
   return {
-    cpu: Math.round(Math.random() * 30 + 70), // 70-100%
-    memory: Math.round(Math.random() * 40 + 60), // 60-100%
-    network: Math.round(Math.random() * 20 + 80), // 80-100%
-    temperature: Math.round(Math.random() * 10 + 35), // 35-45°C
+    cpu: Math.round(Math.random() * 30 + 70),
+    memory: Math.round(Math.random() * 40 + 60),
+    network: Math.round(Math.random() * 20 + 80),
+    temperature: Math.round(Math.random() * 10 + 35),
+    power: {
+      arc_reactor: {
+        output: Math.round(Math.random() * 20 + 80) + '%',
+        efficiency: Math.round(Math.random() * 10 + 90) + '%',
+        status: 'Optimal'
+      }
+    },
+    defense_systems: {
+      shields: 'Active',
+      countermeasures: 'Armed',
+      threat_detection: 'Online'
+    }
   };
 };
 
-// Simulate security protocols
+// Enhanced security protocols
 const securityProtocols = [
   'Mark VII Deployment Protocol',
   'House Party Protocol',
   'Clean Slate Protocol',
   'Safe House Protocol',
-  'Barn Door Protocol'
+  'Barn Door Protocol',
+  'Silent Night Protocol',
+  'Doomsday Protocol',
+  'Ultron Contingency'
 ];
+
+// New combat systems simulation
+const getCombatReadiness = () => {
+  return {
+    weapons: {
+      repulsors: 'Online',
+      unibeam: 'Charged',
+      missiles: 'Armed'
+    },
+    targeting: 'Active',
+    combat_ai: 'Engaged',
+    threat_assessment: 'Active'
+  };
+};
+
+// New flight systems simulation
+const getFlightStatus = () => {
+  return {
+    stabilizers: 'Online',
+    thrusters: 'Operational',
+    altitude: Math.round(Math.random() * 30000) + ' ft',
+    speed: Math.round(Math.random() * 500) + ' mph',
+    navigation: 'Active'
+  };
+};
+
+// New power systems simulation
+const getPowerStatus = () => {
+  return {
+    arc_reactor_output: Math.round(Math.random() * 20 + 80) + '%',
+    backup_power: 'Standing by',
+    power_distribution: 'Optimal',
+    energy_signature: 'Minimal'
+  };
+};
 
 export const processSkillCommand = async (command: string): Promise<SkillResponse> => {
   const lowerCommand = command.toLowerCase();
@@ -41,10 +91,49 @@ export const processSkillCommand = async (command: string): Promise<SkillRespons
         lowerCommand.includes('system health')) {
       const status = getSystemStatus();
       return {
-        text: `System diagnostics: CPU performance at ${status.cpu}%, Memory usage at ${status.memory}%, Network stability at ${status.network}%, Core temperature at ${status.temperature}°C. All systems operating within normal parameters, sir.`,
+        text: `System diagnostics complete:\n- Arc Reactor output at ${status.power.arc_reactor.output}\n- Core systems: CPU ${status.cpu}%, Memory ${status.memory}%\n- Defense systems: ${status.defense_systems.shields}\n- All primary systems operational, sir.`,
         data: status,
         shouldSpeak: true,
         skillType: 'system'
+      };
+    }
+    
+    // Combat Systems
+    else if (lowerCommand.includes('combat') ||
+             lowerCommand.includes('weapons') ||
+             lowerCommand.includes('battle')) {
+      const combat = getCombatReadiness();
+      return {
+        text: `Combat systems check:\n- Weapons systems: ${combat.weapons.repulsors}\n- Targeting system: ${combat.targeting}\n- Combat AI: ${combat.combat_ai}\n- Ready for engagement, sir.`,
+        data: combat,
+        shouldSpeak: true,
+        skillType: 'combat'
+      };
+    }
+    
+    // Flight Systems
+    else if (lowerCommand.includes('flight') ||
+             lowerCommand.includes('thrusters') ||
+             lowerCommand.includes('stabilizers')) {
+      const flight = getFlightStatus();
+      return {
+        text: `Flight systems status:\n- Thrusters: ${flight.thrusters}\n- Current altitude: ${flight.altitude}\n- Speed: ${flight.speed}\n- All systems green for flight, sir.`,
+        data: flight,
+        shouldSpeak: true,
+        skillType: 'flight'
+      };
+    }
+    
+    // Power Systems
+    else if (lowerCommand.includes('power') ||
+             lowerCommand.includes('reactor') ||
+             lowerCommand.includes('energy')) {
+      const power = getPowerStatus();
+      return {
+        text: `Power systems analysis:\n- Arc Reactor output: ${power.arc_reactor_output}\n- Backup power: ${power.backup_power}\n- Power distribution: ${power.power_distribution}\n- All power systems functioning normally, sir.`,
+        data: power,
+        shouldSpeak: true,
+        skillType: 'power'
       };
     }
     
@@ -54,27 +143,10 @@ export const processSkillCommand = async (command: string): Promise<SkillRespons
              lowerCommand.includes('security status')) {
       const protocol = securityProtocols[Math.floor(Math.random() * securityProtocols.length)];
       return {
-        text: `Security systems engaged. ${protocol} is active and ready. All defense systems are operational, sir.`,
+        text: `Security systems engaged. ${protocol} is active and ready. Defense matrix online. Countermeasures standing by, sir.`,
         data: { activeProtocol: protocol },
         shouldSpeak: true,
         skillType: 'security'
-      };
-    }
-    
-    // Advanced Analysis Mode
-    else if (lowerCommand.includes('analyze') || 
-             lowerCommand.includes('scan') ||
-             lowerCommand.includes('evaluate')) {
-      const target = lowerCommand.replace(/(analyze|scan|evaluate)/g, '').trim();
-      return {
-        text: `Running advanced analysis on ${target}. Processing environmental data, structural integrity, and potential vulnerabilities. Analysis complete. No immediate threats detected.`,
-        data: {
-          target,
-          threatLevel: 'low',
-          integrity: '98%'
-        },
-        shouldSpeak: true,
-        skillType: 'analysis'
       };
     }
     
@@ -183,7 +255,7 @@ export const processSkillCommand = async (command: string): Promise<SkillRespons
   }
 };
 
-// Check if the command is a skill-related command
+// Update isSkillCommand to include new commands
 export const isSkillCommand = (command: string): boolean => {
   const lowerCommand = command.toLowerCase();
   
@@ -213,6 +285,15 @@ export const isSkillCommand = (command: string): boolean => {
          lowerCommand.includes('security protocol') ||
          lowerCommand.includes('analyze') ||
          lowerCommand.includes('scan') ||
+         lowerCommand.includes('combat') ||
+         lowerCommand.includes('weapons') ||
+         lowerCommand.includes('battle') ||
+         lowerCommand.includes('flight') ||
+         lowerCommand.includes('thrusters') ||
+         lowerCommand.includes('stabilizers') ||
+         lowerCommand.includes('power') ||
+         lowerCommand.includes('reactor') ||
+         lowerCommand.includes('energy') ||
          (lowerCommand.includes('generate') && lowerCommand.includes('picture')) ||
          (lowerCommand.includes('create') && lowerCommand.includes('picture'));
 };
