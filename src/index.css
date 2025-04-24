@@ -2,281 +2,102 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+ 
 @layer base {
   :root {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 196 85% 48%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 196 83% 82%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 189 80% 45%;
-    --accent-foreground: 0 0% 98%;
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+ 
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+ 
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+ 
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+ 
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+ 
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+ 
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+ 
+    --radius: 0.5rem;
+  }
+ 
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+ 
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+ 
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+ 
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+ 
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+ 
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+ 
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+ 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 196 80% 48%;
-    --jarvis: 196 85% 48%;
-    --jarvis-light: 196 83% 82%;
-    --jarvis-dark: 196 85% 30%;
-    --ironman-red: 354 80% 57%;
-    --ironman-gold: 35 90% 53%;
+    --destructive-foreground: 210 40% 98%;
+ 
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
   }
 }
-
+ 
 @layer base {
   * {
-    @apply border-border selection:bg-white/10 selection:text-white;
+    @apply border-border;
   }
-  
   body {
-    @apply bg-[#0f1019] text-foreground antialiased overflow-x-hidden;
-    font-family: 'JetBrains Mono', monospace;
-  }
-
-  html {
-    @apply scroll-smooth;
+    @apply bg-background text-foreground;
   }
 }
 
-@layer utilities {
-  .scrollbar-none {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
   }
-  
-  .scrollbar-none::-webkit-scrollbar {
-    display: none;
+  to {
+    transform: rotate(360deg);
   }
+}
 
-  .glass-morphism {
-    @apply backdrop-blur-xl bg-black/30 border border-[#33c3f0]/20 shadow-lg;
+@keyframes spin-reverse {
+  from {
+    transform: rotate(360deg);
   }
-  
-  .text-gradient-primary {
-    @apply bg-gradient-to-r from-[#33c3f0] to-[#1eaedb] bg-clip-text text-transparent;
+  to {
+    transform: rotate(0deg);
   }
+}
 
-  .glow-blue-sm {
-    text-shadow: 0 0 10px rgba(51, 195, 240, 0.5), 0 0 20px rgba(51, 195, 240, 0.3);
-  }
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+}
 
-  .glow-blue-lg {
-    text-shadow: 0 0 15px rgba(51, 195, 240, 0.7), 0 0 30px rgba(51, 195, 240, 0.5);
-  }
-
-  .shadow-neon {
-    box-shadow: 0 0 10px rgba(51, 195, 240, 0.3), 0 0 20px rgba(51, 195, 240, 0.2);
-  }
-
-  .shadow-neon-lg {
-    box-shadow: 0 0 15px rgba(51, 195, 240, 0.5), 0 0 30px rgba(51, 195, 240, 0.3);
-  }
-
-  .border-glow {
-    box-shadow: 0 0 5px rgba(51, 195, 240, 0.5), inset 0 0 5px rgba(51, 195, 240, 0.5);
-    border: 1px solid rgba(51, 195, 240, 0.3);
-  }
-
-  .pulse-animation {
-    animation: pulse 2s infinite;
-  }
-
-  @keyframes pulse {
-    0% {
-      box-shadow: 0 0 0 0 rgba(51, 195, 240, 0.7);
-    }
-    70% {
-      box-shadow: 0 0 0 10px rgba(51, 195, 240, 0);
-    }
-    100% {
-      box-shadow: 0 0 0 0 rgba(51, 195, 240, 0);
-    }
-  }
-
-  .typing-indicator:after {
-    content: '';
-    animation: typing 1.5s infinite;
-  }
-
-  @keyframes typing {
-    0% { content: ''; }
-    25% { content: '.'; }
-    50% { content: '..'; }
-    75% { content: '...'; }
-    100% { content: ''; }
-  }
-
-  .circle-pulse {
-    animation: circle-pulse 4s ease infinite;
-  }
-
-  @keyframes circle-pulse {
-    0% {
-      transform: scale(0.95);
-      box-shadow: 0 0 0 0 rgba(51, 195, 240, 0.7);
-    }
-    
-    70% {
-      transform: scale(1);
-      box-shadow: 0 0 0 15px rgba(51, 195, 240, 0);
-    }
-    
-    100% {
-      transform: scale(0.95);
-      box-shadow: 0 0 0 0 rgba(51, 195, 240, 0);
-    }
-  }
-
-  .rotate-center {
-    animation: rotate 10s linear infinite;
-  }
-
-  @keyframes rotate {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  .hacker-bg {
-    background: linear-gradient(135deg, #000000 0%, #0a1128 100%);
-    background-size: 200% 200%;
-    animation: gradient 15s ease infinite;
-  }
-
-  @keyframes gradient {
-    0% {
-      background-position: 0% 50%;
-    }
-    50% {
-      background-position: 100% 50%;
-    }
-    100% {
-      background-position: 0% 50%;
-    }
-  }
-  
-  /* Iron Man related styles */
-  .ironman-core {
-    background: radial-gradient(circle, rgba(249,115,22,0.8) 0%, rgba(234,56,76,0.9) 70%);
-    box-shadow: 0 0 20px rgba(234,56,76,0.7), inset 0 0 15px rgba(249,115,22,0.8);
-  }
-  
-  .ironman-glow {
-    filter: drop-shadow(0 0 8px rgba(234,56,76,0.7));
-  }
-  
-  .metal-texture {
-    background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPgogIDxmaWx0ZXIgaWQ9Im5vaXNlIj4KICAgIDxmZVR1cmJ1bGVuY2UgdHlwZT0iZnJhY3RhbE5vaXNlIiBiYXNlRnJlcXVlbmN5PSIwLjA1IiBudW1PY3RhdmVzPSIyIiBzdGl0Y2hUaWxlcz0ic3RpdGNoIi8+CiAgICA8ZmVCbGVuZCBtb2RlPSJtdWx0aXBseSIgaW4yPSJCYWNrZ3JvdW5kSW1hZ2UiLz4KICA8L2ZpbHRlcj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWx0ZXI9InVybCgjbm9pc2UpIiBvcGFjaXR5PSIwLjE1Ii8+Cjwvc3ZnPg==');
-    background-blend-mode: overlay;
-  }
-  
-  /* Animation for arc reactor core */
-  .animate-breathe {
-    animation: breathe 4s ease infinite;
-  }
-  
-  @keyframes breathe {
-    0%, 100% {
-      transform: scale(1);
-      opacity: 1;
-    }
-    50% {
-      transform: scale(1.05);
-      opacity: 0.8;
-    }
-  }
-  
-  .animate-flicker {
-    animation: flicker 3s linear infinite;
-  }
-  
-  @keyframes flicker {
-    0%, 100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.7;
-    }
-    25%, 75% {
-      opacity: 0.9;
-    }
-    20%, 80% {
-      opacity: 0.8;
-    }
-  }
-  
-  .animate-pulse-subtle {
-    animation: pulse-subtle 2s ease infinite;
-  }
-  
-  @keyframes pulse-subtle {
-    0%, 100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.8;
-    }
-  }
-  
-  .animate-ping-slow {
-    animation: ping-slow 2s cubic-bezier(0, 0, 0.2, 1) infinite;
-  }
-  
-  @keyframes ping-slow {
-    75%, 100% {
-      transform: scale(1.8);
-      opacity: 0;
-    }
-  }
-  
-  .animate-spin-slow {
-    animation: spin-slow 30s linear infinite;
-  }
-  
-  @keyframes spin-slow {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
-  
-  .animate-orbit {
-    animation: orbit 20s linear infinite;
-  }
-  
-  @keyframes orbit {
-    0% {
-      transform: rotate(0deg) translateX(100px) rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg) translateX(100px) rotate(-360deg);
-    }
-  }
-  
-  .animate-wave {
-    animation: wave 3s ease infinite;
-  }
-  
-  @keyframes wave {
-    0%, 100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(5px);
-    }
-  }
+.animate-spin-reverse {
+  animation: spin-reverse 15s linear infinite;
 }
