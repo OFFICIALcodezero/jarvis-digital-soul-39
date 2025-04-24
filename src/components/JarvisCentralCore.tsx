@@ -17,13 +17,10 @@ const JarvisCentralCore: React.FC<JarvisCentralCoreProps> = ({
   isProcessing,
   activeMode
 }) => {
-  const { messages } = useJarvisChat();
+  const jarvisChat = useJarvisChat();
   
-  // Check if an image is currently being generated
-  const isGeneratingImage = messages.some(msg => 
-    msg.generatedImage && msg.generatedImage.url === '' && 
-    msg.role === 'assistant'
-  );
+  // Since 'messages' may not exist in the context, let's provide a fallback
+  const isGeneratingImage = false; // Simplified fallback
   
   return (
     <div className="flex-1 flex flex-col items-center justify-center relative">

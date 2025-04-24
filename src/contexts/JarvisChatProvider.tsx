@@ -1,7 +1,8 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { parseImageRequest, checkImageMatchesPrompt } from '@/services/imagePromptParser';
+import { parseImageRequest } from '@/services/imagePromptParser';
 import { generateImage, GeneratedImage } from '@/services/imageGenerationService';
+import { checkImageMatchesPrompt } from '@/services/imagePromptChecker';
 
 // Define the context type
 export interface JarvisChatContextType {
@@ -9,6 +10,7 @@ export interface JarvisChatContextType {
   setActiveImage: React.Dispatch<React.SetStateAction<GeneratedImage | null>>;
   handleImageGenerationFromPrompt: (prompt: string, isRefine?: boolean) => Promise<void>;
   handleRefineImage: (prevPrompt: string, refinement: string) => Promise<void>;
+  messages?: any[]; // Add messages property to the context type
 }
 
 // Create the context
@@ -27,22 +29,21 @@ export const useJarvisChat = (): JarvisChatContextType => {
 export const JarvisChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [activeImage, setActiveImage] = useState<GeneratedImage | null>(null);
 
-  const handleImageGenerationFromPrompt = async (prompt: string, isRefine = false) => {
+  const handleImageGenerationFromPrompt = async (prompt: string, isRefine = false): Promise<void> => {
     try {
       const params = parseImageRequest(prompt);
       const img = await generateImage(params);
       
       setActiveImage(img);
-      return img;
     } catch (error) {
       console.error('Error generating image:', error);
       throw error;
     }
   };
 
-  const handleRefineImage = async (prevPrompt: string, refinement: string) => {
+  const handleRefineImage = async (prevPrompt: string, refinement: string): Promise<void> => {
     const newPrompt = `${prevPrompt}. ${refinement}`;
-    return handleImageGenerationFromPrompt(newPrompt, true);
+    await handleImageGenerationFromPrompt(newPrompt, true);
   };
 
   return (
