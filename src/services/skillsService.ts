@@ -9,18 +9,80 @@ export interface SkillResponse {
   text: string;
   data?: any;
   shouldSpeak: boolean;
-  skillType: 'weather' | 'news' | 'time' | 'calendar' | 'briefing' | 'image' | 'general' | 'unknown';
+  skillType: 'weather' | 'news' | 'time' | 'calendar' | 'briefing' | 'image' | 'system' | 'security' | 'analysis' | 'general' | 'unknown';
 }
+
+// Simulate system status
+const getSystemStatus = () => {
+  return {
+    cpu: Math.round(Math.random() * 30 + 70), // 70-100%
+    memory: Math.round(Math.random() * 40 + 60), // 60-100%
+    network: Math.round(Math.random() * 20 + 80), // 80-100%
+    temperature: Math.round(Math.random() * 10 + 35), // 35-45°C
+  };
+};
+
+// Simulate security protocols
+const securityProtocols = [
+  'Mark VII Deployment Protocol',
+  'House Party Protocol',
+  'Clean Slate Protocol',
+  'Safe House Protocol',
+  'Barn Door Protocol'
+];
 
 export const processSkillCommand = async (command: string): Promise<SkillResponse> => {
   const lowerCommand = command.toLowerCase();
   
   try {
+    // System Analysis & Diagnostics
+    if (lowerCommand.includes('system status') || 
+        lowerCommand.includes('diagnostics') || 
+        lowerCommand.includes('system health')) {
+      const status = getSystemStatus();
+      return {
+        text: `System diagnostics: CPU performance at ${status.cpu}%, Memory usage at ${status.memory}%, Network stability at ${status.network}%, Core temperature at ${status.temperature}°C. All systems operating within normal parameters, sir.`,
+        data: status,
+        shouldSpeak: true,
+        skillType: 'system'
+      };
+    }
+    
+    // Security Protocols
+    else if (lowerCommand.includes('security protocol') || 
+             lowerCommand.includes('protocols') ||
+             lowerCommand.includes('security status')) {
+      const protocol = securityProtocols[Math.floor(Math.random() * securityProtocols.length)];
+      return {
+        text: `Security systems engaged. ${protocol} is active and ready. All defense systems are operational, sir.`,
+        data: { activeProtocol: protocol },
+        shouldSpeak: true,
+        skillType: 'security'
+      };
+    }
+    
+    // Advanced Analysis Mode
+    else if (lowerCommand.includes('analyze') || 
+             lowerCommand.includes('scan') ||
+             lowerCommand.includes('evaluate')) {
+      const target = lowerCommand.replace(/(analyze|scan|evaluate)/g, '').trim();
+      return {
+        text: `Running advanced analysis on ${target}. Processing environmental data, structural integrity, and potential vulnerabilities. Analysis complete. No immediate threats detected.`,
+        data: {
+          target,
+          threatLevel: 'low',
+          integrity: '98%'
+        },
+        shouldSpeak: true,
+        skillType: 'analysis'
+      };
+    }
+    
     // Weather related queries
-    if (lowerCommand.includes('weather') || 
-        lowerCommand.includes('rain') || 
-        lowerCommand.includes('temperature') ||
-        lowerCommand.includes('forecast')) {
+    else if (lowerCommand.includes('weather') || 
+             lowerCommand.includes('rain') || 
+             lowerCommand.includes('temperature') ||
+             lowerCommand.includes('forecast')) {
       const response = await getWeatherResponse(command);
       return {
         text: response.text,
@@ -106,7 +168,7 @@ export const processSkillCommand = async (command: string): Promise<SkillRespons
     
     // Fall back to general query
     return {
-      text: "I don't have a specific skill for that query. Let me search for an answer.",
+      text: "Very well, sir. I'll process that request through my general query system.",
       shouldSpeak: false,
       skillType: 'general'
     };
@@ -114,7 +176,7 @@ export const processSkillCommand = async (command: string): Promise<SkillRespons
   } catch (error) {
     console.error('Error processing skill command:', error);
     return {
-      text: "I'm sorry, I encountered an error processing your request.",
+      text: "I apologize, sir, but I've encountered an error processing your request. Shall I run a diagnostic?",
       shouldSpeak: true,
       skillType: 'unknown'
     };
@@ -146,6 +208,11 @@ export const isSkillCommand = (command: string): boolean => {
          lowerCommand.includes('create image') ||
          lowerCommand.includes('make image') ||
          lowerCommand.includes('draw') ||
+         lowerCommand.includes('system status') ||
+         lowerCommand.includes('diagnostics') ||
+         lowerCommand.includes('security protocol') ||
+         lowerCommand.includes('analyze') ||
+         lowerCommand.includes('scan') ||
          (lowerCommand.includes('generate') && lowerCommand.includes('picture')) ||
          (lowerCommand.includes('create') && lowerCommand.includes('picture'));
 };
