@@ -27,11 +27,9 @@ export const JarvisChatProvider: React.FC<JarvisChatProviderProps> = ({ children
   const addMessage = (text: string, sender: 'user' | 'jarvis') => {
     const newMessage: Message = {
       id: Date.now().toString(),
-      text,
-      sender,
+      content: text, // Changed from 'text' to 'content' to match the Message type
       timestamp: new Date(),
-      role: sender === 'user' ? 'user' : 'assistant',
-      content: text
+      role: sender === 'user' ? 'user' : 'assistant', // Using the correct role values
     };
     setMessages((prevMessages) => [...prevMessages, newMessage]);
   };
