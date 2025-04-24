@@ -25,7 +25,7 @@ export const JarvisChatProvider: React.FC<JarvisChatProviderProps> = ({ children
   const [activeImage, setActiveImage] = useState<any>(null);
 
   const addMessage = (text: string, sender: 'user' | 'jarvis') => {
-    const newMessage = {
+    const newMessage: Message = {
       id: Date.now().toString(),
       text,
       sender,
