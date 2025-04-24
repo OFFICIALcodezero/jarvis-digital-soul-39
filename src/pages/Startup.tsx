@@ -93,22 +93,22 @@ const StartupSequence = () => {
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-[#0f1019] to-[#121624] text-white p-4">
       <div className="max-w-2xl w-full flex flex-col items-center">
         <div className="mb-12 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-2 text-gradient-primary glow-blue-sm">JARVIS</h1>
+          <h1 className="text-4xl md:text-6xl font-bold mb-2 neon-purple-text animate-pulse-subtle">JARVIS</h1>
           <p className="text-[#8a8a9b]">Just A Rather Very Intelligent System</p>
         </div>
         
-        <div className="w-full glass-morphism p-6 rounded-2xl mb-8">
+        <div className="w-full glass-morphism neon-purple-border p-6 rounded-2xl mb-8">
           <div className="mb-6">
-            <h2 className="text-xl font-semibold text-[#33c3f0] mb-2">{currentPhase}</h2>
-            <Progress value={progress} className="h-2 bg-black/50" />
+            <h2 className="text-xl font-semibold neon-purple-text mb-2">{currentPhase}</h2>
+            <Progress value={progress} className="h-2 bg-black/50" indicatorClassName="bg-[#8B5CF6]" />
             <p className="text-right text-sm text-[#8a8a9b] mt-1">{Math.round(progress)}%</p>
           </div>
           
-          <div className="font-mono text-sm text-[#d6d6ff] bg-black/50 p-4 rounded-lg h-48 overflow-auto">
+          <div className="font-mono text-sm text-[#d6d6ff] bg-black/50 p-4 rounded-lg h-48 overflow-auto neon-purple-border">
             <div className="space-y-1">
               {logs.map((log, index) => (
                 <div key={index} className="flex">
-                  <span className="text-[#33c3f0] mr-2">&gt;</span>
+                  <span className="neon-purple-text mr-2">&gt;</span>
                   <span className={index === logs.length - 1 ? 'typing-indicator' : ''}>{log}</span>
                 </div>
               ))}
@@ -117,7 +117,7 @@ const StartupSequence = () => {
         </div>
         
         <div className="flex justify-center items-center space-x-4">
-          <div className="h-4 w-4 rounded-full bg-[#33c3f0] animate-pulse"></div>
+          <div className="h-4 w-4 rounded-full bg-[#8B5CF6] animate-pulse"></div>
           <p className="text-[#d6d6ff]">Please wait while JARVIS initializes...</p>
         </div>
       </div>

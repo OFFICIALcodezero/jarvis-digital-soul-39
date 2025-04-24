@@ -7,6 +7,7 @@
   --jarvis-glow: rgba(179, 0, 0, 0.4);
   --hologram-color: #FFD700;
   --neon-purple: #8B5CF6;
+  --neon-blue: #33C3F0;
   --midnight: #090C10;
 }
 
@@ -154,20 +155,49 @@ main {
   animation: orbit 10s linear infinite;
 }
 
+/* Neon elements */
+.neon-text {
+  color: var(--neon-blue);
+  text-shadow: 0 0 5px rgba(51, 195, 240, 0.7), 0 0 10px rgba(51, 195, 240, 0.5);
+}
+
+.neon-purple-text {
+  color: var(--neon-purple);
+  text-shadow: 0 0 5px rgba(139, 92, 246, 0.7), 0 0 10px rgba(139, 92, 246, 0.5);
+}
+
+.neon-border {
+  border-color: var(--neon-blue);
+  box-shadow: 0 0 5px rgba(51, 195, 240, 0.5), 0 0 10px rgba(51, 195, 240, 0.3);
+}
+
+.neon-purple-border {
+  border-color: var(--neon-purple);
+  box-shadow: 0 0 5px rgba(139, 92, 246, 0.5), 0 0 10px rgba(139, 92, 246, 0.3);
+}
+
+.neon-glow {
+  box-shadow: 0 0 15px rgba(51, 195, 240, 0.4), 0 0 30px rgba(51, 195, 240, 0.2);
+}
+
+.neon-purple-glow {
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.4), 0 0 30px rgba(139, 92, 246, 0.2);
+}
+
 /* Jarvis Panel Styles */
 .jarvis-panel {
   background-color: rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(179, 0, 0, 0.2);
+  border: 1px solid rgba(139, 92, 246, 0.2);
   border-radius: 0.5rem;
   overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 0 10px rgba(139, 92, 246, 0.1);
   transition: all 0.3s ease;
 }
 
 .jarvis-panel:hover {
-  border-color: rgba(255, 215, 0, 0.4);
-  box-shadow: 0 4px 12px rgba(179, 0, 0, 0.2);
+  border-color: rgba(139, 92, 246, 0.4);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2), 0 0 15px rgba(139, 92, 246, 0.1);
 }
 
 /* Holographic text effect */

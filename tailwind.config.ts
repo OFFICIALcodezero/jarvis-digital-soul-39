@@ -25,7 +25,8 @@ export default {
           accent: "#B30000",
           secondary: "#FFD700",
           text: "#ffffff",
-          muted: "#8a8a9b"
+          muted: "#8a8a9b",
+          neon: "#8B5CF6"
         },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -69,6 +70,8 @@ export default {
       boxShadow: {
         neon: "0 0 10px rgba(51, 195, 240, 0.3), 0 0 20px rgba(51, 195, 240, 0.2)",
         "neon-lg": "0 0 15px rgba(51, 195, 240, 0.5), 0 0 30px rgba(51, 195, 240, 0.3)",
+        "neon-purple": "0 0 10px rgba(139, 92, 246, 0.3), 0 0 20px rgba(139, 92, 246, 0.2)",
+        "neon-purple-lg": "0 0 15px rgba(139, 92, 246, 0.5), 0 0 30px rgba(139, 92, 246, 0.3)",
       },
       keyframes: {
         "accordion-down": {
