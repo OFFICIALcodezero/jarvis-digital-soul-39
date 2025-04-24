@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useJarvisChatContext } from '@/components/JarvisChatContext';
 import ImageGenerationTool from '@/components/ImageGenerationTool';
 import { GeneratedImage } from '@/services/imageGenerationService';
-import { Gallery, Image } from 'lucide-react';
+import { Image, Sparkles } from 'lucide-react';
 
 const ImageGeneration: React.FC = () => {
   const { activeImage, setActiveImage } = useJarvisChatContext();
@@ -32,7 +32,7 @@ const ImageGeneration: React.FC = () => {
           
           <div className="glass-morphism p-4 rounded-2xl">
             <h2 className="text-lg font-semibold text-jarvis mb-4 flex items-center">
-              <Gallery className="mr-2 h-5 w-5" />
+              <Image className="mr-2 h-5 w-5" />
               Recent Generations
             </h2>
             
