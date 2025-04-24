@@ -3,7 +3,7 @@ import React from 'react';
 import JarvisCore from './core/JarvisCore';
 import JarvisAvatar from './JarvisAvatar';
 import SystemData from './SystemData';
-import { useJarvisChatContext } from './JarvisChatContext';
+import { useJarvisChat } from '../contexts/JarvisChatProvider';
 
 interface JarvisCentralCoreProps {
   isSpeaking: boolean;
@@ -18,7 +18,7 @@ const JarvisCentralCore: React.FC<JarvisCentralCoreProps> = ({
   isProcessing,
   activeMode
 }) => {
-  const { messages } = useJarvisChatContext();
+  const { messages } = useJarvisChat();
   
   // Check if an image is currently being generated
   const isGeneratingImage = messages.some(msg => 

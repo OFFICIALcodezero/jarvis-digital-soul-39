@@ -1,18 +1,15 @@
 
 import React, { createContext, useState, useContext, ReactNode } from 'react';
+import { Message } from '@/types/chat';
 
 // Define the context shape
-interface Message {
-  id: string;
-  text: string;
-  sender: 'user' | 'jarvis';
-  timestamp: Date;
-}
-
 interface JarvisChatContextType {
   messages: Message[];
   addMessage: (text: string, sender: 'user' | 'jarvis') => void;
   clearMessages: () => void;
+  // Add additional properties to match what JarvisCentralCore needs
+  activeImage: any;
+  setActiveImage: (image: any) => void;
 }
 
 // Create the context with a default value
@@ -25,6 +22,7 @@ interface JarvisChatProviderProps {
 
 export const JarvisChatProvider: React.FC<JarvisChatProviderProps> = ({ children }) => {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [activeImage, setActiveImage] = useState<any>(null);
 
   const addMessage = (text: string, sender: 'user' | 'jarvis') => {
     const newMessage = {
@@ -32,6 +30,8 @@ export const JarvisChatProvider: React.FC<JarvisChatProviderProps> = ({ children
       text,
       sender,
       timestamp: new Date(),
+      role: sender === 'user' ? 'user' : 'assistant',
+      content: text
     };
     setMessages((prevMessages) => [...prevMessages, newMessage]);
   };
@@ -44,6 +44,8 @@ export const JarvisChatProvider: React.FC<JarvisChatProviderProps> = ({ children
     messages,
     addMessage,
     clearMessages,
+    activeImage,
+    setActiveImage
   };
 
   return (
@@ -57,7 +59,16 @@ export const JarvisChatProvider: React.FC<JarvisChatProviderProps> = ({ children
 export const useJarvisChat = (): JarvisChatContextType => {
   const context = useContext(JarvisChatContext);
   if (context === undefined) {
-    throw new Error('JarvisChatContext must be within provider.');
+    throw new Error('useJarvisChat must be used within JarvisChatProvider');
+  }
+  return context;
+};
+
+// Create a custom hook specifically for JarvisChatContext
+export const useJarvisChatContext = (): JarvisChatContextType => {
+  const context = useContext(JarvisChatContext);
+  if (context === undefined) {
+    throw new Error('JarvisChatContext must be within provider');
   }
   return context;
 };

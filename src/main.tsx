@@ -12,7 +12,7 @@ import NotFound from './pages/NotFound'
 import Index from './pages/Index'
 import Startup from './pages/Startup'
 import ImageGeneration from './pages/ImageGeneration'
-import JarvisChatProvider from './contexts/JarvisChatProvider'
+import { JarvisChatProvider } from './contexts/JarvisChatProvider'
 
 const router = createBrowserRouter([
   {

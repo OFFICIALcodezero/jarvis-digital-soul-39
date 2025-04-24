@@ -1,12 +1,12 @@
 
 import React, { useState } from 'react';
-import { useJarvisChatContext } from '@/components/JarvisChatContext';
+import { useJarvisChat } from '../contexts/JarvisChatProvider';
 import ImageGenerationTool from '@/components/ImageGenerationTool';
 import { GeneratedImage } from '@/services/imageGenerationService';
 import { Image, Sparkles } from 'lucide-react';
 
 const ImageGeneration: React.FC = () => {
-  const { activeImage, setActiveImage } = useJarvisChatContext();
+  const { activeImage, setActiveImage } = useJarvisChat();
   const [generatedImages, setGeneratedImages] = useState<GeneratedImage[]>([]);
 
   const handleImageGenerated = (image: GeneratedImage) => {

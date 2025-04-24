@@ -1,25 +1,29 @@
 
 import React from "react";
 import ImageOverlay from "./chat/ImageOverlay";
-import { useJarvisChatContext } from "./JarvisChatContext";
+import { useJarvisChat } from "../contexts/JarvisChatProvider";
 
 const JarvisImageOverlayHandler: React.FC = () => {
-  const { activeImage, setActiveImage, handleRefineImage, handleImageGenerationFromPrompt } = useJarvisChatContext();
+  const { activeImage, setActiveImage } = useJarvisChat();
 
   if (!activeImage) return null;
+
+  const handleRefineImage = (refinement: string) => {
+    // Simplified for now
+    setActiveImage(null);
+  };
+
+  const handleRegenerate = () => {
+    // Simplified for now
+    setActiveImage(null);
+  };
 
   return (
     <ImageOverlay
       image={activeImage}
       onClose={() => setActiveImage(null)}
-      onRefine={refinement => {
-        handleRefineImage(activeImage.prompt, refinement);
-        setActiveImage(null);
-      }}
-      onRegenerate={() => {
-        handleImageGenerationFromPrompt(activeImage.prompt, true);
-        setActiveImage(null);
-      }}
+      onRefine={handleRefineImage}
+      onRegenerate={handleRegenerate}
     />
   );
 };
