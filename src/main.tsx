@@ -1,17 +1,27 @@
 
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import {
+  createBrowserRouter,
+  RouterProvider,
+} from 'react-router-dom'
 import './index.css'
-import Index from './pages/Index.tsx'
-import Startup from './pages/Startup.tsx'
-import JarvisInterface from './pages/JarvisInterface.tsx'
-import NotFound from './pages/NotFound.tsx'
+import { Toaster } from './components/ui/toaster'
+import { JarvisInterface } from './pages/JarvisInterface'
+import { NotFound } from './pages/NotFound'
+import { Index } from './pages/Index'
+import { Startup } from './pages/Startup'
+import { ImageGeneration } from './pages/ImageGeneration'
+import JarvisChatProvider from './contexts/JarvisChatProvider'
 
-// Define routes
 const router = createBrowserRouter([
   {
     path: '/',
+    element: <Index />,
+    errorElement: <NotFound />,
+  },
+  {
+    path: '/startup',
     element: <Startup />,
   },
   {
@@ -19,17 +29,16 @@ const router = createBrowserRouter([
     element: <JarvisInterface />,
   },
   {
-    path: '/home',
-    element: <Index />,
-  },
-  {
-    path: '*',
-    element: <NotFound />,
+    path: '/image-generation',
+    element: <ImageGeneration />,
   },
 ])
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <JarvisChatProvider>
+      <RouterProvider router={router} />
+      <Toaster />
+    </JarvisChatProvider>
   </React.StrictMode>,
 )
