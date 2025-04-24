@@ -1,10 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
 
 :root {
-  --jarvis-blue: #1EAEDB;
+  --jarvis-red: #B30000;
+  --jarvis-gold: #FFD700;
   --jarvis-dark: #0C3D4D;
-  --jarvis-glow: rgba(30, 174, 219, 0.4);
-  --hologram-color: #33C3F0;
+  --jarvis-glow: rgba(179, 0, 0, 0.4);
+  --hologram-color: #FFD700;
   --neon-purple: #8B5CF6;
   --midnight: #090C10;
 }
@@ -157,7 +158,7 @@ main {
 .jarvis-panel {
   background-color: rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(30, 174, 219, 0.2);
+  border: 1px solid rgba(179, 0, 0, 0.2);
   border-radius: 0.5rem;
   overflow: hidden;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -165,8 +166,8 @@ main {
 }
 
 .jarvis-panel:hover {
-  border-color: rgba(30, 174, 219, 0.4);
-  box-shadow: 0 4px 12px rgba(30, 174, 219, 0.2);
+  border-color: rgba(255, 215, 0, 0.4);
+  box-shadow: 0 4px 12px rgba(179, 0, 0, 0.2);
 }
 
 /* Holographic text effect */
@@ -180,5 +181,5 @@ main {
 
 /* Core glow effect */
 .core-glow {
-  box-shadow: 0 0 30px rgba(30, 174, 219, 0.3), 0 0 15px rgba(139, 92, 246, 0.2) inset;
+  box-shadow: 0 0 30px rgba(179, 0, 0, 0.3), 0 0 15px rgba(255, 215, 0, 0.2) inset;
 }

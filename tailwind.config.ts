@@ -21,10 +21,10 @@ export default {
       colors: {
         jarvis: {
           bg: "#0f1019",
-          darkBg: "#080a12", 
-          accent: "#33c3f0",
-          secondary: "#1eaedb",
-          text: "#d6d6ff",
+          darkBg: "#080a12",
+          accent: "#B30000",
+          secondary: "#FFD700",
+          text: "#ffffff",
           muted: "#8a8a9b"
         },
         border: "hsl(var(--border))",
@@ -120,6 +120,20 @@ export default {
         "glow": {
           "0%": { boxShadow: "0 0 5px #1eaedb, 0 0 10px #1eaedb, 0 0 15px #1eaedb" },
           "100%": { boxShadow: "0 0 20px #1eaedb, 0 0 30px #1eaedb, 0 0 40px #1eaedb" }
+        },
+        "reactor-pulse": {
+          "0%": { opacity: "0.6", transform: "scale(0.98)" },
+          "50%": { opacity: "0.8", transform: "scale(1)" },
+          "100%": { opacity: "0.6", transform: "scale(0.98)" }
+        },
+        "reactor-rotate": {
+          "0%": { transform: "rotate(0deg)" },
+          "100%": { transform: "rotate(360deg)" }
+        },
+        "reactor-glow": {
+          "0%": { boxShadow: "0 0 20px #B30000, 0 0 40px #FFD700" },
+          "50%": { boxShadow: "0 0 40px #B30000, 0 0 60px #FFD700" },
+          "100%": { boxShadow: "0 0 20px #B30000, 0 0 40px #FFD700" }
         }
       },
       animation: {
@@ -132,6 +146,9 @@ export default {
         "glow-strong": "glow 1.5s ease-in-out infinite alternate",
         "ping-slow": "ping 3s cubic-bezier(0, 0, 0.2, 1) infinite",
         "spin-slow": "spin 3s linear infinite",
+        "reactor-pulse": "reactor-pulse 4s ease-in-out infinite",
+        "reactor-rotate": "reactor-rotate 20s linear infinite",
+        "reactor-glow": "reactor-glow 3s ease-in-out infinite"
       },
     },
   },
