@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import ArcReactor from '@/components/background/ArcReactor';
 import ChatInterface from '@/components/ChatInterface';
 import JarvisCore from '@/components/JarvisCore';
 import JarvisFaceAI from '@/components/JarvisFaceAI';
@@ -110,7 +111,7 @@ const JarvisInterface = () => {
   
   return (
     <div className="relative min-h-screen flex flex-col bg-jarvis-bg text-white overflow-hidden">
-      <div className="absolute top-0 left-0 right-0 h-64 bg-gradient-to-b from-[#1eaedb]/10 to-transparent z-0"></div>
+      <ArcReactor />
       
       <div className="w-full jarvis-panel flex items-center justify-between p-3">
         <div className="flex items-center">

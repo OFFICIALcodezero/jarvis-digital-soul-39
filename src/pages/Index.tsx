@@ -1,12 +1,13 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ChevronRight } from 'lucide-react';
+import ArcReactor from '@/components/background/ArcReactor';
 
 const Index = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-[#0f1019] to-[#121624] text-white p-4">
+      <ArcReactor />
       <div className="max-w-4xl w-full text-center space-y-8">
         <h1 className="text-5xl md:text-7xl font-bold mb-6 text-gradient-primary">
           J.A.R.V.I.S
