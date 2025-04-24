@@ -2,7 +2,6 @@
 import React from 'react';
 import JarvisCore from './core/JarvisCore';
 import JarvisAvatar from './JarvisAvatar';
-import SystemData from './SystemData';
 import { useJarvisChat } from '../contexts/JarvisChatProvider';
 
 interface JarvisCentralCoreProps {
@@ -52,9 +51,7 @@ const JarvisCentralCore: React.FC<JarvisCentralCoreProps> = ({
         </div>
       )}
       
-      <div className="absolute bottom-0 left-0 right-0">
-        <SystemData />
-      </div>
+      {/* Removed SystemData component */}
       
       {isSpeaking && (
         <div className="absolute top-2 right-2 bg-jarvis/20 text-jarvis px-2 py-1 rounded-md text-xs border border-jarvis/30 animate-pulse">
