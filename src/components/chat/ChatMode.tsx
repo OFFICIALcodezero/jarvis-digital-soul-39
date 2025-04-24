@@ -1,7 +1,7 @@
-
 import React from "react";
 import { Message } from "@/types/chat";
 import GeneratedImageCard from "./GeneratedImageCard";
+import ModelViewer3D from "../ModelViewer3D";
 
 export interface ChatModeProps {
   messages: Message[];
@@ -24,7 +24,20 @@ const ChatMode: React.FC<ChatModeProps> = ({
     <div className="jarvis-panel flex-1 flex flex-col overflow-auto bg-black/20 p-4">
       <div className="flex-1 space-y-4 overflow-auto">
         {messages.map((message) => {
-          // If the message has a generated image, render the image card inside the chat conversation
+          if (message.data?.showModel) {
+            return (
+              <div key={message.id} className="flex justify-start">
+                <div className="w-full max-w-[80%]">
+                  <div className="bg-jarvis/5 p-2 rounded-t-lg rounded-b-none border border-jarvis/10">
+                    <span className="text-jarvis text-xs">
+                      Holographic projection initialized:
+                    </span>
+                  </div>
+                  <ModelViewer3D />
+                </div>
+              </div>
+            );
+          }
           if ((message as any).generatedImage) {
             return (
               <div key={message.id} className="flex justify-start">
@@ -39,7 +52,6 @@ const ChatMode: React.FC<ChatModeProps> = ({
               </div>
             );
           }
-          // Default message rendering
           return (
             <div
               key={message.id}

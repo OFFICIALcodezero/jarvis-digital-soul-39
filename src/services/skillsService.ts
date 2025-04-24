@@ -9,7 +9,7 @@ export interface SkillResponse {
   text: string;
   data?: any;
   shouldSpeak: boolean;
-  skillType: 'weather' | 'news' | 'time' | 'calendar' | 'briefing' | 'image' | 'system' | 'security' | 'analysis' | 'combat' | 'flight' | 'power' | 'general' | 'unknown';
+  skillType: 'weather' | 'news' | 'time' | 'calendar' | 'briefing' | 'image' | 'system' | 'security' | 'analysis' | 'combat' | 'flight' | 'power' | 'general' | 'unknown' | 'model';
 }
 
 // Enhanced system status simulation
@@ -238,6 +238,20 @@ export const processSkillCommand = async (command: string): Promise<SkillRespons
       };
     }
     
+    // 3D Model Viewer
+    else if (lowerCommand.includes('show model') ||
+             lowerCommand.includes('display model') ||
+             lowerCommand.includes('view model') ||
+             lowerCommand.includes('3d model') ||
+             lowerCommand.includes('hologram')) {
+      return {
+        text: "Initializing holographic display system. Rendering 3D model for analysis, sir.",
+        data: { showModel: true },
+        shouldSpeak: true,
+        skillType: 'model'
+      };
+    }
+    
     // Fall back to general query
     return {
       text: "Very well, sir. I'll process that request through my general query system.",
@@ -295,5 +309,10 @@ export const isSkillCommand = (command: string): boolean => {
          lowerCommand.includes('reactor') ||
          lowerCommand.includes('energy') ||
          (lowerCommand.includes('generate') && lowerCommand.includes('picture')) ||
-         (lowerCommand.includes('create') && lowerCommand.includes('picture'));
+         (lowerCommand.includes('create') && lowerCommand.includes('picture')) ||
+         lowerCommand.includes('show model') ||
+         lowerCommand.includes('display model') ||
+         lowerCommand.includes('view model') ||
+         lowerCommand.includes('3d model') ||
+         lowerCommand.includes('hologram');
 };
