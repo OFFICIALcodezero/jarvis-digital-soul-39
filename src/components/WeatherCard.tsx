@@ -1,15 +1,8 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
+import { CloudSun, CloudRain, Sun, Cloud, X, Loader2 } from 'lucide-react';
 import { Location } from './WorldDashboard';
-import { 
-  Sun, 
-  Cloud, 
-  CloudRain, 
-  CloudSnow, 
-  CloudLightning,
-  Thermometer,
-} from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
 
 interface Props {
@@ -17,114 +10,144 @@ interface Props {
   onRemove: () => void;
 }
 
-interface WeatherData {
+interface Weather {
+  main: string;
+  description: string;
   temp: number;
+  feels_like: number;
   humidity: number;
-  windSpeed: number;
-  condition: string;
-  icon: string;
+  wind_speed: number;
 }
 
 const WeatherCard: React.FC<Props> = ({ location, onRemove }) => {
-  const [weather, setWeather] = useState<WeatherData | null>(null);
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const [currentTime, setCurrentTime] = useState<Date>(new Date());
+  const [weather, setWeather] = useState<Weather | null>(null);
+  const [loading, setLoading] = useState(true);
 
+  // Calculate the local time in the location's timezone
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  // Fetch weather data for the location
   useEffect(() => {
     const fetchWeather = async () => {
+      setLoading(true);
       try {
         const response = await fetch(
           `https://api.openweathermap.org/data/2.5/weather?lat=${location.lat}&lon=${location.lon}&units=metric&appid=8d10b4b3bb1052ef47d0b24df9748937`
         );
-        const data = await response.json();
         
+        if (!response.ok) {
+          throw new Error('Failed to fetch weather data');
+        }
+        
+        const data = await response.json();
         setWeather({
-          temp: Math.round(data.main.temp),
+          main: data.weather[0].main,
+          description: data.weather[0].description,
+          temp: data.main.temp,
+          feels_like: data.main.feels_like,
           humidity: data.main.humidity,
-          windSpeed: Math.round(data.wind.speed),
-          condition: data.weather[0].main,
-          icon: data.weather[0].icon,
+          wind_speed: data.wind.speed
         });
       } catch (error) {
         console.error('Error fetching weather:', error);
         toast({
-          title: "Error fetching weather",
-          description: "Could not load weather data for this location",
+          title: "Weather data error",
+          description: `Failed to fetch weather data for ${location.name}`,
           variant: "destructive",
         });
+      } finally {
+        setLoading(false);
       }
     };
-
+    
     fetchWeather();
-    const interval = setInterval(fetchWeather, 300000); // Update every 5 minutes
-    return () => clearInterval(interval);
   }, [location]);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const getWeatherIcon = () => {
-    if (!weather) return <Sun className="w-8 h-8 text-yellow-500" />;
-    
-    switch (weather.condition.toLowerCase()) {
-      case 'clear':
-        return <Sun className="w-8 h-8 text-yellow-500" />;
-      case 'clouds':
-        return <Cloud className="w-8 h-8 text-gray-500" />;
-      case 'rain':
-      case 'drizzle':
-        return <CloudRain className="w-8 h-8 text-blue-500" />;
-      case 'snow':
-        return <CloudSnow className="w-8 h-8 text-blue-300" />;
-      case 'thunderstorm':
-        return <CloudLightning className="w-8 h-8 text-purple-500" />;
-      default:
-        return <Thermometer className="w-8 h-8 text-red-500" />;
-    }
+  const getTimeString = (offsetHours: number = 0) => {
+    const date = new Date();
+    const utcHours = date.getUTCHours();
+    const localHours = (utcHours + offsetHours + 24) % 24;
+    return format(
+      new Date(date.setUTCHours(localHours)), 
+      'h:mm:ss a'
+    );
   };
-
-  const getLocalTime = () => {
-    const utc = currentTime.getTime() + (currentTime.getTimezoneOffset() * 60000);
-    const cityTime = new Date(utc + (3600000 * 0)); // TODO: Add timezone offset
-    return format(cityTime, 'HH:mm:ss');
+  
+  const getWeatherIcon = () => {
+    if (!weather) return <CloudSun className="h-8 w-8 text-blue-400" />;
+    
+    const condition = weather.main.toLowerCase();
+    
+    if (condition.includes('rain') || condition.includes('drizzle')) {
+      return <CloudRain className="h-8 w-8 text-blue-400" />;
+    } else if (condition.includes('clear') || condition.includes('sun')) {
+      return <Sun className="h-8 w-8 text-yellow-400" />;
+    } else if (condition.includes('cloud')) {
+      return <Cloud className="h-8 w-8 text-gray-400" />;
+    }
+    
+    return <CloudSun className="h-8 w-8 text-blue-400" />;
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6 transition-all hover:shadow-xl">
-      <div className="flex justify-between items-start mb-4">
-        <div>
-          <h2 className="text-xl font-semibold text-gray-800">{location.name}</h2>
-          <p className="text-gray-500">{location.country}</p>
-        </div>
-        <button
+    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="relative bg-gradient-to-r from-blue-500 to-sky-600 px-6 py-4">
+        <button 
           onClick={onRemove}
-          className="text-gray-400 hover:text-red-500 transition-colors"
+          className="absolute top-2 right-2 text-white opacity-70 hover:opacity-100"
         >
-          ×
+          <X size={18} />
         </button>
+        
+        <h2 className="text-xl font-bold text-white">{location.name}</h2>
+        <p className="text-blue-100">{location.country}</p>
       </div>
-
-      <div className="flex items-center justify-between mb-4">
-        <div className="text-3xl font-bold text-gray-800">
-          {getLocalTime()}
+      
+      <div className="p-6">
+        <div className="mb-6 text-center">
+          <h3 className="text-gray-500 text-sm mb-1">Current Local Time</h3>
+          <p className="text-2xl font-bold text-gray-800">
+            {format(currentTime, 'h:mm:ss a')}
+          </p>
+          <p className="text-gray-600 text-sm">
+            {format(currentTime, 'EEEE, MMMM d, yyyy')}
+          </p>
         </div>
-        {getWeatherIcon()}
+        
+        <div className="border-t border-gray-100 pt-4">
+          <h3 className="text-gray-500 text-sm mb-3">Weather Conditions</h3>
+          
+          {loading ? (
+            <div className="flex justify-center items-center p-4">
+              <Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
+            </div>
+          ) : weather ? (
+            <div className="flex items-center">
+              <div className="mr-4">
+                {getWeatherIcon()}
+              </div>
+              <div>
+                <p className="text-xl font-bold text-gray-800">{Math.round(weather.temp)}°C</p>
+                <p className="text-gray-600 capitalize">{weather.description}</p>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-2 text-sm text-gray-500">
+                  <p>Feels like: {Math.round(weather.feels_like)}°C</p>
+                  <p>Humidity: {weather.humidity}%</p>
+                  <p>Wind: {weather.wind_speed} m/s</p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <p className="text-gray-500 text-center">Weather data unavailable</p>
+          )}
+        </div>
       </div>
-
-      {weather && (
-        <div className="space-y-2">
-          <div className="text-2xl font-semibold text-gray-800">
-            {weather.temp}°C
-          </div>
-          <div className="text-gray-600">
-            <div>Humidity: {weather.humidity}%</div>
-            <div>Wind: {weather.windSpeed} m/s</div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
