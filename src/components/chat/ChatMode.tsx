@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Message } from "@/types/chat";
 import GeneratedImageCard from "./GeneratedImageCard";
@@ -24,7 +25,8 @@ const ChatMode: React.FC<ChatModeProps> = ({
     <div className="jarvis-panel flex-1 flex flex-col overflow-auto bg-black/20 p-4">
       <div className="flex-1 space-y-4 overflow-auto">
         {messages.map((message) => {
-          if (message.data?.showModel) {
+          // Check for model display data with type assertion
+          if ((message as any).data?.showModel) {
             return (
               <div key={message.id} className="flex justify-start">
                 <div className="w-full max-w-[80%]">

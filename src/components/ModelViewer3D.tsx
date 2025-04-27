@@ -11,7 +11,7 @@ const DefaultModel: React.FC = () => {
   return (
     <mesh>
       <boxGeometry args={[1, 1, 1]} />
-      <meshStandardMaterial color="#33c3f0" />
+      <meshStandardMaterial color={"#33c3f0"} />
     </mesh>
   );
 };
