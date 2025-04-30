@@ -42,7 +42,7 @@ export function getAssistantModel(assistant: AssistantType): string {
 // Synthesize speech using ElevenLabs API
 export async function synthesizeSpeech(text: string, voiceId: string): Promise<string> {
   try {
-    const elevenLabsKey = getApiKey('elevenlabs');
+    const elevenLabsKey = await getApiKey('elevenlabs');
     
     if (!elevenLabsKey) {
       toast({
@@ -93,7 +93,7 @@ export async function generateAssistantResponse(
   assistant: AssistantType = 'jarvis',
   languageCode: string = 'en'
 ): Promise<string> {
-  const openaiKey = getApiKey('openai');
+  const openaiKey = await getApiKey('openai');
   
   if (!openaiKey) {
     return `I need an OpenAI API key to provide intelligent responses as ${assistantConfig[assistant].name}. Please set one in the settings.`;
