@@ -7,17 +7,20 @@ import Startup from "./pages/Startup";
 import JarvisInterface from "./pages/JarvisInterface";
 import ImageGeneration from "./pages/ImageGeneration";
 import JarvisSettings from "./components/JarvisSettings";
+import { JarvisChatProvider } from "./contexts/JarvisChatProvider";
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Index />} />
-      <Route path="/startup" element={<Startup />} />
-      <Route path="/interface" element={<JarvisInterface />} />
-      <Route path="/image-generation" element={<ImageGeneration />} />
-      <Route path="/settings" element={<JarvisSettings />} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+    <JarvisChatProvider>
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/startup" element={<Startup />} />
+        <Route path="/interface" element={<JarvisInterface />} />
+        <Route path="/image-generation" element={<ImageGeneration />} />
+        <Route path="/settings" element={<JarvisSettings />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </JarvisChatProvider>
   );
 }
 
