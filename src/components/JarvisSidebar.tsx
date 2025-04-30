@@ -1,10 +1,10 @@
 
 import React from "react";
 import ChatDashboardPanel from "./chat/ChatDashboardPanel";
-import { useJarvisChatContext } from "./JarvisChatContext";
+import { useJarvisChat } from "./JarvisChatContext";
 
 const JarvisSidebar: React.FC = () => {
-  const { showDashboard } = useJarvisChatContext();
+  const { showDashboard } = useJarvisChat();
   if (!showDashboard) return null;
   return (
     <ChatDashboardPanel />

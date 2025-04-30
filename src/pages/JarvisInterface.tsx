@@ -128,6 +128,11 @@ const JarvisInterface = () => {
     setHackerModeActive(false);
     setMode('chat');
   };
+
+  // Function to handle assistant changes with proper typing
+  const handleAssistantChange = (assistant: string) => {
+    setActiveAssistant(assistant as AssistantType);
+  };
   
   return (
     <div className="relative min-h-screen flex flex-col bg-jarvis-bg text-white overflow-hidden">
@@ -202,7 +207,7 @@ const JarvisInterface = () => {
               setIsSpeaking={setIsSpeaking}
               isListening={isListening}
               activeAssistant={activeAssistant}
-              setActiveAssistant={setActiveAssistant}
+              setActiveAssistant={handleAssistantChange}
               inputMode={inputMode}
               setInputMode={setInputMode}
               onMessageCheck={handleMessageCheck}

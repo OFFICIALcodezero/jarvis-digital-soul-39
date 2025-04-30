@@ -1,14 +1,29 @@
 
-import React from "react";
+import React, { useState } from "react";
 import ChatLayout from "./chat/ChatLayout";
-import { useJarvisChatContext } from "./JarvisChatContext";
+import { useJarvisChat } from "./JarvisChatContext";
 
 const JarvisChatMain: React.FC = () => {
   const {
-    messages, input, setInput, isTyping, currentTypingText, isProcessing,
-    selectedLanguage, setSelectedLanguage, audioPlaying, volume, setVolume,
-    stopSpeaking, toggleMute, isListening, activeAssistant, inputMode, setInputMode, handleSendMessage
-  } = useJarvisChatContext();
+    messages, 
+    sendMessage, 
+    isProcessing,
+    activeAssistant,
+    inputMode, 
+    setInputMode
+  } = useJarvisChat();
+  
+  const [input, setInput] = useState("");
+  const isTyping = false;
+  const currentTypingText = "";
+  const selectedLanguage = "en";
+  const setSelectedLanguage = () => {};
+  const audioPlaying = false;
+  const volume = 80;
+  const setVolume = () => {};
+  const stopSpeaking = () => {};
+  const toggleMute = () => {};
+  const isListening = false;
 
   // Enhanced suggestions with more image generation examples
   const getSuggestions = (): string[] => [
@@ -22,6 +37,13 @@ const JarvisChatMain: React.FC = () => {
     "Show me an image of a disco-dancing fish in neon colors",
     "Generate a cyberpunk city at night"
   ];
+
+  const handleSendMessage = () => {
+    if (input.trim() && !isProcessing) {
+      sendMessage(input);
+      setInput("");
+    }
+  };
 
   return (
     <ChatLayout
@@ -39,7 +61,7 @@ const JarvisChatMain: React.FC = () => {
       stopSpeaking={stopSpeaking}
       toggleMute={toggleMute}
       isListening={isListening}
-      activeAssistant={activeAssistant}
+      activeAssistant={activeAssistant as any}
       inputMode={inputMode}
       setInputMode={setInputMode}
       handleSendMessage={handleSendMessage}

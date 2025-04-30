@@ -19,3 +19,7 @@ export function getApiKey(service: ApiServiceType): string {
   return DEFAULT_API_KEYS[service];
 }
 
+// Get voice ID for the assistant
+export function getVoiceId(): string {
+  return 'iP95p4xoKVk53GoZ742B'; // Chris voice from ElevenLabs
+}

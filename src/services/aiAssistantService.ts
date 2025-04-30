@@ -39,6 +39,53 @@ export function getAssistantModel(assistant: AssistantType): string {
   return assistantConfig[assistant].model;
 }
 
+// Synthesize speech using ElevenLabs API
+export async function synthesizeSpeech(text: string, voiceId: string): Promise<string> {
+  try {
+    const elevenLabsKey = getApiKey('elevenlabs');
+    
+    if (!elevenLabsKey) {
+      toast({
+        title: "ElevenLabs API Key Required",
+        description: "Voice features require an ElevenLabs API key.",
+        variant: "destructive"
+      });
+      return '';
+    }
+    
+    const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'xi-api-key': elevenLabsKey
+      },
+      body: JSON.stringify({
+        text,
+        model_id: 'eleven_monolingual_v1',
+        voice_settings: {
+          stability: 0.5,
+          similarity_boost: 0.75
+        }
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to synthesize speech');
+    }
+    
+    const audioBlob = await response.blob();
+    return URL.createObjectURL(audioBlob);
+  } catch (error) {
+    console.error('Error synthesizing speech:', error);
+    toast({
+      title: "Speech Synthesis Error",
+      description: "Failed to generate speech. Please try again.",
+      variant: "destructive"
+    });
+    return '';
+  }
+}
+
 // Generate AI response using selected assistant
 export async function generateAssistantResponse(
   message: string,

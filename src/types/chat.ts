@@ -1,3 +1,4 @@
+
 import { GeneratedImage } from '@/services/imageGenerationService';
 
 export interface Message {
@@ -6,6 +7,13 @@ export interface Message {
   content: string;
   timestamp: Date;
   generatedImage?: GeneratedImage;
+  data?: any;
+  skillType?: string;
+}
+
+export interface MessageSuggestion {
+  id: string;
+  text: string;
 }
 
 export interface JarvisChatProps {

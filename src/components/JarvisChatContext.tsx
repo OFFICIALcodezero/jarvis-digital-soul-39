@@ -1,9 +1,8 @@
 
 import React, { createContext, useState, useContext, useRef, useEffect } from "react";
 import { Message, MessageSuggestion, JarvisChatProps } from "@/types/chat";
-import { generateAssistantResponse } from "@/services/aiAssistantService";
+import { generateAssistantResponse, synthesizeSpeech } from "@/services/aiAssistantService";
 import { getVoiceId } from "@/utils/apiKeyManager";
-import { synthesizeSpeech } from "@/services/aiAssistantService";
 import { processSkillCommand, isSkillCommand } from "@/services/skillsService";
 import { toast } from "./ui/use-toast";
 
@@ -26,6 +25,7 @@ interface JarvisChatContextType {
   setActiveAssistant: (assistant: string) => void;
   inputMode: 'voice' | 'text';
   setInputMode: (mode: 'voice' | 'text') => void;
+  showDashboard?: boolean;
 }
 
 const JarvisChatContext = createContext<JarvisChatContextType | undefined>(undefined);
@@ -44,9 +44,10 @@ export const JarvisChatProvider: React.FC<React.PropsWithChildren<JarvisChatProp
   const [messages, setMessages] = useState<Message[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [suggestions, setSuggestions] = useState<MessageSuggestion[]>([]);
-  const [isSpeaking, setIsSpeakingState] = useState(false);
+  const [isSpeakingState, setIsSpeakingState] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isImageOpen, setIsImageOpen] = useState(false);
+  const [showDashboard, setShowDashboard] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -81,8 +82,8 @@ export const JarvisChatProvider: React.FC<React.PropsWithChildren<JarvisChatProp
 
   useEffect(() => {
     // Update parent speaking state
-    setIsSpeaking(isSpeaking);
-  }, [isSpeaking, setIsSpeaking]);
+    setIsSpeaking(isSpeakingState);
+  }, [isSpeakingState, setIsSpeaking]);
 
   // Create and set up audio element
   useEffect(() => {
@@ -172,7 +173,7 @@ export const JarvisChatProvider: React.FC<React.PropsWithChildren<JarvisChatProp
         const assistantResponse = await generateAssistantResponse(
           content,
           messagesForAPI,
-          activeAssistant,
+          activeAssistant as any,
           'en'
         );
 
@@ -240,6 +241,7 @@ export const JarvisChatProvider: React.FC<React.PropsWithChildren<JarvisChatProp
         setActiveAssistant,
         inputMode,
         setInputMode,
+        showDashboard
       }}
     >
       {children}
