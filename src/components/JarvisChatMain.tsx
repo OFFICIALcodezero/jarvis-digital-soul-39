@@ -57,7 +57,7 @@ const JarvisChatMain: React.FC = () => {
       onLanguageChange={setSelectedLanguage}
       audioPlaying={audioPlaying}
       volume={volume}
-      onVolumeChange={values => setVolume(values[0])}
+      onVolumeChange={values => setVolume()}
       stopSpeaking={stopSpeaking}
       toggleMute={toggleMute}
       isListening={isListening}
