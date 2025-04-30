@@ -20,6 +20,8 @@ const ChatMode: React.FC<ChatModeProps> = ({
   isTyping,
   currentTypingText,
   isProcessing,
+  selectedLanguage,
+  onLanguageChange
 }) => {
   // Determine if the background should glow - when there are no messages or only the initial greeting
   const shouldGlow = messages.length <= 1;

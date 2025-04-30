@@ -2,6 +2,8 @@
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import ApiKeyManager from "./ApiKeyManager";
+import { Alert, AlertDescription } from "./ui/alert";
+import { Check } from "lucide-react";
 
 const JarvisSettings: React.FC = () => {
   return (
@@ -17,7 +19,12 @@ const JarvisSettings: React.FC = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <ApiKeyManager serviceName="OpenAI" />
+            <Alert className="mb-4 bg-green-500/10 border-green-500/30">
+              <Check className="h-4 w-4 text-green-500" />
+              <AlertDescription>
+                OpenAI API key is pre-configured and ready to use.
+              </AlertDescription>
+            </Alert>
             <ApiKeyManager serviceName="ElevenLabs" />
           </CardContent>
         </Card>

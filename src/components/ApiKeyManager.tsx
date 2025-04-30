@@ -16,6 +16,7 @@ const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({ serviceName, onApiKeySet 
   const [isOpen, setIsOpen] = useState(false);
   const [apiKey, setApiKeyValue] = useState('');
   const [hasKey, setHasKey] = useState(false);
+  const [showManager, setShowManager] = useState(true);
 
   useEffect(() => {
     checkApiKey();
@@ -26,6 +27,11 @@ const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({ serviceName, onApiKeySet 
     const serviceType = serviceName.toLowerCase() as ApiServiceType;
     const exists = await apiKeyExists(serviceType);
     setHasKey(exists);
+    
+    // Hide OpenAI API key manager since we have a default key
+    if (serviceType === 'openai') {
+      setShowManager(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -63,6 +69,11 @@ const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({ serviceName, onApiKeySet 
       setApiKeyValue('');
     }
   };
+
+  // Don't render the component if we don't need to show it
+  if (!showManager) {
+    return null;
+  }
 
   return (
     <>
