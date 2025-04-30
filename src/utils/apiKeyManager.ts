@@ -1,4 +1,3 @@
-
 /**
  * API Key Manager for JARVIS
  * 
@@ -23,3 +22,20 @@ export function getApiKey(service: ApiServiceType): string {
 export function getVoiceId(): string {
   return 'iP95p4xoKVk53GoZ742B'; // Chris voice from ElevenLabs
 }
+
+export const apiKeyExists = async (service: string): Promise<boolean> => {
+  const key = localStorage.getItem(`${service.toLowerCase()}_api_key`);
+  return !!key;
+};
+
+export const setApiKey = async (service: string, value: string): Promise<void> => {
+  localStorage.setItem(`${service.toLowerCase()}_api_key`, value);
+};
+
+export const getApiKey = async (service: string): Promise<string | null> => {
+  return localStorage.getItem(`${service.toLowerCase()}_api_key`);
+};
+
+export const removeApiKey = async (service: string): Promise<void> => {
+  localStorage.removeItem(`${service.toLowerCase()}_api_key`);
+};

@@ -1,13 +1,37 @@
 
 import React from "react";
-import ChatDashboardPanel from "./chat/ChatDashboardPanel";
-import { useJarvisChat } from "./JarvisChatContext";
+import { Link, useLocation } from "react-router-dom";
+import { Home, Image, Terminal, Settings } from "lucide-react";
+import { cn } from "../lib/utils";
 
 const JarvisSidebar: React.FC = () => {
-  const { showDashboard } = useJarvisChat();
-  if (!showDashboard) return null;
+  const location = useLocation();
+
+  const isActive = (path: string) => location.pathname === path;
+
+  const navItems = [
+    { name: "Home", path: "/interface", icon: <Home className="w-5 h-5" /> },
+    { name: "Terminal", path: "/", icon: <Terminal className="w-5 h-5" /> },
+    { name: "Image Gen", path: "/image-generation", icon: <Image className="w-5 h-5" /> },
+    { name: "Settings", path: "/settings", icon: <Settings className="w-5 h-5" /> },
+  ];
+
   return (
-    <ChatDashboardPanel />
+    <div className="h-screen w-16 bg-black/20 backdrop-blur-lg border-r border-white/10 flex flex-col items-center py-6">
+      {navItems.map((item) => (
+        <Link
+          key={item.path}
+          to={item.path}
+          className={cn(
+            "w-10 h-10 mb-4 rounded-lg flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-all",
+            isActive(item.path) && "bg-white/10 text-white"
+          )}
+          title={item.name}
+        >
+          {item.icon}
+        </Link>
+      ))}
+    </div>
   );
 };
 
