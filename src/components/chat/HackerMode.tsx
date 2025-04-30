@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { generateAssistantResponse } from '@/services/aiAssistantService';
 import { Terminal } from 'lucide-react';
@@ -28,7 +27,7 @@ const fakeCommands = {
     delay: 2500
   }),
   'help': () => ({
-    output: `Available commands:\n- scan : Scan local network\n- decrypt <target> : Attempt decryption\n- trace <ip> : Trace IP location\n- system : System status\n- matrix : Enter the matrix\n- help : Show this help`,
+    output: `Available commands:\n- scan : Scan local network\n- decrypt <target> : Attempt decryption\n- trace <ip> : Trace IP location\n- system : System status\n- matrix : Enter the matrix\n- keylogger <start|stop> : Manage keylogger\n- netscan <ip-range> : Advanced network scanner\n- help : Show this help`,
     delay: 0
   }),
   'system': () => ({
@@ -38,6 +37,20 @@ const fakeCommands = {
   'matrix': () => ({
     output: `Entering the Matrix...\n\n01001010 01000001 01010010\n01010110 01001001 01010011\n\nConnection established. Welcome to the desert of the real.`,
     delay: 1500
+  }),
+  'keylogger': (arg?: string) => ({
+    output: arg === 'start'
+      ? `Keylogger activated.\nCapturing keystrokes on target system...\nData stream established.\nLog file: /tmp/keystroke.log\nStatus: RUNNING`
+      : arg === 'stop'
+      ? `Keylogger deactivated.\nCaptured data saved to encrypted storage.\nForensic analysis ready.\nStatus: STOPPED`
+      : `Usage: keylogger <start|stop>`,
+    delay: 1800
+  }),
+  'netscan': (range?: string) => ({
+    output: range
+      ? `Advanced network scan on ${range}...\n\nDiscovered hosts:\n[+] 192.168.1.1 - Gateway - OpenWrt 19.07.2\n[+] 192.168.1.23 - Desktop - Windows 11 Pro\n[+] 192.168.1.45 - Mobile - Android 13\n[+] 192.168.1.57 - IoT Device - ESP32 (Vulnerable)\n[+] 192.168.1.105 - Server - Ubuntu 22.04 LTS\n\nOpen ports detected: 22,80,443,8080\nPotential vulnerabilities: 2\nScan complete.`
+      : `Usage: netscan <ip-range>\nExample: netscan 192.168.1.0/24`,
+    delay: 3500
   })
 };
 
