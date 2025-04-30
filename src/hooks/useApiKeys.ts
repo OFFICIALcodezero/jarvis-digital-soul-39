@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from 'react';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '../components/ui/use-toast';
 
 export interface ApiKeys {
   openAIKey: string;

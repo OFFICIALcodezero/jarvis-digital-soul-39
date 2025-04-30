@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Sparkles, Download, Loader, Heart, PenLine, Repeat, Image as ImageIcon, Mic, StopCircle } from 'lucide-react';
 import { generateImage, ImageGenerationParams, GeneratedImage } from '@/services/imageGenerationService';
@@ -16,7 +17,7 @@ const ImageGenerationTool: React.FC<ImageGenerationToolProps> = ({ onImageGenera
   const [generatingImage, setGeneratingImage] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<GeneratedImage | null>(null);
   const [selectedStyle, setSelectedStyle] = useState<string | null>(null);
-  const [selectedFormat, setSelectedFormat] = useState<'1:1' | '4:3' | '16:9'>('1:1');
+  const [selectedFormat, setSelectedFormat] = useState<'1:1' | '16:9' | '4:3' | '3:2'>('1:1');
   const [imageError, setImageError] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [progressValue, setProgressValue] = useState(0);
@@ -36,7 +37,8 @@ const ImageGenerationTool: React.FC<ImageGenerationToolProps> = ({ onImageGenera
   const formatOptions = [
     { id: '1:1', label: 'Square', width: 6, height: 6 },
     { id: '16:9', label: 'Widescreen', width: 8, height: 6 },
-    { id: '4:3', label: 'Standard', width: 8, height: 6 }
+    { id: '4:3', label: 'Standard', width: 8, height: 6 },
+    { id: '3:2', label: 'Portrait', width: 6, height: 8 }
   ];
 
   useEffect(() => {
@@ -55,6 +57,7 @@ const ImageGenerationTool: React.FC<ImageGenerationToolProps> = ({ onImageGenera
             .map(result => result[0].transcript)
             .join('');
           
+          // Extract image prompt from voice command
           if (transcript.toLowerCase().includes('jarvis generate') || 
               transcript.toLowerCase().includes('create image') ||
               transcript.toLowerCase().includes('make image')) {
@@ -106,6 +109,7 @@ const ImageGenerationTool: React.FC<ImageGenerationToolProps> = ({ onImageGenera
   }, [isListening]);
 
   useEffect(() => {
+    // Sync progress with context
     if (isGeneratingImage) {
       setProgressValue(generationProgress);
     }
@@ -121,6 +125,7 @@ const ImageGenerationTool: React.FC<ImageGenerationToolProps> = ({ onImageGenera
       return;
     }
 
+    // Check for potentially inappropriate content
     const inappropriateTerms = ['nude', 'naked', 'pornographic', 'explicit', 'violence', 'gore', 'illegal'];
     const lowerPrompt = prompt.toLowerCase();
     
@@ -395,7 +400,8 @@ const ImageGenerationTool: React.FC<ImageGenerationToolProps> = ({ onImageGenera
   );
 };
 
-const getFormatClass = (format: '1:1' | '4:3' | '16:9'): string => {
+// Helper function to get CSS class based on selected format
+const getFormatClass = (format: string): string => {
   switch (format) {
     case '1:1':
       return 'aspect-square';
@@ -403,6 +409,8 @@ const getFormatClass = (format: '1:1' | '4:3' | '16:9'): string => {
       return 'aspect-video';
     case '4:3':
       return 'aspect-[4/3]';
+    case '3:2':
+      return 'aspect-[3/2]';
     default:
       return 'aspect-square';
   }
