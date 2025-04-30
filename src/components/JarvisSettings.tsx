@@ -18,6 +18,7 @@ const JarvisSettings: React.FC = () => {
           </CardHeader>
           <CardContent>
             <ApiKeyManager serviceName="OpenAI" />
+            <ApiKeyManager serviceName="ElevenLabs" />
           </CardContent>
         </Card>
       </div>

@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { toast } from './ui/use-toast';
-import { apiKeyExists, setApiKey } from '../utils/apiKeyManager';
+import { apiKeyExists, setApiKey, ApiServiceType } from '../utils/apiKeyManager';
 
 interface ApiKeyManagerProps {
   serviceName: string;
@@ -22,7 +22,9 @@ const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({ serviceName, onApiKeySet 
   }, []);
 
   const checkApiKey = async () => {
-    const exists = await apiKeyExists(serviceName);
+    // Convert serviceName to ApiServiceType (lowercase) for the function call
+    const serviceType = serviceName.toLowerCase() as ApiServiceType;
+    const exists = await apiKeyExists(serviceType);
     setHasKey(exists);
   };
 
@@ -38,7 +40,9 @@ const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({ serviceName, onApiKeySet 
       return;
     }
 
-    await setApiKey(serviceName, apiKey);
+    // Convert serviceName to ApiServiceType (lowercase) for the function call
+    const serviceType = serviceName.toLowerCase() as ApiServiceType;
+    await setApiKey(serviceType, apiKey);
     setIsOpen(false);
     setApiKeyValue('');
     setHasKey(true);

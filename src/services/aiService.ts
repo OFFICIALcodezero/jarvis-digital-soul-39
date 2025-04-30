@@ -18,12 +18,36 @@ export interface CompletionResponse {
   };
 }
 
+// User memory functions
+export const getUserMemory = (): Record<string, any> => {
+  try {
+    const memory = localStorage.getItem('user_memory');
+    return memory ? JSON.parse(memory) : {};
+  } catch (error) {
+    console.error('Error retrieving user memory:', error);
+    return {};
+  }
+};
+
+export const updateUserMemory = (message: string): void => {
+  try {
+    const memory = getUserMemory();
+    // Simple implementation - just store the last few messages
+    if (!memory.recentMessages) memory.recentMessages = [];
+    memory.recentMessages.unshift(message);
+    if (memory.recentMessages.length > 10) memory.recentMessages.pop();
+    localStorage.setItem('user_memory', JSON.stringify(memory));
+  } catch (error) {
+    console.error('Error updating user memory:', error);
+  }
+};
+
 // OpenAI completion function
 export const createCompletion = async (
   request: CompletionRequest
 ): Promise<CompletionResponse> => {
   try {
-    const apiKey = await getApiKey('OpenAI');
+    const apiKey = await getApiKey('openai');
     
     if (!apiKey) {
       console.error('OpenAI API key not set. Please set it in settings.');

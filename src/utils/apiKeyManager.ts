@@ -1,3 +1,4 @@
+
 /**
  * API Key Manager for JARVIS
  * 
@@ -7,35 +8,38 @@
 // Define valid API service types
 export type ApiServiceType = 'openai' | 'elevenlabs';
 
-// Default API keys provided by the owner
-const DEFAULT_API_KEYS: Record<ApiServiceType, string> = {
-  openai: "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",
-  elevenlabs: "sk_eb17d4578601c4e4c2466a20174a154b45a1466c92152f6e"
-};
-
-// Simple getter for API keys
-export function getApiKey(service: ApiServiceType): string {
-  return DEFAULT_API_KEYS[service];
-}
-
-// Get voice ID for the assistant
-export function getVoiceId(): string {
-  return 'iP95p4xoKVk53GoZ742B'; // Chris voice from ElevenLabs
-}
-
-export const apiKeyExists = async (service: string): Promise<boolean> => {
+/**
+ * Check if an API key exists for a service
+ */
+export const apiKeyExists = async (service: ApiServiceType): Promise<boolean> => {
   const key = localStorage.getItem(`${service.toLowerCase()}_api_key`);
   return !!key;
 };
 
-export const setApiKey = async (service: string, value: string): Promise<void> => {
+/**
+ * Set an API key for a service
+ */
+export const setApiKey = async (service: ApiServiceType, value: string): Promise<void> => {
   localStorage.setItem(`${service.toLowerCase()}_api_key`, value);
 };
 
-export const getApiKey = async (service: string): Promise<string | null> => {
+/**
+ * Get an API key for a service
+ */
+export const getApiKey = async (service: ApiServiceType): Promise<string | null> => {
   return localStorage.getItem(`${service.toLowerCase()}_api_key`);
 };
 
-export const removeApiKey = async (service: string): Promise<void> => {
+/**
+ * Remove an API key for a service
+ */
+export const removeApiKey = async (service: ApiServiceType): Promise<void> => {
   localStorage.removeItem(`${service.toLowerCase()}_api_key`);
 };
+
+/**
+ * Get voice ID for the assistant
+ */
+export function getVoiceId(): string {
+  return 'iP95p4xoKVk53GoZ742B'; // Chris voice from ElevenLabs
+}
