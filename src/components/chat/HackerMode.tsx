@@ -1,7 +1,7 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { generateAssistantResponse } from '@/services/aiAssistantService';
-import { Terminal } from 'lucide-react';
+import { Terminal, Code, Database, Shield, Wifi } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/components/ui/use-toast';
 import { 
@@ -11,21 +11,36 @@ import {
   getSystemStatus, 
   simulateMatrix, 
   handleKeylogger, 
-  performNetworkScan 
+  performNetworkScan,
+  scanPorts,
+  simulatePasswordCrack,
+  simulateSQLInjection,
+  simulateXSS,
+  simulateWebcamCheck,
+  getHackerModeHelp,
 } from '@/services/hackerModeService';
 
 export interface HackerModeProps {
   hackerOutput: string;
   setHackerOutput: React.Dispatch<React.SetStateAction<string>>;
+  onDeactivate?: () => void;
 }
 
-const HackerMode: React.FC<HackerModeProps> = ({ hackerOutput, setHackerOutput }) => {
+const HackerMode: React.FC<HackerModeProps> = ({ hackerOutput, setHackerOutput, onDeactivate }) => {
   const [input, setInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const outputEndRef = useRef<HTMLDivElement>(null);
 
   const appendOutput = (text: string) => {
     setHackerOutput(prev => `${prev}\n${text}`);
   };
+  
+  // Scroll to the end of output when content changes
+  useEffect(() => {
+    if (outputEndRef.current) {
+      outputEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [hackerOutput]);
 
   const handleCommand = async (command: string) => {
     if (!command.trim()) return;
@@ -36,6 +51,18 @@ const HackerMode: React.FC<HackerModeProps> = ({ hackerOutput, setHackerOutput }
     try {
       const [cmd, ...args] = command.split(' ');
       const lowerCmd = cmd.toLowerCase();
+      
+      // Handle deactivation
+      if (lowerCmd === 'deactivate') {
+        appendOutput('\nDeactivating hacker mode...');
+        setTimeout(() => {
+          if (onDeactivate) {
+            onDeactivate();
+          }
+        }, 1000);
+        setIsProcessing(false);
+        return;
+      }
       
       // Handle commands with real functionality
       switch(lowerCmd) {
@@ -85,18 +112,39 @@ const HackerMode: React.FC<HackerModeProps> = ({ hackerOutput, setHackerOutput }
             appendOutput(`\n${scanResult}`);
           }
           break;
+        
+        case 'ports':
+          const portTarget = args[0];
+          const portsResult = await scanPorts(portTarget);
+          appendOutput(`\n${portsResult}`);
+          break;
+          
+        case 'crack':
+          const hash = args[0];
+          const crackResult = await simulatePasswordCrack(hash);
+          appendOutput(`\n${crackResult}`);
+          break;
+          
+        case 'sqli':
+          const sqliTarget = args[0];
+          const sqliResult = await simulateSQLInjection(sqliTarget);
+          appendOutput(`\n${sqliResult}`);
+          break;
+          
+        case 'xss':
+          const xssTarget = args[0];
+          const xssResult = await simulateXSS(xssTarget);
+          appendOutput(`\n${xssResult}`);
+          break;
+          
+        case 'webcam':
+          const webcamResult = await simulateWebcamCheck();
+          appendOutput(`\n${webcamResult}`);
+          break;
           
         case 'help':
-          appendOutput(`
-Available commands:
-- scan : Scan local network
-- decrypt <target> : Attempt ethical decryption simulation
-- trace <ip> : Trace IP geolocation (ethical use only)
-- system : System status
-- matrix : Enter the matrix (visual effect)
-- keylogger <start|stop> : Simulate keyboard input monitoring
-- netscan <ip-range> : Ethical network scanning simulation
-- help : Show this help`);
+          const helpText = await getHackerModeHelp();
+          appendOutput(`\n${helpText}`);
           break;
           
         default:
@@ -135,7 +183,7 @@ Available commands:
 
   useEffect(() => {
     if (!hackerOutput) {
-      setHackerOutput('J.A.R.V.I.S. Hacker Interface v1.0.0\n> System initialized\n> Awaiting commands...');
+      setHackerOutput('J.A.R.V.I.S. Hacker Interface v1.0.0\n> System initialized\n> Type "help" for commands...');
     }
   }, [hackerOutput, setHackerOutput]);
 
@@ -143,6 +191,7 @@ Available commands:
     <div className="flex-1 flex flex-col h-full bg-black/90">
       <div className="flex-1 p-4 font-mono text-jarvis overflow-auto">
         <pre className="whitespace-pre-wrap">{hackerOutput}</pre>
+        <div ref={outputEndRef} />
       </div>
       
       <form onSubmit={handleSubmit} className="p-4 border-t border-jarvis/20">

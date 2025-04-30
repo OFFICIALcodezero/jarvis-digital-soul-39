@@ -12,10 +12,11 @@ export interface JarvisChatProps {
   activeMode: 'normal' | 'voice' | 'face' | 'hacker';
   setIsSpeaking: (isSpeaking: boolean) => void;
   isListening: boolean;
-  activeAssistant: 'jarvis';
-  setActiveAssistant: (assistant: 'jarvis') => void;
+  activeAssistant: string;
+  setActiveAssistant: (assistant: string) => void;
   inputMode: 'voice' | 'text';
   setInputMode: (mode: 'voice' | 'text') => void;
+  onMessageCheck?: (message: string) => boolean;
 }
 
 export interface LanguageOption {

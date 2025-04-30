@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import ArcReactor from '@/components/background/ArcReactor';
@@ -17,12 +18,13 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { Mic, Brain, Sparkles, Cpu, Bot, Volume2, VolumeX, Image } from 'lucide-react';
 import { getApiKey } from '@/utils/apiKeyManager';
 import { toast } from '@/components/ui/use-toast';
+import { validateHackerCode } from '@/services/hackerModeService';
 
 export type AssistantType = 'jarvis';
 
 const JarvisInterface = () => {
   const [mode, setMode] = useState<'chat' | 'hacker'>('chat');
-  const [activeMode, setActiveMode] = useState<'normal' | 'voice' | 'face' | 'hacker'>('normal');
+  const [activeMode, setActiveMode] = useState<'normal' | 'voice' | 'face'>('normal');
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -31,6 +33,7 @@ const JarvisInterface = () => {
   const [hackerOutput, setHackerOutput] = useState<string>('');
   const [volume, setVolume] = useState<number>(0.8);
   const [isMuted, setIsMuted] = useState<boolean>(false);
+  const [hackerModeActive, setHackerModeActive] = useState<boolean>(false);
   const isMobile = useIsMobile();
   
   const elevenLabsKey = getApiKey('elevenlabs');
@@ -59,35 +62,26 @@ const JarvisInterface = () => {
       id: 'normal',
       label: 'Normal Mode',
       icon: <Brain />,
-      active: activeMode === 'normal'
+      active: activeMode === 'normal' && !hackerModeActive
     },
     {
       id: 'voice',
       label: 'Voice Mode',
       icon: <Mic />,
-      active: activeMode === 'voice'
+      active: activeMode === 'voice' && !hackerModeActive
     },
     {
       id: 'face',
       label: 'Face Mode',
       icon: <Sparkles />,
-      active: activeMode === 'face'
-    },
-    {
-      id: 'hacker',
-      label: 'Hacker Mode',
-      icon: <Cpu />,
-      active: activeMode === 'hacker'
+      active: activeMode === 'face' && !hackerModeActive
     }
   ];
 
   const handleToggleMode = (id: string) => {
-    setActiveMode(id as 'normal' | 'voice' | 'face' | 'hacker');
-    if (id === 'hacker') {
-      setMode('hacker');
-    } else {
-      setMode('chat');
-    }
+    setActiveMode(id as 'normal' | 'voice' | 'face');
+    setMode('chat');
+    setHackerModeActive(false);
     
     if (id === 'voice' || id === 'face') {
       setInputMode('voice');
@@ -107,6 +101,32 @@ const JarvisInterface = () => {
   const toggleMute = () => {
     setIsMuted(!isMuted);
     setVolume(prev => isMuted ? prev : 0);
+  };
+  
+  // Handle message input to check for code activation
+  const handleMessageCheck = (message: string) => {
+    if (validateHackerCode(message)) {
+      activateHackerMode();
+      return true;
+    }
+    return false;
+  };
+  
+  const activateHackerMode = () => {
+    setHackerModeActive(true);
+    setMode('hacker');
+    setHackerOutput('J.A.R.V.I.S. Hacker Interface Activated\n> Security protocols bypassed\n> Entering secure mode...\n> Type "help" for available commands');
+    
+    toast({
+      title: "Hacker Mode Activated",
+      description: "All systems operational. Security protocols engaged.",
+      variant: "default"
+    });
+  };
+  
+  const deactivateHackerMode = () => {
+    setHackerModeActive(false);
+    setMode('chat');
   };
   
   return (
@@ -155,7 +175,7 @@ const JarvisInterface = () => {
               isSpeaking={isSpeaking}
               isListening={isListening}
               isProcessing={isProcessing}
-              activeMode={activeMode}
+              activeMode={hackerModeActive ? 'hacker' : activeMode}
             />
             <div className="mt-4">
               <VoiceActivation 
@@ -168,29 +188,26 @@ const JarvisInterface = () => {
         </div>
         
         <div className="lg:w-2/3 order-1 lg:order-2">
-          <Tabs defaultValue="chat" className="h-full" onValueChange={(value) => setMode(value as 'chat' | 'hacker')}>
-            <TabsList className="bg-black/50 border border-[#33c3f0]/20">
-              <TabsTrigger value="chat" className="data-[state=active]:bg-[#33c3f0]/20">Assistant Mode</TabsTrigger>
-              <TabsTrigger value="hacker" className="data-[state=active]:bg-[#33c3f0]/20">Hacker Mode</TabsTrigger>
-            </TabsList>
-            <TabsContent value="chat" className="h-[calc(100%-40px)]">
-              <JarvisChat 
-                activeMode={activeMode}
-                setIsSpeaking={setIsSpeaking}
-                isListening={isListening}
-                activeAssistant={activeAssistant}
-                setActiveAssistant={setActiveAssistant}
-                inputMode={inputMode}
-                setInputMode={setInputMode}
-              />
-            </TabsContent>
-            <TabsContent value="hacker" className="h-[calc(100%-40px)]">
+          {hackerModeActive ? (
+            <div className="h-full">
               <HackerMode 
                 hackerOutput={hackerOutput}
                 setHackerOutput={setHackerOutput}
+                onDeactivate={deactivateHackerMode}
               />
-            </TabsContent>
-          </Tabs>
+            </div>
+          ) : (
+            <JarvisChat 
+              activeMode={activeMode}
+              setIsSpeaking={setIsSpeaking}
+              isListening={isListening}
+              activeAssistant={activeAssistant}
+              setActiveAssistant={setActiveAssistant}
+              inputMode={inputMode}
+              setInputMode={setInputMode}
+              onMessageCheck={handleMessageCheck}
+            />
+          )}
         </div>
       </div>
       
