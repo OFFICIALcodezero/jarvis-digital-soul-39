@@ -8,10 +8,10 @@ interface IronManBackgroundProps {
 
 const IronManBackground: React.FC<IronManBackgroundProps> = ({ isGlowing }) => {
   return (
-    <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 opacity-20">
+    <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
       <div 
         className={cn(
-          "relative w-64 h-64 md:w-80 md:h-80 transition-all duration-1000", 
+          "relative w-full h-full transition-all duration-1000", 
           isGlowing && "animate-pulse"
         )}
       >

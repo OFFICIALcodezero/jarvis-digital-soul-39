@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Mic, MicOff } from 'lucide-react';
+import IronManBackground from './chat/IronManBackground';
 
 interface VoiceActivationProps {
   onCommandReceived?: (command: string) => void;
@@ -15,8 +16,16 @@ const VoiceActivation: React.FC<VoiceActivationProps> = ({
   toggleListening,
   isSpeaking
 }) => {
+  // The Iron Man should glow when Jarvis is speaking or actively processing
+  const isJarvisActive = isSpeaking;
+  
   return (
-    <div className="flex flex-col items-center gap-3">
+    <div className="flex flex-col items-center gap-3 relative">
+      {/* Iron Man Background positioned above the microphone button */}
+      <div className="mb-4 relative w-32 h-32">
+        <IronManBackground isGlowing={isJarvisActive} />
+      </div>
+      
       <button
         onClick={toggleListening}
         className={`w-16 h-16 rounded-full flex items-center justify-center transition-all ${

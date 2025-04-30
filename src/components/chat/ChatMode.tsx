@@ -2,7 +2,6 @@
 import React from "react";
 import { Message } from "@/types/chat";
 import GeneratedImageCard from "./GeneratedImageCard";
-import IronManBackground from "./IronManBackground";
 
 export interface ChatModeProps {
   messages: Message[];
@@ -23,14 +22,8 @@ const ChatMode: React.FC<ChatModeProps> = ({
   selectedLanguage,
   onLanguageChange
 }) => {
-  // Determine if the background should glow - when there are no messages or only the initial greeting
-  const shouldGlow = messages.length <= 1;
-
   return (
     <div className="jarvis-panel flex-1 flex flex-col overflow-auto bg-black/20 p-4 relative">
-      {/* Iron Man Background */}
-      <IronManBackground isGlowing={shouldGlow} />
-      
       {/* Messages container */}
       <div className="flex-1 space-y-4 overflow-auto relative z-10">
         {messages.map((message) => {
