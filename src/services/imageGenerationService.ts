@@ -15,7 +15,7 @@ export interface ImageGenerationParams {
   prompt: string;
   style?: 'realistic' | 'anime' | '3d' | 'abstract' | 'painting' | 'pixel' | 'sci-fi' | 'fantasy';
   resolution?: '512x512' | '768x768' | '1024x1024';
-  aspectRatio?: '1:1' | '4:3' | '16:9';
+  aspectRatio?: '1:1' | '4:3' | '16:9' | '3:2';
 }
 
 export interface GeneratedImage {

@@ -35,7 +35,11 @@ export const parseImageRequest = (input: string): ImageGenerationParams => {
   // Check for aspect ratio keywords
   if (/wide|landscape|panorama|cinematic/i.test(input)) params.aspectRatio = '16:9';
   else if (/square/i.test(input)) params.aspectRatio = '1:1';
-  else if (/portrait|vertical|tall/i.test(input)) params.aspectRatio = '4:3';
+  else if (/portrait|vertical|tall/i.test(input)) {
+    // Support both portrait aspect ratios
+    if (/3:2|3by2/i.test(input)) params.aspectRatio = '3:2';
+    else params.aspectRatio = '4:3';
+  }
 
   console.log("Parsed image parameters:", params);
   return params;
