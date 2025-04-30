@@ -72,6 +72,8 @@ export default {
         "neon-lg": "0 0 15px rgba(51, 195, 240, 0.5), 0 0 30px rgba(51, 195, 240, 0.3)",
         "neon-purple": "0 0 10px rgba(139, 92, 246, 0.3), 0 0 20px rgba(139, 92, 246, 0.2)",
         "neon-purple-lg": "0 0 15px rgba(139, 92, 246, 0.5), 0 0 30px rgba(139, 92, 246, 0.3)",
+        "ironman-glow": "0 0 20px rgba(179, 0, 0, 0.5), 0 0 40px rgba(255, 215, 0, 0.3)",
+        "reactor-glow": "0 0 30px rgba(51, 195, 240, 0.6), 0 0 60px rgba(51, 195, 240, 0.4)",
       },
       keyframes: {
         "accordion-down": {
@@ -134,9 +136,23 @@ export default {
           "100%": { transform: "rotate(360deg)" }
         },
         "reactor-glow": {
-          "0%": { boxShadow: "0 0 20px #B30000, 0 0 40px #FFD700" },
-          "50%": { boxShadow: "0 0 40px #B30000, 0 0 60px #FFD700" },
-          "100%": { boxShadow: "0 0 20px #B30000, 0 0 40px #FFD700" }
+          "0%": { 
+            boxShadow: "0 0 15px #B30000, 0 0 25px #33C3F0",
+            opacity: "0.7" 
+          },
+          "50%": { 
+            boxShadow: "0 0 30px #B30000, 0 0 50px #33C3F0",
+            opacity: "1"
+          },
+          "100%": { 
+            boxShadow: "0 0 15px #B30000, 0 0 25px #33C3F0",
+            opacity: "0.7" 
+          }
+        },
+        "ironman-eyes": {
+          "0%": { filter: "brightness(1) drop-shadow(0 0 2px #33C3F0)" },
+          "50%": { filter: "brightness(1.5) drop-shadow(0 0 8px #33C3F0)" },
+          "100%": { filter: "brightness(1) drop-shadow(0 0 2px #33C3F0)" }
         }
       },
       animation: {
@@ -151,7 +167,8 @@ export default {
         "spin-slow": "spin 3s linear infinite",
         "reactor-pulse": "reactor-pulse 4s ease-in-out infinite",
         "reactor-rotate": "reactor-rotate 20s linear infinite",
-        "reactor-glow": "reactor-glow 3s ease-in-out infinite"
+        "reactor-glow": "reactor-glow 3s ease-in-out infinite",
+        "ironman-eyes": "ironman-eyes 2s ease-in-out infinite"
       },
     },
   },
