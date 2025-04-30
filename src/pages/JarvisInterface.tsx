@@ -15,7 +15,7 @@ import ChatMode from '@/components/chat/ChatMode';
 import HackerMode from '@/components/chat/HackerMode';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Mic, Brain, Sparkles, Cpu, Bot, Volume2, VolumeX, Image } from 'lucide-react';
+import { Mic, Brain, Sparkles, Cpu, Bot, Volume2, VolumeX, Image, Terminal } from 'lucide-react';
 import { getApiKey } from '@/utils/apiKeyManager';
 import { toast } from '@/components/ui/use-toast';
 import { validateHackerCode } from '@/services/hackerModeService';
@@ -78,7 +78,22 @@ const JarvisInterface = () => {
     }
   ];
 
+  // Add hacker mode to control options only if it's active
+  if (hackerModeActive) {
+    controlOptions.push({
+      id: 'hacker',
+      label: 'Hacker Mode',
+      icon: <Terminal />,
+      active: hackerModeActive
+    });
+  }
+
   const handleToggleMode = (id: string) => {
+    if (id === 'hacker') {
+      setMode('hacker');
+      return;
+    }
+    
     setActiveMode(id as 'normal' | 'voice' | 'face');
     setMode('chat');
     setHackerModeActive(false);
@@ -115,7 +130,7 @@ const JarvisInterface = () => {
   const activateHackerMode = () => {
     setHackerModeActive(true);
     setMode('hacker');
-    setHackerOutput('J.A.R.V.I.S. Hacker Interface Activated\n> Security protocols bypassed\n> Entering secure mode...\n> Type "help" for available commands');
+    setHackerOutput('J.A.R.V.I.S. Hacker Interface v2.0 Activated\n> Security protocols bypassed\n> Entering secure terminal...\n> Authentication successful\n> Type "help" for available commands');
     
     toast({
       title: "Hacker Mode Activated",
@@ -161,6 +176,12 @@ const JarvisInterface = () => {
               <span className="text-jarvis capitalize">{activeAssistant} enabled</span>
             </div>
           )}
+          {hackerModeActive && (
+            <div className="flex items-center text-sm">
+              <Terminal className="h-3 w-3 mr-1 text-jarvis" />
+              <span className="text-jarvis animate-pulse">HACKER MODE</span>
+            </div>
+          )}
           <button 
             onClick={toggleMute}
             className="text-jarvis hover:text-jarvis/80 transition-colors"
@@ -194,7 +215,7 @@ const JarvisInterface = () => {
         
         <div className="lg:w-2/3 order-1 lg:order-2">
           {hackerModeActive ? (
-            <div className="h-full">
+            <div className="h-full rounded-xl overflow-hidden border border-jarvis/30">
               <HackerMode 
                 hackerOutput={hackerOutput}
                 setHackerOutput={setHackerOutput}

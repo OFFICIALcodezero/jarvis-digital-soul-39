@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { generateAssistantResponse } from '@/services/aiAssistantService';
-import { Terminal, Code, Database, Shield, Wifi } from 'lucide-react';
+import { Terminal, Code, Database, Shield, Wifi, Server, Lock, RefreshCw } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
 import { 
   scanNetwork, 
@@ -29,7 +30,9 @@ export interface HackerModeProps {
 const HackerMode: React.FC<HackerModeProps> = ({ hackerOutput, setHackerOutput, onDeactivate }) => {
   const [input, setInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [activeCommand, setActiveCommand] = useState<string | null>(null);
   const outputEndRef = useRef<HTMLDivElement>(null);
+  const terminalRef = useRef<HTMLDivElement>(null);
 
   const appendOutput = (text: string) => {
     setHackerOutput(prev => `${prev}\n${text}`);
@@ -46,6 +49,7 @@ const HackerMode: React.FC<HackerModeProps> = ({ hackerOutput, setHackerOutput, 
     if (!command.trim()) return;
 
     setIsProcessing(true);
+    setActiveCommand(command.split(' ')[0].toLowerCase());
     appendOutput(`\n> ${command}`);
     
     try {
@@ -147,6 +151,10 @@ const HackerMode: React.FC<HackerModeProps> = ({ hackerOutput, setHackerOutput, 
           appendOutput(`\n${helpText}`);
           break;
           
+        case 'clear':
+          setHackerOutput('J.A.R.V.I.S. Hacker Interface v1.0.0\n> System initialized\n> Type "help" for commands...');
+          break;
+          
         default:
           // For unrecognized commands, use AI assistant
           const messages = [{ role: 'user' as const, content: command }];
@@ -170,6 +178,7 @@ const HackerMode: React.FC<HackerModeProps> = ({ hackerOutput, setHackerOutput, 
       appendOutput('\n[ERROR] Command processing failed');
     } finally {
       setIsProcessing(false);
+      setActiveCommand(null);
     }
   };
 
@@ -187,25 +196,142 @@ const HackerMode: React.FC<HackerModeProps> = ({ hackerOutput, setHackerOutput, 
     }
   }, [hackerOutput, setHackerOutput]);
 
+  const handleQuickCommand = (command: string) => {
+    if (isProcessing) return;
+    setInput(command);
+    setTimeout(() => {
+      handleCommand(command);
+    }, 100);
+  };
+
   return (
-    <div className="flex-1 flex flex-col h-full bg-black/90">
-      <div className="flex-1 p-4 font-mono text-jarvis overflow-auto">
-        <pre className="whitespace-pre-wrap">{hackerOutput}</pre>
-        <div ref={outputEndRef} />
+    <div className="flex-1 flex flex-col h-full bg-black/95 text-jarvis overflow-hidden">
+      <div className="p-4 border-b border-jarvis/30 flex justify-between items-center">
+        <div className="flex items-center space-x-2">
+          <Terminal className="w-5 h-5 text-jarvis" />
+          <span className="font-mono text-lg">J.A.R.V.I.S. HACKER INTERFACE</span>
+        </div>
+        <div className="flex space-x-2 items-center">
+          <RefreshCw className={`w-4 h-4 ${isProcessing ? 'animate-spin text-jarvis' : 'text-jarvis/40'}`} />
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="text-xs bg-transparent border-jarvis/30 text-jarvis hover:bg-jarvis/10"
+            onClick={() => onDeactivate && onDeactivate()}
+          >
+            Deactivate
+          </Button>
+        </div>
       </div>
       
-      <form onSubmit={handleSubmit} className="p-4 border-t border-jarvis/20">
-        <div className="flex items-center gap-2">
-          <Terminal className="w-4 h-4 text-jarvis" />
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            className="flex-1 bg-black/50 border-jarvis/30 text-jarvis font-mono"
-            placeholder={isProcessing ? "Processing..." : "Type 'help' for commands..."}
-            disabled={isProcessing}
-          />
+      <div className="flex flex-1 overflow-hidden">
+        <div className="w-16 bg-black border-r border-jarvis/20 flex flex-col items-center py-4 space-y-6">
+          <div 
+            className={`p-2 rounded-md hover:bg-jarvis/10 cursor-pointer ${activeCommand === 'scan' ? 'bg-jarvis/10 text-jarvis' : 'text-jarvis/60'}`}
+            onClick={() => handleQuickCommand('scan')}
+            title="Network Scan"
+          >
+            <Wifi className="w-5 h-5" />
+          </div>
+          <div 
+            className={`p-2 rounded-md hover:bg-jarvis/10 cursor-pointer ${activeCommand === 'decrypt' ? 'bg-jarvis/10 text-jarvis' : 'text-jarvis/60'}`}
+            onClick={() => handleQuickCommand('decrypt password')}
+            title="Decrypt"
+          >
+            <Lock className="w-5 h-5" />
+          </div>
+          <div 
+            className={`p-2 rounded-md hover:bg-jarvis/10 cursor-pointer ${activeCommand === 'system' ? 'bg-jarvis/10 text-jarvis' : 'text-jarvis/60'}`}
+            onClick={() => handleQuickCommand('system')}
+            title="System Status"
+          >
+            <Server className="w-5 h-5" />
+          </div>
+          <div 
+            className={`p-2 rounded-md hover:bg-jarvis/10 cursor-pointer ${activeCommand === 'matrix' ? 'bg-jarvis/10 text-jarvis' : 'text-jarvis/60'}`}
+            onClick={() => handleQuickCommand('matrix')}
+            title="Matrix Effect"
+          >
+            <Code className="w-5 h-5" />
+          </div>
+          <div 
+            className={`p-2 rounded-md hover:bg-jarvis/10 cursor-pointer ${activeCommand === 'help' ? 'bg-jarvis/10 text-jarvis' : 'text-jarvis/60'}`}
+            onClick={() => handleQuickCommand('help')}
+            title="Help"
+          >
+            <Shield className="w-5 h-5" />
+          </div>
         </div>
-      </form>
+        
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <div 
+            ref={terminalRef}
+            className="flex-1 p-4 font-mono text-jarvis overflow-auto terminal-window"
+            style={{
+              backgroundImage: 'repeating-linear-gradient(0deg, rgba(30, 174, 219, 0.03), rgba(30, 174, 219, 0.03) 1px, transparent 1px, transparent 2px)'
+            }}
+          >
+            <pre className="whitespace-pre-wrap">{hackerOutput}</pre>
+            <div ref={outputEndRef} />
+          </div>
+          
+          <form onSubmit={handleSubmit} className="p-4 border-t border-jarvis/30">
+            <div className="flex items-center gap-2">
+              <Terminal className="w-4 h-4 text-jarvis" />
+              <Input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                className="flex-1 bg-black/70 border-jarvis/30 text-jarvis font-mono focus-visible:ring-jarvis/30"
+                placeholder={isProcessing ? "Processing..." : "Type command..."}
+                disabled={isProcessing}
+                autoFocus
+              />
+              <Button 
+                type="submit" 
+                disabled={isProcessing || !input.trim()} 
+                variant="outline" 
+                className="bg-black/70 border-jarvis/30 text-jarvis hover:bg-jarvis/10"
+              >
+                Execute
+              </Button>
+            </div>
+          </form>
+        </div>
+        
+        <div className="w-48 border-l border-jarvis/20 bg-black/70 p-3 hidden md:block">
+          <div className="text-xs uppercase text-jarvis/50 mb-2 font-mono">Quick Commands</div>
+          <div className="space-y-1.5">
+            {['scan', 'system', 'matrix', 'ports 192.168.1.1', 'webcam', 'help', 'clear'].map((cmd) => (
+              <Button
+                key={cmd}
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start text-xs text-jarvis/70 hover:text-jarvis hover:bg-jarvis/10"
+                onClick={() => handleQuickCommand(cmd)}
+                disabled={isProcessing}
+              >
+                {cmd}
+              </Button>
+            ))}
+          </div>
+          
+          <div className="text-xs uppercase text-jarvis/50 mt-4 mb-2 font-mono">System Status</div>
+          <div className="space-y-2 text-xs">
+            <div className="flex justify-between">
+              <span className="text-jarvis/60">CPU:</span>
+              <span className="text-jarvis">42%</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-jarvis/60">RAM:</span>
+              <span className="text-jarvis">1.3 GB</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-jarvis/60">Network:</span>
+              <span className="text-jarvis">Active</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

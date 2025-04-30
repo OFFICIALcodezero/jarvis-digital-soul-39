@@ -19,8 +19,7 @@ const JarvisChatMain: React.FC = () => {
   const selectedLanguage = "en";
   const setSelectedLanguage = () => {};
   const audioPlaying = false;
-  const volume = 80;
-  const setVolume = () => {};
+  const [volume, setVolume] = useState(80);
   const stopSpeaking = () => {};
   const toggleMute = () => {};
   const isListening = false;
@@ -35,7 +34,8 @@ const JarvisChatMain: React.FC = () => {
     "Create an image of a futuristic robot",
     "Draw a magical forest with glowing mushrooms",
     "Show me an image of a disco-dancing fish in neon colors",
-    "Generate a cyberpunk city at night"
+    "Generate a cyberpunk city at night",
+    "Try typing 'code zero' for a surprise"
   ];
 
   const handleSendMessage = () => {
@@ -57,7 +57,7 @@ const JarvisChatMain: React.FC = () => {
       onLanguageChange={setSelectedLanguage}
       audioPlaying={audioPlaying}
       volume={volume}
-      onVolumeChange={values => setVolume()}
+      onVolumeChange={values => setVolume(values[0])}
       stopSpeaking={stopSpeaking}
       toggleMute={toggleMute}
       isListening={isListening}
