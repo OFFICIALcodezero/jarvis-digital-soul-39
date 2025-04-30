@@ -21,8 +21,8 @@ const VoiceActivation: React.FC<VoiceActivationProps> = ({
   
   return (
     <div className="flex flex-col items-center gap-3 relative">
-      {/* Iron Man Background positioned above the microphone button */}
-      <div className="mb-4 relative w-32 h-32">
+      {/* Iron Man Background positioned to fill the space */}
+      <div className="mb-4 relative w-full h-40">
         <IronManBackground isGlowing={isJarvisActive} />
       </div>
       
