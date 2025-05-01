@@ -159,6 +159,14 @@ export const JarvisChatProvider: React.FC<React.PropsWithChildren<JarvisChatProp
           skillType: skillResponse.skillType
         };
         
+        // Special handling for image generation
+        if (skillResponse.skillType === 'stability-image' || skillResponse.skillType === 'image') {
+          response = {
+            ...response,
+            generatedImage: skillResponse.data
+          };
+        }
+        
         if (skillResponse.shouldSpeak && (activeMode === 'voice' || activeMode === 'face')) {
           speakText(skillResponse.text);
         }
@@ -197,6 +205,22 @@ export const JarvisChatProvider: React.FC<React.PropsWithChildren<JarvisChatProp
       // Set new suggestions if provided
       if (messageSuggestions && messageSuggestions.length > 0) {
         setSuggestions(messageSuggestions);
+      } else if (response.skillType === 'stability-image' || response.skillType === 'image') {
+        // Image-specific suggestions
+        setSuggestions([
+          {
+            id: `img1-${Date.now()}`,
+            text: "Make it more vibrant",
+          },
+          {
+            id: `img2-${Date.now()}`,
+            text: "Show me a different version",
+          },
+          {
+            id: `img3-${Date.now()}`,
+            text: "Generate another image with sci-fi theme",
+          },
+        ]);
       } else {
         // Generate default suggestions based on conversation
         setSuggestions([

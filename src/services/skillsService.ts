@@ -1,15 +1,17 @@
+
 import { getWeatherResponse } from './weatherService';
 import { getNewsResponse } from './newsService';
 import { getTimeCalendarResponse } from './timeCalendarService';
 import { getDailyBriefing } from './dailyBriefingService';
 import { parseImageRequest } from './imagePromptParser';
 import { generateImage } from './imageGenerationService';
+import { parseImagePrompt, generateStabilityImage, isImageGenerationPrompt, extractImagePrompt } from './stabilityAIService';
 
 export interface SkillResponse {
   text: string;
   data?: any;
   shouldSpeak: boolean;
-  skillType: 'weather' | 'news' | 'time' | 'calendar' | 'briefing' | 'image' | 'general' | 'unknown';
+  skillType: 'weather' | 'news' | 'time' | 'calendar' | 'briefing' | 'image' | 'stability-image' | 'general' | 'unknown';
 }
 
 export const processSkillCommand = async (command: string): Promise<SkillResponse> => {
@@ -86,13 +88,22 @@ export const processSkillCommand = async (command: string): Promise<SkillRespons
       };
     }
     
-    // Image generation queries
-    else if (lowerCommand.includes('generate image') || 
-             lowerCommand.includes('create image') || 
-             lowerCommand.includes('make image') ||
-             lowerCommand.includes('draw') ||
-             (lowerCommand.includes('generate') && lowerCommand.includes('picture')) ||
-             (lowerCommand.includes('create') && lowerCommand.includes('picture'))) {
+    // Stability AI Image generation (preferred)
+    else if (isImageGenerationPrompt(command)) {
+      const imagePrompt = extractImagePrompt(command);
+      const imageParams = parseImagePrompt(imagePrompt);
+      const generatedImage = await generateStabilityImage(imageParams);
+      
+      return {
+        text: `Here is the image I created based on your prompt: "${imagePrompt}"`,
+        data: generatedImage,
+        shouldSpeak: true,
+        skillType: 'stability-image'
+      };
+    }
+    
+    // Legacy image generation (fallback)
+    else if (lowerCommand.includes('legacy image') || lowerCommand.includes('old image')) {
       const imageParams = parseImageRequest(command);
       const generatedImage = await generateImage(imageParams);
       
@@ -142,10 +153,7 @@ export const isSkillCommand = (command: string): boolean => {
          lowerCommand.includes('update me') ||
          lowerCommand.includes('what\'s up') ||
          lowerCommand.includes('good morning') ||
-         lowerCommand.includes('generate image') ||
-         lowerCommand.includes('create image') ||
-         lowerCommand.includes('make image') ||
-         lowerCommand.includes('draw') ||
-         (lowerCommand.includes('generate') && lowerCommand.includes('picture')) ||
-         (lowerCommand.includes('create') && lowerCommand.includes('picture'));
+         isImageGenerationPrompt(command) ||
+         lowerCommand.includes('legacy image') ||
+         lowerCommand.includes('old image');
 };

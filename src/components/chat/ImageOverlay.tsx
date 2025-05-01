@@ -3,9 +3,10 @@ import React, { useState } from "react";
 import { AlertCircle, Download, Sparkles, Palette } from "lucide-react";
 import { checkImageMatchesPrompt } from "@/services/imagePromptChecker";
 import { GeneratedImage } from "@/services/imageGenerationService";
+import { StabilityGeneratedImage } from "@/services/stabilityAIService";
 
 interface ImageOverlayProps {
-  image: GeneratedImage;
+  image: GeneratedImage | StabilityGeneratedImage;
   onClose: () => void;
   onRefine: (newPrompt: string) => void;
   onRegenerate: () => void;
@@ -15,17 +16,17 @@ const ImageOverlay: React.FC<ImageOverlayProps> = ({ image, onClose, onRefine, o
   const [refinePrompt, setRefinePrompt] = useState('');
   const [showStyleOptions, setShowStyleOptions] = useState(false);
   const [imageError, setImageError] = useState(false);
-  const matchesPrompt = checkImageMatchesPrompt(image);
+  const matchesPrompt = checkImageMatchesPrompt(image as any);
 
   const styleOptions = [
-    { name: 'realistic', label: 'Realistic' },
+    { name: 'photographic', label: 'Photorealistic' },
     { name: 'anime', label: 'Anime' },
-    { name: '3d', label: '3D Render' },
-    { name: 'abstract', label: 'Abstract' },
-    { name: 'painting', label: 'Painting' },
-    { name: 'pixel', label: 'Pixel Art' },
-    { name: 'sci-fi', label: 'Sci-Fi' },
-    { name: 'fantasy', label: 'Fantasy' }
+    { name: '3d-model', label: '3D Render' },
+    { name: 'digital-art', label: 'Digital Art' },
+    { name: 'enhance', label: 'Enhanced' },
+    { name: 'cinematic', label: 'Cinematic' },
+    { name: 'line-art', label: 'Line Art' },
+    { name: 'neon-punk', label: 'Neon Punk' }
   ];
 
   const applyStyle = (style: string) => {

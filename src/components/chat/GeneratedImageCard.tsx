@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Download, Image, RefreshCcw, SquarePlus, AlertCircle } from "lucide-react";
 import { checkImageMatchesPrompt } from "@/services/imagePromptChecker";
 import type { GeneratedImage } from "@/services/imageGenerationService";
+import type { StabilityGeneratedImage } from "@/services/stabilityAIService";
 import { toast } from "@/components/ui/use-toast";
 
 interface GeneratedImageCardProps {
-  image: GeneratedImage;
+  image: GeneratedImage | StabilityGeneratedImage;
   onRegenerate?: () => void;
   onRefine?: (refinePrompt: string) => void;
 }
@@ -18,16 +19,31 @@ const GeneratedImageCard: React.FC<GeneratedImageCardProps> = ({ image, onRegene
   const [showControls, setShowControls] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const matchesPrompt = checkImageMatchesPrompt(image);
+  const matchesPrompt = checkImageMatchesPrompt(image as any);
 
   const handleDownload = () => {
-    // Create a link element
-    const link = document.createElement('a');
-    link.href = image.url;
-    link.download = `jarvis-image-${Date.now()}.jpg`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    try {
+      // Create a link element
+      const link = document.createElement('a');
+      link.href = image.url;
+      link.download = `jarvis-image-${Date.now()}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast({
+        title: "Image Downloaded",
+        description: "The image has been saved to your device.",
+        variant: "default"
+      });
+    } catch (error) {
+      console.error("Download error:", error);
+      toast({
+        title: "Download Failed",
+        description: "Failed to download the image. Try again later.",
+        variant: "destructive"
+      });
+    }
   };
 
   const fallbackImage = "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80";
@@ -83,7 +99,7 @@ const GeneratedImageCard: React.FC<GeneratedImageCardProps> = ({ image, onRegene
       </CardContent>
       <CardFooter className="flex justify-between gap-2">
         <span className="text-[11px] text-jarvis/60">
-          AI Generated{image.resolution ? ` • ${image.resolution}` : ""}
+          AI Generated{image.style ? ` • ${image.style}` : ""}
         </span>
         <div className="flex items-center gap-2">
           <Button

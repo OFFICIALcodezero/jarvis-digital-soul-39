@@ -1,11 +1,13 @@
+
 import { GeneratedImage } from '@/services/imageGenerationService';
+import { StabilityGeneratedImage } from '@/services/stabilityAIService';
 
 export interface Message {
   id: string;
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
-  generatedImage?: GeneratedImage;
+  generatedImage?: GeneratedImage | StabilityGeneratedImage;
   data?: any;
   skillType?: string;
 }

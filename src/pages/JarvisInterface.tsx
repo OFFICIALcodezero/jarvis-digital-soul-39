@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import ArcReactor from '@/components/background/ArcReactor';
@@ -103,6 +104,12 @@ const JarvisInterface = () => {
       label: 'Face Mode',
       icon: <Sparkles />,
       active: activeMode === 'face' && !hackerModeActive
+    },
+    {
+      id: 'images',
+      label: 'Image Generator',
+      icon: <Image />,
+      active: false
     }
   ];
 
@@ -119,6 +126,12 @@ const JarvisInterface = () => {
   const handleToggleMode = (id: string) => {
     if (id === 'hacker') {
       setMode('hacker');
+      return;
+    }
+    
+    if (id === 'images') {
+      // Navigate to image generation page
+      window.location.href = '/images';
       return;
     }
     
@@ -206,7 +219,7 @@ const JarvisInterface = () => {
         <div className="flex items-center">
           <div className={`text-xl font-bold ${hackerModeActive ? 'hacker-text' : 'text-jarvis text-glow'} mr-2`}>JARVIS</div>
           <div className={`text-xs uppercase ${hackerModeActive ? 'bg-red-900/20 text-red-400' : 'bg-jarvis/20 text-jarvis'} px-2 py-0.5 rounded`}>
-            {hackerModeActive ? 'v2.0 SECURE' : 'v1.0'}
+            {hackerModeActive ? 'v2.0 SECURE' : 'v2.0'}
           </div>
         </div>
         
