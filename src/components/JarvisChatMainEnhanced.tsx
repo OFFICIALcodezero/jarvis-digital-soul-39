@@ -37,10 +37,12 @@ const JarvisChatMainEnhanced: React.FC = () => {
     <div className="flex flex-col h-full">
       {/* Main chat area */}
       <div className="flex-1 overflow-y-auto p-4" onClick={handleCloseHackerMode}>
-        <ChatDashboardPanel 
-          messages={jarvisChat.messages || []} 
-          isTyping={jarvisChat.isProcessing || false} 
-        />
+        {jarvisChat.messages && (
+          <ChatDashboardPanel 
+            messages={jarvisChat.messages} 
+            isTyping={!!jarvisChat.isProcessing} 
+          />
+        )}
       </div>
       
       {/* Hacker mode overlay */}
