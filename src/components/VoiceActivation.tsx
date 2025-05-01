@@ -33,21 +33,21 @@ const VoiceActivation: React.FC<VoiceActivationProps> = ({
         }`}
       >
         {isListening ? (
-          <Mic className="h-6 w-6 text-[#33c3f0] animate-pulse" />
+          <Mic className="h-6 w-6 text-white animate-pulse" />
         ) : (
-          <MicOff className="h-6 w-6 text-[#33c3f0]/50" />
+          <MicOff className="h-6 w-6 text-white/50" />
         )}
       </button>
       
       {isSpeaking && (
         <div className="flex items-center space-x-1 mt-2">
-          <div className="h-1 w-1 bg-[#33c3f0] rounded-full animate-pulse"></div>
-          <div className="h-1 w-1 bg-[#33c3f0] rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-          <div className="h-1 w-1 bg-[#33c3f0] rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+          <div className="h-1 w-1 bg-white rounded-full animate-pulse"></div>
+          <div className="h-1 w-1 bg-white rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+          <div className="h-1 w-1 bg-white rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
         </div>
       )}
       
-      <div className="text-xs text-[#33c3f0]/70">
+      <div className="text-xs text-white/70">
         {isListening ? "Listening..." : isSpeaking ? "Speaking..." : "Click to activate"}
       </div>
     </div>

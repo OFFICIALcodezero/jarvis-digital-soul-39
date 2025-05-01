@@ -33,7 +33,7 @@ const ChatMode: React.FC<ChatModeProps> = ({
               <div key={message.id} className="flex justify-start">
                 <div className="w-full max-w-[80%]">
                   <div className="bg-jarvis/5 p-2 rounded-t-lg rounded-b-none border border-jarvis/10">
-                    <span className="text-jarvis text-xs">
+                    <span className="text-white text-xs">
                       Here is the image I created based on your prompt:
                     </span>
                   </div>
@@ -52,7 +52,7 @@ const ChatMode: React.FC<ChatModeProps> = ({
               <div
                 className={`max-w-[80%] rounded-lg px-4 py-2 ${message.role === "user"
                     ? "bg-jarvis/20 text-white"
-                    : "bg-jarvis/10 text-jarvis"
+                    : "bg-jarvis/10 text-white"
                   }`}
               >
                 {message.content}
@@ -62,7 +62,7 @@ const ChatMode: React.FC<ChatModeProps> = ({
         })}
         {isTyping && (
           <div className="flex justify-start">
-            <div className="max-w-[80%] rounded-lg px-4 py-2 bg-jarvis/10 text-jarvis">
+            <div className="max-w-[80%] rounded-lg px-4 py-2 bg-jarvis/10 text-white">
               {currentTypingText}
               <span className="animate-ping">_</span>
             </div>
@@ -71,9 +71,9 @@ const ChatMode: React.FC<ChatModeProps> = ({
         {isProcessing && !isTyping && (
           <div className="flex justify-center">
             <div className="flex space-x-2 items-center">
-              <div className="w-2 h-2 rounded-full bg-jarvis/50 animate-pulse"></div>
-              <div className="w-2 h-2 rounded-full bg-jarvis/50 animate-pulse delay-75"></div>
-              <div className="w-2 h-2 rounded-full bg-jarvis/50 animate-pulse delay-150"></div>
+              <div className="w-2 h-2 rounded-full bg-white/50 animate-pulse"></div>
+              <div className="w-2 h-2 rounded-full bg-white/50 animate-pulse delay-75"></div>
+              <div className="w-2 h-2 rounded-full bg-white/50 animate-pulse delay-150"></div>
             </div>
           </div>
         )}
