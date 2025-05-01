@@ -90,19 +90,34 @@ export const processSkillCommand = async (command: string): Promise<SkillRespons
     
     // Stability AI Image generation (preferred)
     else if (isImageGenerationPrompt(command)) {
-      const imagePrompt = extractImagePrompt(command);
-      const imageParams = parseImagePrompt(imagePrompt);
-      const generatedImage = await generateStabilityImage(imageParams);
-      
-      return {
-        text: `Here is the image I created based on your prompt: "${imagePrompt}"`,
-        data: generatedImage,
-        shouldSpeak: true,
-        skillType: 'stability-image'
-      };
+      try {
+        const imagePrompt = extractImagePrompt(command);
+        const imageParams = parseImagePrompt(imagePrompt);
+        const generatedImage = await generateStabilityImage(imageParams);
+        
+        return {
+          text: `Here is the image I created based on your prompt: "${imagePrompt}"`,
+          data: generatedImage,
+          shouldSpeak: true,
+          skillType: 'stability-image'
+        };
+      } catch (error) {
+        console.error('Error with Stability AI, falling back to legacy image generation:', error);
+        
+        // Fallback to legacy image generation
+        const imageParams = parseImageRequest(command);
+        const generatedImage = await generateImage(imageParams);
+        
+        return {
+          text: `Here is the image I created based on your prompt: "${imageParams.prompt}"`,
+          data: generatedImage,
+          shouldSpeak: true,
+          skillType: 'image'
+        };
+      }
     }
     
-    // Legacy image generation (fallback)
+    // Legacy image generation (explicit fallback)
     else if (lowerCommand.includes('legacy image') || lowerCommand.includes('old image')) {
       const imageParams = parseImageRequest(command);
       const generatedImage = await generateImage(imageParams);

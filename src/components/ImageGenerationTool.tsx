@@ -1,6 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import { Sparkles, Download, Loader, Heart, PenLine, Repeat, Image as ImageIcon, Mic, StopCircle } from 'lucide-react';
 import { generateImage, ImageGenerationParams, GeneratedImage } from '@/services/imageGenerationService';
+import { generateStabilityImage, StabilityImageParams, StabilityGeneratedImage } from '@/services/stabilityAIService';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/components/ui/use-toast';
@@ -8,31 +10,36 @@ import { Progress } from '@/components/ui/progress';
 import { useJarvisChat } from '@/contexts/JarvisChatProvider';
 
 interface ImageGenerationToolProps {
-  onImageGenerated?: (image: GeneratedImage) => void;
+  onImageGenerated?: (image: GeneratedImage | StabilityGeneratedImage) => void;
+  stabilityApiEnabled?: boolean;
 }
 
-const ImageGenerationTool: React.FC<ImageGenerationToolProps> = ({ onImageGenerated }) => {
+const ImageGenerationTool: React.FC<ImageGenerationToolProps> = ({ 
+  onImageGenerated,
+  stabilityApiEnabled = true 
+}) => {
   const [prompt, setPrompt] = useState('');
   const [generatingImage, setGeneratingImage] = useState(false);
-  const [generatedImage, setGeneratedImage] = useState<GeneratedImage | null>(null);
+  const [generatedImage, setGeneratedImage] = useState<GeneratedImage | StabilityGeneratedImage | null>(null);
   const [selectedStyle, setSelectedStyle] = useState<string | null>(null);
   const [selectedFormat, setSelectedFormat] = useState<'1:1' | '16:9' | '4:3' | '3:2'>('1:1');
   const [useEnhancedAccuracy, setUseEnhancedAccuracy] = useState(true);
+  const [useStabilityApi, setUseStabilityApi] = useState(stabilityApiEnabled);
   const [imageError, setImageError] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [progressValue, setProgressValue] = useState(0);
   const { isGeneratingImage, generationProgress } = useJarvisChat();
 
   const styles = [
-    { id: 'realistic', label: 'Realistic', icon: '📷' },
-    { id: 'anime', label: 'Anime', icon: '🎨' },
-    { id: '3d', label: 'Render 3D', icon: '🎮' },
-    { id: 'abstract', label: 'Abstract', icon: '🎭' },
-    { id: 'painting', label: 'Painting', icon: '🖌️' },
-    { id: 'pixel', label: 'Pixel Art', icon: '👾' },
-    { id: 'sci-fi', label: 'Sci-Fi', icon: '🚀' },
-    { id: 'fantasy', label: 'Fantasy', icon: '🧙' },
-    { id: 'portrait', label: 'Portrait', icon: '👤' }
+    { id: 'realistic', label: 'Realistic', icon: '📷', stabilityStyle: 'photographic' },
+    { id: 'anime', label: 'Anime', icon: '🎨', stabilityStyle: 'anime' },
+    { id: '3d', label: 'Render 3D', icon: '🎮', stabilityStyle: '3d-model' },
+    { id: 'abstract', label: 'Abstract', icon: '🎭', stabilityStyle: 'cinematic' },
+    { id: 'painting', label: 'Painting', icon: '🖌️', stabilityStyle: 'enhance' },
+    { id: 'pixel', label: 'Pixel Art', icon: '👾', stabilityStyle: 'pixel-art' },
+    { id: 'sci-fi', label: 'Sci-Fi', icon: '🚀', stabilityStyle: 'cinematic' },
+    { id: 'fantasy', label: 'Fantasy', icon: '🧙', stabilityStyle: 'enhance' },
+    { id: 'portrait', label: 'Portrait', icon: '👤', stabilityStyle: 'photographic' }
   ];
 
   const formatOptions = [
@@ -152,15 +159,46 @@ const ImageGenerationTool: React.FC<ImageGenerationToolProps> = ({ onImageGenera
     }, 500);
 
     try {
-      const params: ImageGenerationParams = {
-        prompt: prompt.trim(),
-        style: selectedStyle as any,
-        aspectRatio: selectedFormat,
-        enhancedAccuracy: useEnhancedAccuracy, // Enable enhanced accuracy mode
-        subjectAccuracy: 'high' // Request high accuracy always
-      };
+      let image;
+      
+      if (useStabilityApi) {
+        // Use Stability AI for image generation
+        const selectedStyleObj = styles.find(s => s.id === selectedStyle);
+        
+        const stabilityParams: StabilityImageParams = {
+          prompt: prompt.trim(),
+          style: selectedStyleObj?.stabilityStyle,
+        };
+        
+        // Set dimensions based on selectedFormat
+        if (selectedFormat === '1:1') {
+          stabilityParams.width = 1024;
+          stabilityParams.height = 1024;
+        } else if (selectedFormat === '16:9') {
+          stabilityParams.width = 1024;
+          stabilityParams.height = 576;
+        } else if (selectedFormat === '4:3') {
+          stabilityParams.width = 1024;
+          stabilityParams.height = 768;
+        } else if (selectedFormat === '3:2') {
+          stabilityParams.width = 1024;
+          stabilityParams.height = 768;
+        }
+        
+        image = await generateStabilityImage(stabilityParams);
+      } else {
+        // Use legacy image generation
+        const params: ImageGenerationParams = {
+          prompt: prompt.trim(),
+          style: selectedStyle as any,
+          aspectRatio: selectedFormat,
+          enhancedAccuracy: useEnhancedAccuracy,
+          subjectAccuracy: 'high'
+        };
 
-      const image = await generateImage(params);
+        image = await generateImage(params);
+      }
+      
       setGeneratedImage(image);
       
       if (onImageGenerated) {
@@ -309,7 +347,7 @@ const ImageGenerationTool: React.FC<ImageGenerationToolProps> = ({ onImageGenera
           </div>
         </div>
 
-        <div className="flex items-center gap-2 mb-3">
+        <div className="flex items-center justify-between gap-2 mb-3">
           <label className="flex items-center gap-2 text-sm text-gray-300">
             <input 
               type="checkbox" 
@@ -317,8 +355,26 @@ const ImageGenerationTool: React.FC<ImageGenerationToolProps> = ({ onImageGenera
               onChange={(e) => setUseEnhancedAccuracy(e.target.checked)}
               className="rounded border-jarvis/30 text-jarvis bg-black/50"
             />
-            <span className="text-jarvis">Enhanced Accuracy Mode</span>
+            <span className="text-jarvis">Enhanced Accuracy</span>
             <span className="text-xs opacity-60">(Better for famous people, landmarks)</span>
+          </label>
+          
+          <label className="flex items-center gap-2 text-sm text-gray-300">
+            <input 
+              type="checkbox" 
+              checked={useStabilityApi} 
+              onChange={(e) => setUseStabilityApi(e.target.checked)}
+              className="rounded border-jarvis/30 text-jarvis bg-black/50"
+              disabled={!stabilityApiEnabled}
+            />
+            <span className={`${stabilityApiEnabled ? 'text-jarvis' : 'text-gray-500'}`}>
+              Use Stability AI
+              {stabilityApiEnabled ? (
+                <span className="ml-1 text-xs bg-green-500/20 text-green-400 px-1 py-0.5 rounded">Enabled</span>
+              ) : (
+                <span className="ml-1 text-xs bg-gray-500/20 text-gray-400 px-1 py-0.5 rounded">Disabled</span>
+              )}
+            </span>
           </label>
         </div>
         
@@ -400,6 +456,12 @@ const ImageGenerationTool: React.FC<ImageGenerationToolProps> = ({ onImageGenera
                 {selectedStyle && (
                   <div className="absolute top-2 right-2 bg-black/70 text-jarvis text-xs px-2 py-1 rounded-full">
                     {styles.find(s => s.id === selectedStyle)?.label || 'Custom'}
+                  </div>
+                )}
+                {useStabilityApi && (
+                  <div className="absolute top-2 left-2 bg-black/70 text-jarvis text-xs px-2 py-1 rounded-full flex items-center">
+                    <Sparkles className="w-3 h-3 mr-1" />
+                    Stability AI
                   </div>
                 )}
               </>

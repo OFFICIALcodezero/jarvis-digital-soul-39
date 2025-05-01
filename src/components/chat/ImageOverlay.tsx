@@ -17,6 +17,7 @@ const ImageOverlay: React.FC<ImageOverlayProps> = ({ image, onClose, onRefine, o
   const [showStyleOptions, setShowStyleOptions] = useState(false);
   const [imageError, setImageError] = useState(false);
   const matchesPrompt = checkImageMatchesPrompt(image as any);
+  const isStabilityImage = 'base64' in image;
 
   const styleOptions = [
     { name: 'photographic', label: 'Photorealistic' },
@@ -57,7 +58,15 @@ const ImageOverlay: React.FC<ImageOverlayProps> = ({ image, onClose, onRefine, o
           <div className="text-center mb-3 text-lg text-jarvis font-bold animate-fade-in">
             "{image.prompt}"
           </div>
-          {!matchesPrompt && (
+          
+          {isStabilityImage && (
+            <div className="mb-3 flex items-center text-jarvis/80 text-xs bg-jarvis/10 px-2 py-1 rounded-full">
+              <Sparkles className="w-3 h-3 mr-1" /> 
+              Generated with Stability AI
+            </div>
+          )}
+          
+          {!matchesPrompt && !isStabilityImage && (
             <div className="text-yellow-400 text-sm mb-3 flex items-center">
               <AlertCircle className="w-4 h-4 mr-1" />
               This might not match your request exactly.

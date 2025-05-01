@@ -2,14 +2,15 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { parseImageRequest } from '@/services/imagePromptParser';
 import { generateImage, GeneratedImage } from '@/services/imageGenerationService';
+import { parseImagePrompt, generateStabilityImage, StabilityImageParams, StabilityGeneratedImage } from '@/services/stabilityAIService';
 import { Progress } from "@/components/ui/progress";
 
 // Define the context type
 export interface JarvisChatContextType {
-  activeImage: GeneratedImage | null;
-  setActiveImage: React.Dispatch<React.SetStateAction<GeneratedImage | null>>;
-  handleImageGenerationFromPrompt: (prompt: string, isRefine?: boolean) => Promise<GeneratedImage>;
-  handleRefineImage: (prevPrompt: string, refinement: string) => Promise<GeneratedImage>;
+  activeImage: GeneratedImage | StabilityGeneratedImage | null;
+  setActiveImage: React.Dispatch<React.SetStateAction<GeneratedImage | StabilityGeneratedImage | null>>;
+  handleImageGenerationFromPrompt: (prompt: string, isRefine?: boolean) => Promise<GeneratedImage | StabilityGeneratedImage>;
+  handleRefineImage: (prevPrompt: string, refinement: string) => Promise<GeneratedImage | StabilityGeneratedImage>;
   messages?: any[];
   isGeneratingImage: boolean;
   generationProgress: number;
@@ -29,11 +30,12 @@ export const useJarvisChat = (): JarvisChatContextType => {
 
 // Create the provider component
 export const JarvisChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [activeImage, setActiveImage] = useState<GeneratedImage | null>(null);
+  const [activeImage, setActiveImage] = useState<GeneratedImage | StabilityGeneratedImage | null>(null);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
+  const [preferStabilityAI, setPreferStabilityAI] = useState(true);
 
-  const handleImageGenerationFromPrompt = async (prompt: string, isRefine = false): Promise<GeneratedImage> => {
+  const handleImageGenerationFromPrompt = async (prompt: string, isRefine = false): Promise<GeneratedImage | StabilityGeneratedImage> => {
     try {
       setIsGeneratingImage(true);
       setGenerationProgress(0);
@@ -46,23 +48,40 @@ export const JarvisChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         });
       }, 500);
 
-      const params = parseImageRequest(prompt);
-      const img = await generateImage(params);
+      let generatedImage;
+      
+      if (preferStabilityAI) {
+        // Use Stability AI for higher quality
+        const imageParams = parseImagePrompt(prompt);
+        generatedImage = await generateStabilityImage(imageParams);
+      } else {
+        // Fallback to original image generator
+        const params = parseImageRequest(prompt);
+        generatedImage = await generateImage(params);
+      }
       
       clearInterval(progressInterval);
       setGenerationProgress(100);
-      setActiveImage(img);
+      setActiveImage(generatedImage);
       setIsGeneratingImage(false);
 
-      return img;
+      return generatedImage;
     } catch (error) {
       console.error('Error generating image:', error);
+      
+      // If Stability AI fails, try the fallback
+      if (preferStabilityAI) {
+        console.log('Stability AI failed, trying fallback image generator');
+        setPreferStabilityAI(false);
+        return handleImageGenerationFromPrompt(prompt, isRefine);
+      }
+      
       setIsGeneratingImage(false);
       throw error;
     }
   };
 
-  const handleRefineImage = async (prevPrompt: string, refinement: string): Promise<GeneratedImage> => {
+  const handleRefineImage = async (prevPrompt: string, refinement: string): Promise<GeneratedImage | StabilityGeneratedImage> => {
     const newPrompt = `${prevPrompt}. ${refinement}`;
     return await handleImageGenerationFromPrompt(newPrompt, true);
   };

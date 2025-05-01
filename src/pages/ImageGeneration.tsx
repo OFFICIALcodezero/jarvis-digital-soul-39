@@ -3,14 +3,15 @@ import React, { useState } from 'react';
 import { useJarvisChat } from '../contexts/JarvisChatProvider';
 import ImageGenerationTool from '@/components/ImageGenerationTool';
 import { GeneratedImage } from '@/services/imageGenerationService';
+import { StabilityGeneratedImage } from '@/services/stabilityAIService';
 import { Image, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const ImageGeneration: React.FC = () => {
   const { activeImage, setActiveImage, handleImageGenerationFromPrompt } = useJarvisChat();
-  const [generatedImages, setGeneratedImages] = useState<GeneratedImage[]>([]);
+  const [generatedImages, setGeneratedImages] = useState<Array<GeneratedImage | StabilityGeneratedImage>>([]);
 
-  const handleImageGenerated = (image: GeneratedImage) => {
+  const handleImageGenerated = (image: GeneratedImage | StabilityGeneratedImage) => {
     setGeneratedImages(prev => [image, ...prev]);
   };
 
@@ -34,7 +35,8 @@ const ImageGeneration: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
             <ImageGenerationTool 
-              onImageGenerated={handleImageGenerated} 
+              onImageGenerated={handleImageGenerated}
+              stabilityApiEnabled={true}  
             />
           </div>
           
@@ -55,7 +57,7 @@ const ImageGeneration: React.FC = () => {
                   <div 
                     key={index} 
                     className="relative rounded-md overflow-hidden border border-[#8B5CF6]/20 cursor-pointer hover:border-[#8B5CF6]/60 transition-all"
-                    onClick={() => setActiveImage(img)}
+                    onClick={() => setActiveImage(img as any)}
                   >
                     <img 
                       src={img.url} 
