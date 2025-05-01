@@ -19,6 +19,15 @@ import {
   simulateXSS,
   simulateWebcamCheck,
   getHackerModeHelp,
+  simulatePhishing,
+  simulateRansomware,
+  simulateSocialEngineering,
+  simulateWirelessAttack,
+  simulateDarkwebScan,
+  performBinaryAnalysis,
+  simulateDoS,
+  simulateForensicAnalysis,
+  simulateAIPersonaGeneration
 } from '@/services/hackerModeService';
 
 export interface HackerModeProps {
@@ -144,6 +153,61 @@ const HackerMode: React.FC<HackerModeProps> = ({ hackerOutput, setHackerOutput, 
         case 'webcam':
           const webcamResult = await simulateWebcamCheck();
           appendOutput(`\n${webcamResult}`);
+          break;
+        
+        // New commands for enhanced hacking tools
+        case 'phish':
+          const phishTarget = args[0];
+          const phishResult = await simulatePhishing(phishTarget);
+          appendOutput(`\n${phishResult}`);
+          break;
+          
+        case 'ransomware':
+          const ranTarget = args[0];
+          const ranResult = await simulateRansomware(ranTarget);
+          appendOutput(`\n${ranResult}`);
+          break;
+          
+        case 'social':
+          const socialTarget = args[0];
+          const socialResult = await simulateSocialEngineering(socialTarget);
+          appendOutput(`\n${socialResult}`);
+          break;
+          
+        case 'wifi':
+          const ssid = args[0];
+          const wifiResult = await simulateWirelessAttack(ssid);
+          appendOutput(`\n${wifiResult}`);
+          break;
+          
+        case 'darkweb':
+          const query = args.join(' ');
+          const darkwebResult = await simulateDarkwebScan(query);
+          appendOutput(`\n${darkwebResult}`);
+          break;
+          
+        case 'binary':
+          const file = args[0];
+          const binaryResult = await performBinaryAnalysis(file);
+          appendOutput(`\n${binaryResult}`);
+          break;
+          
+        case 'dos':
+          const dosTarget = args[0];
+          const dosResult = await simulateDoS(dosTarget);
+          appendOutput(`\n${dosResult}`);
+          break;
+          
+        case 'forensic':
+          const evidence = args[0];
+          const forensicResult = await simulateForensicAnalysis(evidence);
+          appendOutput(`\n${forensicResult}`);
+          break;
+          
+        case 'persona':
+          const personaTarget = args.join(' ');
+          const personaResult = await simulateAIPersonaGeneration(personaTarget);
+          appendOutput(`\n${personaResult}`);
           break;
           
         case 'help':
@@ -301,7 +365,7 @@ const HackerMode: React.FC<HackerModeProps> = ({ hackerOutput, setHackerOutput, 
         <div className="w-48 border-l border-jarvis/20 bg-black/70 p-3 hidden md:block">
           <div className="text-xs uppercase text-jarvis/50 mb-2 font-mono">Quick Commands</div>
           <div className="space-y-1.5">
-            {['scan', 'system', 'matrix', 'ports 192.168.1.1', 'webcam', 'help', 'clear'].map((cmd) => (
+            {['scan', 'system', 'phish users', 'darkweb passwords', 'wifi home', 'binary malware.exe', 'help', 'clear'].map((cmd) => (
               <Button
                 key={cmd}
                 variant="ghost"
