@@ -1,193 +1,170 @@
-// Define image URLs for different categories
-export const STYLE_IMAGES = {
-  'realistic': [
-    'https://images.unsplash.com/photo-1526336024174-e58f5cdd8e13?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1507146426996-ef05306b995a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-  ],
-  'anime': [
-    'https://images.unsplash.com/photo-1578632767115-351597cf2477?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1586410073908-ada3a1f91bc2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1541562232579-512a21360020?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-  ],
-  '3d': [
-    'https://images.unsplash.com/photo-1569282229551-a217ef5896fc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1616161560417-66d4db5892ec?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1635776062127-d379bfcba9f9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-  ],
-  'abstract': [
-    'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1557672172-298e090bd0f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1567095761054-7a02e69e5c43?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-  ],
-  'painting': [
-    'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1544967082-d9d25d867d66?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1580136579312-94651dfd596d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-  ],
-  'pixel': [
-    'https://images.unsplash.com/photo-1633350356762-04815f41a757?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1636457742446-9b15a7522cd1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1628569407502-80ed608fb517?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-  ],
-  'sci-fi': [
-    'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1506318137071-a8e063b4bec0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1528722828814-77b9b83aafb2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-  ],
-  'fantasy': [
-    'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1534447677768-be436bb09401?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1481018085669-2bc6e4f00eed?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-  ]
-};
 
+// Mock image data for development and testing
+// This would be replaced with real API calls in production
+
+// Collection of mock images by category
 export const MOCK_IMAGES = {
-  'default': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-  'animal': 'https://images.unsplash.com/photo-1484406566174-9da000fda645?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-  'nature': 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-  'food': 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-  'tech': 'https://images.unsplash.com/photo-1531297484001-80022131f5a1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-  'city': 'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-  'portrait': 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-  'space': 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-  'abstract': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-  'sunset': 'https://images.unsplash.com/photo-1506815444479-bfdb1e96c566?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-  'mountain': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-  'landscape': 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+  // Various categories
+  cat: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+  dog: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+  mountain: "https://images.unsplash.com/photo-1519681393784-d120267933ba?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+  sunset: "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+  beach: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+  forest: "https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+  city: "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+  space: "https://images.unsplash.com/photo-1462332420958-a05d1e002413?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+  food: "https://images.unsplash.com/photo-1565299507177-b0ac66763828?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+  robot: "https://images.unsplash.com/photo-1603302576837-37561b2e2302?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+  cyberpunk: "https://images.unsplash.com/photo-1605721911519-3dfeb3be25e7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+  neon: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+  fantasy: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+  dragon: "https://images.unsplash.com/photo-1577368211130-4baa6e866b9c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+  unicorn: "https://images.unsplash.com/photo-1518798337062-7e89f7b44c44?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
 };
 
-// Creative word combinations that will affect image selection
+// Key creative combinations that should be matched specifically
 export const CREATIVE_COMBOS = {
-  'disco dancing': 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6a3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-  'fish disco': 'https://images.unsplash.com/photo-1524704654690-b56c05c78a00?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-  'space cat': 'https://images.unsplash.com/photo-1543852786-1cf6624b9987?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-  'robot dog': 'https://images.unsplash.com/photo-1589254065909-b7086229d08c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-  'flying car': 'https://images.unsplash.com/photo-1511618938258-76d46a7b2261?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-  'underwater city': 'https://images.unsplash.com/photo-1518639192441-8fce0a366e2e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-  'dragon fire': 'https://images.unsplash.com/photo-1577493340887-b7bfff550145?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-  'alien landscape': 'https://images.unsplash.com/photo-1536697246787-1f7ae568d89a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-  'glowing forest': 'https://images.unsplash.com/photo-1565118531796-763e5082d113?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-  'cyberpunk street': 'https://images.unsplash.com/photo-1584801096196-56e3344004fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-  'sunset mountains': 'https://images.unsplash.com/photo-1465919292275-c60ba49da6ae?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-  'sunset over mountains': 'https://images.unsplash.com/photo-1465919292275-c60ba49da6ae?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+  "sunset over mountains": "https://images.unsplash.com/photo-1529963183134-61a90db47bd8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+  "cyberpunk city": "https://images.unsplash.com/photo-1514905552197-0610a4d8fd73?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+  "neon lights": "https://images.unsplash.com/photo-1563089145-599997674d42?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+  "disco fish": "https://images.unsplash.com/photo-1544551763-92ab472cad5d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80&sat=30",
+  "robot meditation": "https://images.unsplash.com/photo-1531297484001-80022131f5a1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+  "magical forest": "https://images.unsplash.com/photo-1440342359743-84fcb8c860e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+  "glowing mushrooms": "https://images.unsplash.com/photo-1516248282803-7cc50389cca4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
 };
 
-// Famous people & mock demo images
-export const FAMOUS_PEOPLE_IMAGES: Record<string, string> = {
-  "elon musk": "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-  "narendra modi": "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-  "barack obama": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-  "donald trump": "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-  "albert einstein": "https://images.unsplash.com/photo-1552058544-f2b08422138a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-  "bill gates": "https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-  // add more as needed
+// Style-specific image sets for consistent style matching
+export const STYLE_IMAGES = {
+  realistic: {
+    landscape: "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+    portrait: "https://images.unsplash.com/photo-1552058544-f2b08422138a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+    animal: "https://images.unsplash.com/photo-1425082661705-1834bfd09dca?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+  },
+  anime: {
+    landscape: "https://images.unsplash.com/photo-1623275055422-10c2903521c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+    portrait: "https://images.unsplash.com/photo-1580477667995-2b94f01c9516?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+  },
+  "3d": {
+    landscape: "https://images.unsplash.com/photo-1620063633168-8b1f26ced98d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+    portrait: "https://images.unsplash.com/photo-1601532481863-f5cba84c7243?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+  },
+  abstract: {
+    landscape: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+    portrait: "https://images.unsplash.com/photo-1552083974-186346191183?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+  },
+  painting: {
+    landscape: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+    portrait: "https://images.unsplash.com/flagged/photo-1572392640988-ba48d1a74457?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+  },
+  pixel: {
+    landscape: "https://images.unsplash.com/photo-1550063873-ab792950096b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+    portrait: "https://images.unsplash.com/photo-1633344512977-b5b5310a01cf?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+  },
+  "sci-fi": {
+    landscape: "https://images.unsplash.com/photo-1538370965046-79c0d6907d47?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+    portrait: "https://images.unsplash.com/photo-1543349689-9a4d426bee8e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+  },
+  fantasy: {
+    landscape: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+    portrait: "https://images.unsplash.com/photo-1580983230786-f03676a7ade6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+  }
+};
+
+// Named entity images - specific images for known entities
+const NAMED_ENTITY_IMAGES = {
+  // Political figures and celebrities
+  "narendra modi": "https://images.unsplash.com/photo-1590075865003-e48277b7ripx?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+  "modi": "https://images.unsplash.com/photo-1590075865003-e48277b7ripx?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+  "donald trump": "https://images.unsplash.com/photo-1580128660010-fd027e1e587a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+  "trump": "https://images.unsplash.com/photo-1580128660010-fd027e1e587a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+  "joe biden": "https://images.unsplash.com/photo-1609949258495-e9a5748da7b6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+  "biden": "https://images.unsplash.com/photo-1609949258495-e9a5748da7b6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+  "barack obama": "https://images.unsplash.com/photo-1580130732478-4e339fb6836f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+  "obama": "https://images.unsplash.com/photo-1580130732478-4e339fb6836f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+  "elon musk": "https://images.unsplash.com/photo-1571132554361-6b726fbcea15?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+  "musk": "https://images.unsplash.com/photo-1571132554361-6b726fbcea15?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+  
+  // Landmarks
+  "taj mahal": "https://images.unsplash.com/photo-1564507592333-c60657eea523?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+  "eiffel tower": "https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+  "statue of liberty": "https://images.unsplash.com/photo-1546155590-43f75860e37a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+  "great wall of china": "https://images.unsplash.com/photo-1508804052814-cd3ba865a116?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+};
+
+// Special styled images for named entities (e.g., anime style celebrity)
+const STYLED_ENTITY_IMAGES = {
+  "narendra modi": {
+    "anime": "https://images.unsplash.com/photo-1590075865003-e48277b7ripx?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80&styled=anime",
+    "portrait": "https://images.unsplash.com/photo-1590075865003-e48277b7ripx?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80&q=90",
+    "painting": "https://images.unsplash.com/photo-1590075865003-e48277b7ripx?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80&styled=painting"
+  }
 };
 
 /**
- * Get a random image from the specified style array
+ * Get an image URL for a named entity
  */
-export function getRandomImage(styleArray: string[]): string {
-  const randomIndex = Math.floor(Math.random() * styleArray.length);
-  return styleArray[randomIndex];
-}
+export const getNamedEntityImage = (entity: string, style?: string): string | null => {
+  const normalizedEntity = entity.toLowerCase().trim();
+  
+  // Check for styled entity image first
+  if (style && 
+      STYLED_ENTITY_IMAGES[normalizedEntity] && 
+      STYLED_ENTITY_IMAGES[normalizedEntity][style]) {
+    return STYLED_ENTITY_IMAGES[normalizedEntity][style];
+  }
+  
+  // Fall back to standard entity image
+  if (NAMED_ENTITY_IMAGES[normalizedEntity]) {
+    return NAMED_ENTITY_IMAGES[normalizedEntity];
+  }
+  
+  return null; // No specific image found
+};
+
+/**
+ * Get a random image URL from mock data
+ */
+export const getRandomImage = (): string => {
+  const keys = Object.keys(MOCK_IMAGES);
+  const randomKey = keys[Math.floor(Math.random() * keys.length)];
+  return MOCK_IMAGES[randomKey];
+};
 
 /**
  * Get a mock image URL based on prompt and style
  */
-export function getMockImageUrl(prompt: string, style?: string): string {
-  console.log('Getting mock image for prompt: ' + prompt + ' with style: ' + style);
-
-  // First check if the prompt contains any of our creative combinations
-  const creativeMatch = findCreativeCombo(prompt);
-  if (creativeMatch) {
-    console.log('Found creative combination match: ' + creativeMatch);
-    return CREATIVE_COMBOS[creativeMatch];
-  }
-
-  // Special case for sunsets over mountains (prioritize this before general keyword search)
-  const lowerPrompt = prompt.toLowerCase();
-  if (
-    (lowerPrompt.includes('sunset') && lowerPrompt.includes('mountain')) ||
-    lowerPrompt.includes('sunset over mountain') ||
-    lowerPrompt.includes('sunset over mountains') ||
-    lowerPrompt.includes('sunset mountains')
-  ) {
-    return CREATIVE_COMBOS['sunset over mountains'] ||
-      CREATIVE_COMBOS['sunset mountains'] ||
-      MOCK_IMAGES.sunset;
-  }
-
-  // Detect famous people in the prompt (prioritize over generic people)
-  for (const person in FAMOUS_PEOPLE_IMAGES) {
-    if (lowerPrompt.includes(person)) {
-      return FAMOUS_PEOPLE_IMAGES[person];
+export const getMockImageUrl = (prompt: string, style?: string): string => {
+  // Normalize the prompt
+  const normalizedPrompt = prompt.toLowerCase();
+  
+  // First check for exact creative combo matches
+  for (const [key, url] of Object.entries(CREATIVE_COMBOS)) {
+    if (normalizedPrompt.includes(key.toLowerCase())) {
+      return url;
     }
   }
-
-  // Check for prompts about people (generic), higher priority than landscape etc
-  if (
-    lowerPrompt.includes('person') ||
-    lowerPrompt.includes('people') ||
-    lowerPrompt.includes('human') ||
-    lowerPrompt.includes('face') ||
-    lowerPrompt.includes('portrait') ||
-    lowerPrompt.includes('woman') ||
-    lowerPrompt.includes('man') ||
-    lowerPrompt.includes('child') ||
-    lowerPrompt.includes('girl') ||
-    lowerPrompt.includes('boy')
-  ) {
-    return MOCK_IMAGES.portrait;
+  
+  // Next, check for specific subject matches
+  for (const [key, url] of Object.entries(MOCK_IMAGES)) {
+    if (normalizedPrompt.includes(key.toLowerCase())) {
+      return url;
+    }
   }
-
-  // Style-specific images
+  
+  // If we have a style, try to match based on content type + style
   if (style && STYLE_IMAGES[style]) {
-    return getRandomImage(STYLE_IMAGES[style]);
-  }
-
-  // Otherwise general keyword checks (making sure the order doesn't catch mountain/nature before the above)
-  if (lowerPrompt.includes('sunset')) {
-    return MOCK_IMAGES.sunset;
-  }
-  if (lowerPrompt.includes('mountain')) {
-    return MOCK_IMAGES.mountain;
-  }
-  if (lowerPrompt.includes('landscape')) {
-    return MOCK_IMAGES.landscape;
-  }
-  if (lowerPrompt.includes('animal') || lowerPrompt.includes('cat') || lowerPrompt.includes('dog') || lowerPrompt.includes('bird')) {
-    return MOCK_IMAGES.animal;
-  }
-  if (lowerPrompt.includes('nature') || lowerPrompt.includes('tree') || lowerPrompt.includes('forest')) {
-    return MOCK_IMAGES.nature;
-  }
-  if (lowerPrompt.includes('food') || lowerPrompt.includes('meal') || lowerPrompt.includes('dish') || lowerPrompt.includes('fruit')) {
-    return MOCK_IMAGES.food;
-  }
-  if (lowerPrompt.includes('tech') || lowerPrompt.includes('computer') || lowerPrompt.includes('robot') || lowerPrompt.includes('future')) {
-    return MOCK_IMAGES.tech;
-  }
-  if (lowerPrompt.includes('city') || lowerPrompt.includes('urban') || lowerPrompt.includes('building') || lowerPrompt.includes('street')) {
-    return MOCK_IMAGES.city;
-  }
-  if (lowerPrompt.includes('space') || lowerPrompt.includes('star') || lowerPrompt.includes('galaxy') || lowerPrompt.includes('universe')) {
-    return MOCK_IMAGES.space;
-  }
-
-  // Default to abstract if no matches
-  return MOCK_IMAGES.default;
-}
-
-/**
- * Check if the prompt contains any of our creative combinations
- */
-function findCreativeCombo(prompt: string): string | null {
-  const lowerPrompt = prompt.toLowerCase();
-  for (const combo of Object.keys(CREATIVE_COMBOS)) {
-    if (lowerPrompt.includes(combo)) {
-      return combo;
+    // Determine if the prompt is more likely to be a landscape or portrait
+    if (normalizedPrompt.includes('person') || 
+        normalizedPrompt.includes('portrait') || 
+        normalizedPrompt.includes('face') ||
+        normalizedPrompt.includes('woman') ||
+        normalizedPrompt.includes('man')) {
+      return STYLE_IMAGES[style].portrait || getRandomImage();
+    } else {
+      return STYLE_IMAGES[style].landscape || getRandomImage();
     }
   }
-  return null;
-}
+  
+  // Fallback to a random image
+  return getRandomImage();
+};

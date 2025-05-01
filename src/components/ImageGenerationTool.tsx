@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Sparkles, Download, Loader, Heart, PenLine, Repeat, Image as ImageIcon, Mic, StopCircle } from 'lucide-react';
 import { generateImage, ImageGenerationParams, GeneratedImage } from '@/services/imageGenerationService';
@@ -18,6 +17,7 @@ const ImageGenerationTool: React.FC<ImageGenerationToolProps> = ({ onImageGenera
   const [generatedImage, setGeneratedImage] = useState<GeneratedImage | null>(null);
   const [selectedStyle, setSelectedStyle] = useState<string | null>(null);
   const [selectedFormat, setSelectedFormat] = useState<'1:1' | '16:9' | '4:3' | '3:2'>('1:1');
+  const [useEnhancedAccuracy, setUseEnhancedAccuracy] = useState(true);
   const [imageError, setImageError] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [progressValue, setProgressValue] = useState(0);
@@ -31,7 +31,8 @@ const ImageGenerationTool: React.FC<ImageGenerationToolProps> = ({ onImageGenera
     { id: 'painting', label: 'Painting', icon: '🖌️' },
     { id: 'pixel', label: 'Pixel Art', icon: '👾' },
     { id: 'sci-fi', label: 'Sci-Fi', icon: '🚀' },
-    { id: 'fantasy', label: 'Fantasy', icon: '🧙' }
+    { id: 'fantasy', label: 'Fantasy', icon: '🧙' },
+    { id: 'portrait', label: 'Portrait', icon: '👤' }
   ];
 
   const formatOptions = [
@@ -154,7 +155,9 @@ const ImageGenerationTool: React.FC<ImageGenerationToolProps> = ({ onImageGenera
       const params: ImageGenerationParams = {
         prompt: prompt.trim(),
         style: selectedStyle as any,
-        aspectRatio: selectedFormat
+        aspectRatio: selectedFormat,
+        enhancedAccuracy: useEnhancedAccuracy, // Enable enhanced accuracy mode
+        subjectAccuracy: 'high' // Request high accuracy always
       };
 
       const image = await generateImage(params);
@@ -232,7 +235,7 @@ const ImageGenerationTool: React.FC<ImageGenerationToolProps> = ({ onImageGenera
       <div className="flex flex-col gap-3">
         <div className="relative">
           <Textarea
-            placeholder="Describe the image you want to generate in detail... (e.g., 'a cyberpunk fish DJ at an underwater rave with neon lights' or 'an ancient robot meditating on a mountain at sunrise')"
+            placeholder="Describe the image you want to generate in detail... (e.g., 'a cyberpunk fish DJ at an underwater rave with neon lights' or 'an image of Narendra Modi speaking at a podium')"
             value={prompt}
             onChange={e => setPrompt(e.target.value)}
             className="bg-black/50 text-white border-jarvis/30 placeholder-gray-400 min-h-[80px] pr-10"
@@ -304,6 +307,19 @@ const ImageGenerationTool: React.FC<ImageGenerationToolProps> = ({ onImageGenera
               </button>
             ))}
           </div>
+        </div>
+
+        <div className="flex items-center gap-2 mb-3">
+          <label className="flex items-center gap-2 text-sm text-gray-300">
+            <input 
+              type="checkbox" 
+              checked={useEnhancedAccuracy} 
+              onChange={(e) => setUseEnhancedAccuracy(e.target.checked)}
+              className="rounded border-jarvis/30 text-jarvis bg-black/50"
+            />
+            <span className="text-jarvis">Enhanced Accuracy Mode</span>
+            <span className="text-xs opacity-60">(Better for famous people, landmarks)</span>
+          </label>
         </div>
         
         <Button 

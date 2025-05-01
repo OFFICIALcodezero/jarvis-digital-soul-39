@@ -9,9 +9,18 @@ export const parseImageRequest = (input: string): ImageGenerationParams => {
   // Extract the core prompt, removing command words
   const prompt = match ? match[1] : input.replace(/^(create|generate|make|draw|show|paint|illustrate)(\s+an|\s+a)?\s*(image|picture)?\s*(of|about|showing)?\s*/i, '');
   
+  // Create base params object
   const params: ImageGenerationParams = {
-    prompt
+    prompt,
+    enhancedAccuracy: true, // Enable enhanced accuracy mode
   };
+  
+  // Check for named entities (people, landmarks, etc.)
+  const namedEntities = detectNamedEntities(prompt);
+  if (namedEntities.length > 0) {
+    params.subjectFocus = namedEntities[0]; // Use the primary named entity as subject focus
+    params.subjectAccuracy = "high"; // Request high accuracy for named entities
+  }
   
   // Enhanced style detection
   if (/realistic|photo|photograph|real/i.test(input)) params.style = 'realistic';
@@ -22,6 +31,7 @@ export const parseImageRequest = (input: string): ImageGenerationParams => {
   else if (/pixel|pixel art|pixelated|retro game/i.test(input)) params.style = 'pixel';
   else if (/sci[\s\-]?fi|science fiction|futuristic/i.test(input)) params.style = 'sci-fi';
   else if (/fantasy|mythical|magical|dragon|elf|wizard/i.test(input)) params.style = 'fantasy';
+  else if (/portrait|headshot|face/i.test(input)) params.style = 'portrait';
   else if (/sunset|evening|dusk/i.test(input) && /mountain|hill|peak/i.test(input)) {
     // Special handling for sunset over mountains
     params.style = 'realistic';
@@ -44,3 +54,35 @@ export const parseImageRequest = (input: string): ImageGenerationParams => {
   console.log("Parsed image parameters:", params);
   return params;
 };
+
+// Function to detect named entities like people, landmarks, etc. in the prompt
+function detectNamedEntities(prompt: string): string[] {
+  const entities: string[] = [];
+  
+  // Common person detection - match known public figures, leaders, etc.
+  const knownPeople = [
+    'narendra modi', 'modi', 'donald trump', 'trump', 'joe biden', 'biden',
+    'barack obama', 'obama', 'elon musk', 'musk', 'bill gates', 'gates',
+    'mark zuckerberg', 'zuckerberg', 'jeff bezos', 'bezos',
+    // Add more common names as needed
+  ];
+  
+  // Check if prompt contains any known people
+  for (const person of knownPeople) {
+    if (prompt.toLowerCase().includes(person.toLowerCase())) {
+      entities.push(person);
+      break; // Found one match, that's enough
+    }
+  }
+  
+  // Famous landmarks
+  const landmarks = ['taj mahal', 'eiffel tower', 'statue of liberty', 'great wall of china'];
+  for (const landmark of landmarks) {
+    if (prompt.toLowerCase().includes(landmark.toLowerCase())) {
+      entities.push(landmark);
+      break;
+    }
+  }
+  
+  return entities;
+}

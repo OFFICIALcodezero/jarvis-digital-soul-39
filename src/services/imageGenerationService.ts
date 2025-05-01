@@ -6,16 +6,20 @@ import {
   CREATIVE_COMBOS,
   STYLE_IMAGES,
   getRandomImage,
-  getMockImageUrl
+  getMockImageUrl,
+  getNamedEntityImage
 } from './imageMockData';
 import { parseImageRequest } from './imagePromptParser';
 import { checkImageMatchesPrompt } from './imagePromptChecker';
 
 export interface ImageGenerationParams {
   prompt: string;
-  style?: 'realistic' | 'anime' | '3d' | 'abstract' | 'painting' | 'pixel' | 'sci-fi' | 'fantasy';
+  style?: 'realistic' | 'anime' | '3d' | 'abstract' | 'painting' | 'pixel' | 'sci-fi' | 'fantasy' | 'portrait';
   resolution?: '512x512' | '768x768' | '1024x1024';
   aspectRatio?: '1:1' | '4:3' | '16:9' | '3:2';
+  enhancedAccuracy?: boolean;
+  subjectFocus?: string;
+  subjectAccuracy?: 'low' | 'medium' | 'high';
 }
 
 export interface GeneratedImage {
@@ -31,24 +35,44 @@ export { parseImageRequest, checkImageMatchesPrompt };
 
 export const generateImage = async (params: ImageGenerationParams): Promise<GeneratedImage> => {
   try {
-    // Simulated loading time
-    await new Promise(resolve => setTimeout(resolve, 1400));
+    // Enhanced logging for debugging
+    console.log(`Generating image with enhanced accuracy: ${params.enhancedAccuracy ? 'YES' : 'NO'}`);
+    console.log(`Prompt: "${params.prompt}"`);
+    console.log(`Subject focus: ${params.subjectFocus || 'None'}`);
     
-    // Check for special cases in prompt
-    const lowerPrompt = params.prompt.toLowerCase();
+    // Simulated loading time (slightly longer for "enhanced" generation)
+    await new Promise(resolve => setTimeout(resolve, params.enhancedAccuracy ? 1800 : 1400));
+    
     let imageUrl;
     
-    // Special handling for sunset over mountains
-    if ((lowerPrompt.includes('sunset') && lowerPrompt.includes('mountain')) || 
-        lowerPrompt.includes('sunset over mountain')) {
-      imageUrl = CREATIVE_COMBOS['sunset over mountains'] || MOCK_IMAGES.sunset;
-    } else {
-      // Get mock image URL using normal logic
-      imageUrl = getMockImageUrl(params.prompt, params.style);
+    // High accuracy mode for named entities
+    if (params.subjectFocus && params.subjectAccuracy === 'high') {
+      // Use our specialized function for known entities
+      imageUrl = getNamedEntityImage(params.subjectFocus, params.style);
+      
+      if (imageUrl) {
+        console.log(`Using specialized image for "${params.subjectFocus}": ${imageUrl}`);
+      } else {
+        console.log(`No specialized image found for "${params.subjectFocus}", falling back to standard methods`);
+      }
+    }
+    
+    // If no specialized image was found or no subject was specified
+    if (!imageUrl) {
+      // Check for special cases in prompt
+      const lowerPrompt = params.prompt.toLowerCase();
+      
+      // Special handling for sunset over mountains
+      if ((lowerPrompt.includes('sunset') && lowerPrompt.includes('mountain')) || 
+          lowerPrompt.includes('sunset over mountain')) {
+        imageUrl = CREATIVE_COMBOS['sunset over mountains'] || MOCK_IMAGES.sunset;
+      } else {
+        // Get mock image URL using normal logic
+        imageUrl = getMockImageUrl(params.prompt, params.style);
+      }
     }
 
-    // Log for debugging
-    console.log(`Generating image for prompt: "${params.prompt}" with style: ${params.style || 'default'}`);
+    // Log the selected image
     console.log(`Selected image URL: ${imageUrl}`);
 
     // Preload the image to ensure it works
