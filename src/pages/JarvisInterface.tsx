@@ -36,7 +36,7 @@ const JarvisInterface = () => {
   const isMobile = useIsMobile();
   
   const elevenLabsKey = getApiKey('elevenlabs');
-  const openAIKey = getApiKey('openai');
+  const groqKey = getApiKey('groq');
   
   useEffect(() => {
     if (!elevenLabsKey && (activeMode === 'voice' || activeMode === 'face')) {
@@ -47,14 +47,14 @@ const JarvisInterface = () => {
       });
     }
     
-    if (!openAIKey) {
+    if (!groqKey) {
       toast({
-        title: "OpenAI API Key Required",
-        description: "JARVIS requires an OpenAI API key to function properly. Please add it in the controls panel.",
+        title: "Groq API Key Required",
+        description: "JARVIS requires a Groq API key to function properly. Please add it in the controls panel.",
         variant: "destructive"
       });
     }
-  }, [elevenLabsKey, openAIKey, activeMode]);
+  }, [elevenLabsKey, groqKey, activeMode]);
   
   // Helper function to play a sound
   const playSound = (type: 'activation' | 'deactivation' | 'processing' | 'alert') => {
