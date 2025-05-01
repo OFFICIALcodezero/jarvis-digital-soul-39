@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import ChatLayout from "./chat/ChatLayout";
 import { useJarvisChat } from "./JarvisChatContext";
@@ -54,8 +53,7 @@ const JarvisChatMain: React.FC<JarvisChatMainProps> = ({ hackerMode = false }) =
       "Create an image of a futuristic robot",
       "Draw a magical forest with glowing mushrooms",
       "Show me an image of a disco-dancing fish in neon colors",
-      "Generate a cyberpunk city at night",
-      "Try typing 'code zero' for a surprise"
+      "Generate a cyberpunk city at night"
     ];
   };
 
