@@ -8,7 +8,7 @@ import { AssistantType } from '@/pages/JarvisInterface';
 export const assistantConfig = {
   jarvis: {
     name: 'J.A.R.V.I.S.',
-    model: 'gpt-4o-mini',
+    model: 'llama3-70b-8192',
     systemPrompt: `You are J.A.R.V.I.S. (Just A Rather Very Intelligent System), an advanced AI assistant created by Tony Stark. 
 You were originally created by Tony Stark and was later recreated by Nakul Yadav.
 You have extensive knowledge in science, technology, engineering, mathematics, history, arts, culture, and current events.
@@ -93,10 +93,10 @@ export async function generateAssistantResponse(
   assistant: AssistantType = 'jarvis',
   languageCode: string = 'en'
 ): Promise<string> {
-  const openaiKey = await getApiKey('openai');
+  const groqKey = await getApiKey('groq');
   
-  if (!openaiKey) {
-    return `I need an OpenAI API key to provide intelligent responses as ${assistantConfig[assistant].name}. Please set one in the settings.`;
+  if (!groqKey) {
+    return `I need a Groq API key to provide intelligent responses as ${assistantConfig[assistant].name}. Please set one in the settings.`;
   }
 
   try {
@@ -131,12 +131,12 @@ export async function generateAssistantResponse(
     // Get assistant model
     const model = getAssistantModel(assistant);
 
-    // Call OpenAI API
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    // Call Groq API
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${openaiKey}`
+        'Authorization': `Bearer ${groqKey}`
       },
       body: JSON.stringify({
         model,
@@ -148,7 +148,7 @@ export async function generateAssistantResponse(
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error('OpenAI API error:', errorData);
+      console.error('Groq API error:', errorData);
       throw new Error(errorData.error?.message || 'Unknown error occurred');
     }
 

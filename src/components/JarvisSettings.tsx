@@ -22,7 +22,7 @@ const JarvisSettings: React.FC = () => {
             <Alert className="mb-4 bg-green-500/10 border-green-500/30">
               <Check className="h-4 w-4 text-green-500" />
               <AlertDescription>
-                OpenAI API key is pre-configured and ready to use.
+                Groq AI API key is pre-configured and ready to use.
               </AlertDescription>
             </Alert>
             <ApiKeyManager serviceName="ElevenLabs" />

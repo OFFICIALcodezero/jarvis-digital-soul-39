@@ -6,17 +6,17 @@
  */
 
 // Define valid API service types
-export type ApiServiceType = 'openai' | 'elevenlabs';
+export type ApiServiceType = 'groq' | 'elevenlabs';
 
-// Default OpenAI API key
-const DEFAULT_OPENAI_KEY = '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';
+// Default Groq API key
+const DEFAULT_GROQ_KEY = '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';
 
 /**
  * Check if an API key exists for a service
  */
 export const apiKeyExists = async (service: ApiServiceType): Promise<boolean> => {
-  if (service.toLowerCase() === 'openai') {
-    // Always return true for OpenAI since we have a default key
+  if (service.toLowerCase() === 'groq') {
+    // Always return true for Groq since we have a default key
     return true;
   }
   const key = localStorage.getItem(`${service.toLowerCase()}_api_key`);
@@ -34,9 +34,9 @@ export const setApiKey = async (service: ApiServiceType, value: string): Promise
  * Get an API key for a service
  */
 export const getApiKey = async (service: ApiServiceType): Promise<string | null> => {
-  if (service.toLowerCase() === 'openai') {
+  if (service.toLowerCase() === 'groq') {
     // Return the stored key or the default key if none is stored
-    return localStorage.getItem(`${service.toLowerCase()}_api_key`) || DEFAULT_OPENAI_KEY;
+    return localStorage.getItem(`${service.toLowerCase()}_api_key`) || DEFAULT_GROQ_KEY;
   }
   return localStorage.getItem(`${service.toLowerCase()}_api_key`);
 };

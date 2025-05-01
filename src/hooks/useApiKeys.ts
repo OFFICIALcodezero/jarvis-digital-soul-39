@@ -1,37 +1,38 @@
+
 import { useState, useEffect } from 'react';
 import { toast } from '../components/ui/use-toast';
 
 export interface ApiKeys {
-  openAIKey: string;
+  groqKey: string;
   elevenLabsKey: string;
 }
 
 export interface ApiKeyValidation {
-  openAIKeyValid: boolean;
+  groqKeyValid: boolean;
   elevenLabsKeyValid: boolean;
   errors: {
-    openAIKey?: string;
+    groqKey?: string;
     elevenLabsKey?: string;
   };
 }
 
-const DEFAULT_OPENAI_KEY = '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';
+const DEFAULT_GROQ_KEY = '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';
 
 export const useApiKeys = () => {
   const [apiKeys, setApiKeys] = useState<ApiKeys>({
-    openAIKey: localStorage.getItem('openAIKey') || DEFAULT_OPENAI_KEY,
+    groqKey: localStorage.getItem('groqKey') || DEFAULT_GROQ_KEY,
     elevenLabsKey: localStorage.getItem('elevenLabsKey') || ''
   });
 
   // Validate API keys whenever they change
   useEffect(() => {
     const validation = validateApiKeys();
-    if (validation.errors.openAIKey || validation.errors.elevenLabsKey) {
+    if (validation.errors.groqKey || validation.errors.elevenLabsKey) {
       // Only show validation errors if keys are not empty (to avoid initial load errors)
-      if (apiKeys.openAIKey && !validation.openAIKeyValid) {
+      if (apiKeys.groqKey && !validation.groqKeyValid) {
         toast({
-          title: "OpenAI API Key Error",
-          description: validation.errors.openAIKey,
+          title: "Groq API Key Error",
+          description: validation.errors.groqKey,
           variant: "destructive",
         });
       }
@@ -48,7 +49,7 @@ export const useApiKeys = () => {
   // Persist API keys to localStorage
   useEffect(() => {
     try {
-      localStorage.setItem('openAIKey', apiKeys.openAIKey);
+      localStorage.setItem('groqKey', apiKeys.groqKey);
       localStorage.setItem('elevenLabsKey', apiKeys.elevenLabsKey);
     } catch (error) {
       console.error('Failed to save API keys to localStorage:', error);
@@ -78,19 +79,19 @@ export const useApiKeys = () => {
 
   const validateApiKeys = (): ApiKeyValidation => {
     const validation: ApiKeyValidation = {
-      openAIKeyValid: false,
+      groqKeyValid: false,
       elevenLabsKeyValid: false,
       errors: {}
     };
 
-    // OpenAI API key validation
-    const openAIKeyRegex = /^sk-[a-zA-Z0-9]{48}$/;
-    if (!apiKeys.openAIKey) {
-      validation.errors.openAIKey = "OpenAI API key is required";
-    } else if (!openAIKeyRegex.test(apiKeys.openAIKey)) {
-      validation.errors.openAIKey = "Invalid OpenAI API key format. Should start with 'sk-' followed by 48 characters";
+    // Groq API key validation
+    const groqKeyRegex = /^gsk_[a-zA-Z0-9]{48}$/;
+    if (!apiKeys.groqKey) {
+      validation.errors.groqKey = "Groq API key is required";
+    } else if (!groqKeyRegex.test(apiKeys.groqKey)) {
+      validation.errors.groqKey = "Invalid Groq API key format. Should start with 'gsk_' followed by 48 characters";
     } else {
-      validation.openAIKeyValid = true;
+      validation.groqKeyValid = true;
     }
 
     // ElevenLabs API key validation
@@ -108,10 +109,10 @@ export const useApiKeys = () => {
 
   const clearApiKeys = () => {
     try {
-      localStorage.removeItem('openAIKey');
+      localStorage.removeItem('groqKey');
       localStorage.removeItem('elevenLabsKey');
       setApiKeys({
-        openAIKey: '',
+        groqKey: '',
         elevenLabsKey: ''
       });
       toast({

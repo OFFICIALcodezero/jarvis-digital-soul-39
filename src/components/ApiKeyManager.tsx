@@ -28,8 +28,8 @@ const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({ serviceName, onApiKeySet 
     const exists = await apiKeyExists(serviceType);
     setHasKey(exists);
     
-    // Hide OpenAI API key manager since we have a default key
-    if (serviceType === 'openai') {
+    // Hide Groq API key manager since we have a default key
+    if (serviceType === 'groq') {
       setShowManager(false);
     }
   };

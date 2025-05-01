@@ -14,7 +14,7 @@ const JarvisCore = () => {
   const initializeJarvisCore = () => {
     try {
       // Get all necessary API keys
-      const openaiKey = getApiKey('openai');
+      const groqKey = getApiKey('groq');
       const elevenlabsKey = getApiKey('elevenlabs');
       
       console.log("JARVIS Core initialized with API keys");

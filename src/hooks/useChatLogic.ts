@@ -1,3 +1,4 @@
+
 import { useState, useRef } from 'react';
 import { toast } from '@/components/ui/use-toast';
 import { getApiKey } from '../utils/apiKeyManager';
@@ -33,7 +34,7 @@ export const useChatLogic = (
   });
   
   const chatEndRef = useRef<HTMLDivElement>(null);
-  const apiKey = getApiKey('openai');
+  const apiKey = getApiKey('groq');
 
   const scrollToBottom = () => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -84,8 +85,8 @@ export const useChatLogic = (
   const processUserMessage = async (message: string) => {
     if (!apiKey && !isSkillCommand(message)) {
       toast({
-        title: "OpenAI API Key Required",
-        description: "Please set your OpenAI API key in the controls panel.",
+        title: "Groq API Key Required",
+        description: "Please set your Groq API key in the controls panel.",
         variant: "destructive"
       });
       return;
