@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useJarvisChat } from '../contexts/JarvisChatProvider';
 import ChatDashboardPanel from './chat/ChatDashboardPanel';
 import MessageInput from './chat/MessageInput';
@@ -8,13 +8,8 @@ import HackerModeEnhanced from './chat/HackerModeEnhanced';
 import useHackerMode from '../hooks/useHackerMode';
 
 const JarvisChatMainEnhanced: React.FC = () => {
-  const { 
-    messages, 
-    isTyping, 
-    sendMessage, 
-    setMessages, 
-    suggestions 
-  } = useJarvisChat();
+  const jarvisChat = useJarvisChat();
+  const [input, setInput] = useState('');
   
   const { isHackerModeActive, checkForHackerMode, deactivateHackerMode } = useHackerMode();
 
@@ -23,9 +18,12 @@ const JarvisChatMainEnhanced: React.FC = () => {
     const isHackerCommand = checkForHackerMode(text);
     
     // If not a hacker command, send as normal message
-    if (!isHackerCommand) {
-      sendMessage(text);
+    if (!isHackerCommand && jarvisChat.sendMessage) {
+      jarvisChat.sendMessage(text);
     }
+    
+    // Clear input
+    setInput('');
   };
 
   // Close hacker mode when clicking outside or sending a new message
@@ -39,10 +37,12 @@ const JarvisChatMainEnhanced: React.FC = () => {
     <div className="flex flex-col h-full">
       {/* Main chat area */}
       <div className="flex-1 overflow-y-auto p-4" onClick={handleCloseHackerMode}>
-        <ChatDashboardPanel 
-          messages={messages} 
-          isTyping={isTyping} 
-        />
+        {jarvisChat.messages && (
+          <ChatDashboardPanel 
+            messages={jarvisChat.messages} 
+            isTyping={jarvisChat.isProcessing || false} 
+          />
+        )}
       </div>
       
       {/* Hacker mode overlay */}
@@ -54,15 +54,19 @@ const JarvisChatMainEnhanced: React.FC = () => {
       
       {/* Message suggestions */}
       <div className="p-2 border-t border-gray-700">
-        <MessageSuggestions 
-          suggestions={suggestions} 
-          onSelect={(suggestion) => handleSendMessage(suggestion)}
-        />
+        {jarvisChat.suggestions && (
+          <MessageSuggestions 
+            suggestions={jarvisChat.suggestions} 
+            onSelect={(suggestion) => handleSendMessage(suggestion)}
+          />
+        )}
       </div>
       
       {/* Input area */}
       <div className="p-4 border-t border-gray-700">
         <MessageInput 
+          input={input}
+          setInput={setInput}
           onSendMessage={handleSendMessage}
           isDisabled={isHackerModeActive}
         />

@@ -1,8 +1,20 @@
-
 /**
  * Hacker Mode Service - Provides ethically simulated functions for the Hacker Mode interface
  * These are simulations only and do not perform actual hacking activities
  */
+
+// Lines displayed during hacker mode initialization
+export const hackerModeLines = [
+  "> Initializing JARVIS hacker mode...",
+  "> Bypassing security protocols...",
+  "> Accessing restricted areas...",
+  "> Encryption modules loaded...",
+  "> Stealth protocols activated...",
+  "> Running security scan...",
+  "> Multiple access points detected...",
+  "> Establishing secure connection...",
+  "> Ready for operation."
+];
 
 // Simulate network scanning (educational purposes only)
 export const scanNetwork = async (): Promise<string> => {

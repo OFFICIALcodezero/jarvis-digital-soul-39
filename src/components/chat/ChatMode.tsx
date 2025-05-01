@@ -5,23 +5,23 @@ import GeneratedImageCard from "./GeneratedImageCard";
 
 export interface ChatModeProps {
   messages: Message[];
-  speakText: (text: string) => Promise<void>;
-  audioPlaying: boolean;
-  isTyping: boolean;
-  currentTypingText: string;
-  isProcessing: boolean;
-  selectedLanguage: string;
-  onLanguageChange: (languageCode: string) => void;
+  speakText?: (text: string) => Promise<void>;
+  audioPlaying?: boolean;
+  isTyping?: boolean;
+  currentTypingText?: string;
+  isProcessing?: boolean;
+  selectedLanguage?: string;
+  onLanguageChange?: (languageCode: string) => void;
   hackerMode?: boolean;
 }
 
 const ChatMode: React.FC<ChatModeProps> = ({
   messages,
-  isTyping,
-  currentTypingText,
-  isProcessing,
-  selectedLanguage,
-  onLanguageChange,
+  isTyping = false,
+  currentTypingText = '',
+  isProcessing = false,
+  selectedLanguage = 'en',
+  onLanguageChange = () => {},
   hackerMode = false
 }) => {
   return (
@@ -104,7 +104,7 @@ const ChatMode: React.FC<ChatModeProps> = ({
                 style={{
                   left: `${Math.random() * 100}%`,
                   top: `${Math.random() * 100}%`,
-                  '--delay': Math.random() * 10
+                  animationDelay: `${Math.random() * 10}s`
                 }}
               >
                 {['0', '1', '{', '}', '>', '<', '/', '$', '#', '@'][Math.floor(Math.random() * 10)]}
