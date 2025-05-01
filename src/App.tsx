@@ -22,6 +22,7 @@ function App() {
               <Route path="/startup" element={<Startup />} />
               <Route path="/interface" element={<JarvisInterface />} />
               <Route path="/image-generation" element={<ImageGeneration />} />
+              <Route path="/images" element={<ImageGeneration />} />
               <Route path="/settings" element={<JarvisSettings />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
