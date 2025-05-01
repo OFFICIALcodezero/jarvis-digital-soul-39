@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -39,6 +38,11 @@
     --jarvis: 193 76% 49%;
     --jarvis-bg: 220 14% 13%;
     --jarvis-accent: 193 76% 39%;
+    
+    /* Hacker mode theme colors */
+    --hacker-red: 0 100% 50%;
+    --hacker-gold: 43 100% 50%;
+    --hacker-bg: 0 0% 5%;
   }
 
   .dark {
@@ -163,37 +167,62 @@
   }
 }
 
-/* Hacker mode styles */
-.terminal-window {
-  font-family: 'Courier New', monospace;
-  line-height: 1.4;
-  color: hsl(var(--jarvis));
+/* Hacker mode specific styles */
+.hacker-mode {
+  background-color: rgb(8, 8, 10);
+  color: rgba(255, 255, 255, 0.9);
 }
 
-.terminal-window pre {
-  font-family: 'Courier New', monospace;
+.hacker-text {
+  font-family: 'JetBrains Mono', monospace;
+  color: #FF375F;
+  text-shadow: 0 0 5px rgba(255, 55, 95, 0.7);
 }
 
-@keyframes typing {
-  from { width: 0 }
-  to { width: 100% }
+.hacker-gold {
+  color: #FFD700;
+  text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
 }
 
-.typing-effect {
-  display: inline-block;
-  overflow: hidden;
-  white-space: nowrap;
-  animation: typing 1.5s steps(30, end);
+.hacker-scan-line {
+  position: absolute;
+  height: 2px;
+  width: 100%;
+  background: linear-gradient(to right, transparent, #FF375F, transparent);
+  box-shadow: 0 0 8px rgba(255, 55, 95, 0.8);
+  animation: scan-line 3s linear infinite;
 }
 
-.blinking-cursor::after {
-  content: '|';
-  animation: blink 1s infinite;
+.hacker-terminal {
+  background-color: rgba(0, 0, 0, 0.8);
+  border: 1px solid rgba(255, 55, 95, 0.3);
+  box-shadow: inset 0 0 10px rgba(255, 55, 95, 0.2);
 }
 
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+.hacker-glow {
+  box-shadow: 0 0 15px rgba(255, 55, 95, 0.5),
+              0 0 30px rgba(255, 55, 95, 0.3);
+}
+
+.hacker-grid {
+  background-image: 
+    linear-gradient(rgba(255, 55, 95, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 55, 95, 0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+@keyframes scan-line {
+  0% {
+    top: 0%;
+  }
+  100% {
+    top: 100%;
+  }
+}
+
+@keyframes wave {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
 }
 
 /* Matrix-like animation */

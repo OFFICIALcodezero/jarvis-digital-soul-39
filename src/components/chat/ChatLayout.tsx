@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Message } from '@/types/chat';
 import ChatMode from './ChatMode';
@@ -27,6 +26,7 @@ interface ChatLayoutProps {
   setInputMode: (mode: 'voice' | 'text') => void;
   handleSendMessage: () => void;
   getSuggestions: () => string[];
+  hackerMode?: boolean;
 }
 
 const ChatLayout: React.FC<ChatLayoutProps> = ({
@@ -48,7 +48,8 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
   inputMode,
   setInputMode,
   handleSendMessage,
-  getSuggestions
+  getSuggestions,
+  hackerMode
 }) => {
   const chatModeProps = {
     messages,
@@ -58,7 +59,8 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
     currentTypingText,
     isProcessing,
     selectedLanguage,
-    onLanguageChange
+    onLanguageChange,
+    hackerMode
   };
 
   const audioControlsProps = {
@@ -74,7 +76,7 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
   };
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden">
+    <div className={`flex-1 flex flex-col ${hackerMode ? 'hacker-theme' : ''}`}>
       <ChatMode {...chatModeProps} />
       
       {!isProcessing && messages.length < 3 && (

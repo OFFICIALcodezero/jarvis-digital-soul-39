@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Mic, MicOff } from 'lucide-react';
 import IronManBackground from './chat/IronManBackground';
 
@@ -8,13 +8,15 @@ interface VoiceActivationProps {
   isListening?: boolean;
   toggleListening?: () => void;
   isSpeaking?: boolean;
+  hackerMode?: boolean;
 }
 
 const VoiceActivation: React.FC<VoiceActivationProps> = ({
   onCommandReceived,
   isListening,
   toggleListening,
-  isSpeaking
+  isSpeaking,
+  hackerMode = false
 }) => {
   // The Iron Man should glow when Jarvis is speaking or actively processing
   const isJarvisActive = isSpeaking;
@@ -23,31 +25,33 @@ const VoiceActivation: React.FC<VoiceActivationProps> = ({
     <div className="flex flex-col items-center gap-3 relative">
       {/* Iron Man Background positioned to fill the space */}
       <div className="mb-4 relative w-full h-40">
-        <IronManBackground isGlowing={isJarvisActive} />
+        <IronManBackground isGlowing={isJarvisActive} hackerMode={hackerMode} />
       </div>
       
       <button
         onClick={toggleListening}
         className={`w-16 h-16 rounded-full flex items-center justify-center transition-all ${
-          isListening ? 'bg-[#33c3f0]/30 border-2 border-[#33c3f0]' : 'bg-black/30 border border-[#33c3f0]/30'
+          hackerMode 
+            ? `${isListening ? 'bg-red-500/30 border-2 border-red-500' : 'bg-black/30 border border-red-500/30'}`
+            : `${isListening ? 'bg-[#33c3f0]/30 border-2 border-[#33c3f0]' : 'bg-black/30 border border-[#33c3f0]/30'}`
         }`}
       >
         {isListening ? (
-          <Mic className="h-6 w-6 text-white animate-pulse" />
+          <Mic className={`h-6 w-6 ${hackerMode ? 'text-red-400' : 'text-white'} animate-pulse`} />
         ) : (
-          <MicOff className="h-6 w-6 text-white/50" />
+          <MicOff className={`h-6 w-6 ${hackerMode ? 'text-red-400/50' : 'text-white/50'}`} />
         )}
       </button>
       
       {isSpeaking && (
         <div className="flex items-center space-x-1 mt-2">
-          <div className="h-1 w-1 bg-white rounded-full animate-pulse"></div>
-          <div className="h-1 w-1 bg-white rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-          <div className="h-1 w-1 bg-white rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+          <div className={`h-1 w-1 ${hackerMode ? 'bg-red-400' : 'bg-white'} rounded-full animate-pulse`}></div>
+          <div className={`h-1 w-1 ${hackerMode ? 'bg-red-400' : 'bg-white'} rounded-full animate-pulse`} style={{ animationDelay: '0.2s' }}></div>
+          <div className={`h-1 w-1 ${hackerMode ? 'bg-red-400' : 'bg-white'} rounded-full animate-pulse`} style={{ animationDelay: '0.4s' }}></div>
         </div>
       )}
       
-      <div className="text-xs text-white/70">
+      <div className={`text-xs ${hackerMode ? 'text-red-400/70' : 'text-white/70'}`}>
         {isListening ? "Listening..." : isSpeaking ? "Speaking..." : "Click to activate"}
       </div>
     </div>

@@ -26,6 +26,7 @@ interface JarvisChatContextType {
   inputMode: 'voice' | 'text';
   setInputMode: (mode: 'voice' | 'text') => void;
   showDashboard?: boolean;
+  hackerModeActive?: boolean;
 }
 
 const JarvisChatContext = createContext<JarvisChatContextType | undefined>(undefined);
@@ -39,7 +40,8 @@ export const JarvisChatProvider: React.FC<React.PropsWithChildren<JarvisChatProp
   setActiveAssistant,
   inputMode,
   setInputMode,
-  onMessageCheck
+  onMessageCheck,
+  hackerModeActive
 }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -241,7 +243,8 @@ export const JarvisChatProvider: React.FC<React.PropsWithChildren<JarvisChatProp
         setActiveAssistant,
         inputMode,
         setInputMode,
-        showDashboard
+        showDashboard,
+        hackerModeActive
       }}
     >
       {children}

@@ -1,4 +1,3 @@
-
 import { GeneratedImage } from '@/services/imageGenerationService';
 
 export interface Message {
@@ -18,13 +17,17 @@ export interface MessageSuggestion {
 
 export interface JarvisChatProps {
   activeMode: 'normal' | 'voice' | 'face' | 'hacker';
-  setIsSpeaking: (isSpeaking: boolean) => void;
+  setIsSpeaking: React.Dispatch<React.SetStateAction<boolean>>;
   isListening: boolean;
   activeAssistant: string;
   setActiveAssistant: (assistant: string) => void;
   inputMode: 'voice' | 'text';
   setInputMode: (mode: 'voice' | 'text') => void;
   onMessageCheck?: (message: string) => boolean;
+  hackerModeActive?: boolean;
+  hackerOutput?: string;
+  setHackerOutput?: React.Dispatch<React.SetStateAction<string>>;
+  onDeactivateHacker?: () => void;
 }
 
 export interface LanguageOption {

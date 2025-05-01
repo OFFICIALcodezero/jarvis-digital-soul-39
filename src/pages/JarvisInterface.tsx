@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import ArcReactor from '@/components/background/ArcReactor';
@@ -56,6 +55,35 @@ const JarvisInterface = () => {
       });
     }
   }, [elevenLabsKey, openAIKey, activeMode]);
+  
+  // Helper function to play a sound
+  const playSound = (type: 'activation' | 'deactivation' | 'processing' | 'alert') => {
+    try {
+      const audio = new Audio();
+      
+      switch (type) {
+        case 'activation':
+          audio.src = 'https://assets.mixkit.co/active_storage/sfx/2570/2570-preview.mp3';
+          break;
+        case 'deactivation':
+          audio.src = 'https://assets.mixkit.co/active_storage/sfx/209/209-preview.mp3';
+          break;
+        case 'processing':
+          audio.src = 'https://assets.mixkit.co/active_storage/sfx/590/590-preview.mp3';
+          break;
+        case 'alert':
+          audio.src = 'https://assets.mixkit.co/active_storage/sfx/1084/1084-preview.mp3';
+          break;
+      }
+      
+      if (!isMuted) {
+        audio.volume = volume;
+        audio.play().catch(err => console.log('Audio play error:', err));
+      }
+    } catch (error) {
+      console.error('Failed to play sound effect:', error);
+    }
+  };
   
   const controlOptions = [
     {
@@ -132,6 +160,9 @@ const JarvisInterface = () => {
     setMode('hacker');
     setHackerOutput('J.A.R.V.I.S. Hacker Interface v2.0 Activated\n> Security protocols bypassed\n> Entering secure terminal...\n> Authentication successful\n> Type "help" for available commands');
     
+    // Play activation sound
+    playSound('activation');
+    
     toast({
       title: "Hacker Mode Activated",
       description: "All systems operational. Security protocols engaged.",
@@ -142,6 +173,15 @@ const JarvisInterface = () => {
   const deactivateHackerMode = () => {
     setHackerModeActive(false);
     setMode('chat');
+    
+    // Play deactivation sound
+    playSound('deactivation');
+    
+    toast({
+      title: "Hacker Mode Deactivated",
+      description: "Returning to standard interface.",
+      variant: "default"
+    });
   };
 
   // Function to handle assistant changes with proper typing
@@ -150,41 +190,50 @@ const JarvisInterface = () => {
   };
   
   return (
-    <div className="relative min-h-screen flex flex-col bg-jarvis-bg text-white overflow-hidden">
+    <div className={`relative min-h-screen flex flex-col ${hackerModeActive ? 'hacker-mode' : 'bg-jarvis-bg'} text-white overflow-hidden`}>
+      {/* Apply hacker background effects if in hacker mode */}
+      {hackerModeActive && (
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-black"></div>
+          <div className="absolute inset-0 hacker-grid opacity-20"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-red-900/10"></div>
+        </div>
+      )}
+      
       <ArcReactor />
       
-      <div className="w-full jarvis-panel flex items-center justify-between p-3">
+      <div className={`w-full jarvis-panel flex items-center justify-between p-3 ${hackerModeActive ? 'border-red-500/20' : 'border-jarvis/20'}`}>
         <div className="flex items-center">
-          <div className="text-xl font-bold text-jarvis text-glow mr-2">JARVIS</div>
-          <div className="text-xs uppercase bg-jarvis/20 text-jarvis px-2 py-0.5 rounded">
-            v1.0
+          <div className={`text-xl font-bold ${hackerModeActive ? 'hacker-text' : 'text-jarvis text-glow'} mr-2`}>JARVIS</div>
+          <div className={`text-xs uppercase ${hackerModeActive ? 'bg-red-900/20 text-red-400' : 'bg-jarvis/20 text-jarvis'} px-2 py-0.5 rounded`}>
+            {hackerModeActive ? 'v2.0 SECURE' : 'v1.0'}
           </div>
         </div>
         
         <div className="flex items-center space-x-4">
-          <Link to="/images" className="flex items-center text-jarvis hover:text-jarvis/80 transition-colors">
+          <Link to="/images" className={`flex items-center ${hackerModeActive ? 'text-red-400 hover:text-red-300' : 'text-jarvis hover:text-jarvis/80'} transition-colors`}>
             <Image className="h-4 w-4 mr-1" />
             <span className="text-sm">Image Studio</span>
           </Link>
           <div className="flex items-center text-sm">
-            <div className="h-2 w-2 rounded-full mr-2 bg-jarvis"></div>
-            <span className="text-jarvis">System Online</span>
+            <div className={`h-2 w-2 rounded-full mr-2 ${hackerModeActive ? 'bg-red-500 animate-pulse' : 'bg-jarvis'}`}></div>
+            <span className={hackerModeActive ? 'text-red-400' : 'text-jarvis'}>System Online</span>
           </div>
           {activeAssistant !== 'jarvis' && (
             <div className="flex items-center text-sm">
-              <Bot className="h-3 w-3 mr-1 text-jarvis" />
-              <span className="text-jarvis capitalize">{activeAssistant} enabled</span>
+              <Bot className={`h-3 w-3 mr-1 ${hackerModeActive ? 'text-red-400' : 'text-jarvis'}`} />
+              <span className={`${hackerModeActive ? 'text-red-400' : 'text-jarvis'} capitalize`}>{activeAssistant} enabled</span>
             </div>
           )}
           {hackerModeActive && (
             <div className="flex items-center text-sm">
-              <Terminal className="h-3 w-3 mr-1 text-jarvis" />
-              <span className="text-jarvis animate-pulse">HACKER MODE</span>
+              <Terminal className="h-3 w-3 mr-1 text-red-400" />
+              <span className="text-red-400 animate-pulse">HACKER MODE</span>
             </div>
           )}
           <button 
             onClick={toggleMute}
-            className="text-jarvis hover:text-jarvis/80 transition-colors"
+            className={hackerModeActive ? 'text-red-400 hover:text-red-300 transition-colors' : 'text-jarvis hover:text-jarvis/80 transition-colors'}
           >
             {isMuted ? 
               <VolumeX className="h-4 w-4" /> : 
@@ -196,7 +245,7 @@ const JarvisInterface = () => {
 
       <div className="flex-1 flex flex-col lg:flex-row gap-4 p-4 z-10">
         <div className="lg:w-1/3 order-2 lg:order-1">
-          <div className="glass-morphism p-4 rounded-2xl h-full flex flex-col">
+          <div className={`${hackerModeActive ? 'bg-black/40 border-red-500/20' : 'glass-morphism'} p-4 rounded-2xl h-full flex flex-col`}>
             <JarvisCentralCore 
               isSpeaking={isSpeaking}
               isListening={isListening}
@@ -208,14 +257,15 @@ const JarvisInterface = () => {
                 isListening={isListening}
                 toggleListening={() => setIsListening(!isListening)}
                 isSpeaking={isSpeaking}
+                hackerMode={hackerModeActive}
               />
             </div>
           </div>
         </div>
         
         <div className="lg:w-2/3 order-1 lg:order-2">
-          {hackerModeActive ? (
-            <div className="h-full rounded-xl overflow-hidden border border-jarvis/30">
+          {hackerModeActive && mode === 'hacker' ? (
+            <div className="h-full rounded-xl overflow-hidden border border-red-500/30">
               <HackerMode 
                 hackerOutput={hackerOutput}
                 setHackerOutput={setHackerOutput}
@@ -232,6 +282,10 @@ const JarvisInterface = () => {
               inputMode={inputMode}
               setInputMode={setInputMode}
               onMessageCheck={handleMessageCheck}
+              hackerModeActive={hackerModeActive} 
+              hackerOutput={hackerOutput}
+              setHackerOutput={setHackerOutput}
+              onDeactivateHacker={deactivateHackerMode}
             />
           )}
         </div>
@@ -244,7 +298,7 @@ const JarvisInterface = () => {
         />
       </div>
       
-      <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[#1eaedb]/10 to-transparent z-0"></div>
+      <div className={`absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t ${hackerModeActive ? 'from-red-900/10' : 'from-[#1eaedb]/10'} to-transparent z-0`}></div>
     </div>
   );
 };
