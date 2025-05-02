@@ -10,6 +10,7 @@ import JarvisSettings from "./components/JarvisSettings";
 import JarvisModeEnhancer from './components/JarvisModeEnhancer';
 import { JarvisChatProvider } from "./contexts/JarvisChatProvider";
 import ErrorBoundary from './components/ErrorBoundary';
+import JarvisAdmin from "./pages/JarvisAdmin";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
               <Route path="/image-generation" element={<ImageGeneration />} />
               <Route path="/images" element={<ImageGeneration />} />
               <Route path="/settings" element={<JarvisSettings />} />
+              <Route path="/admin" element={<JarvisAdmin />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </JarvisModeEnhancer>
