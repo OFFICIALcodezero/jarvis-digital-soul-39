@@ -1,3 +1,4 @@
+
 import { toast } from '@/components/ui/use-toast';
 
 // Define the Stability AI API key
@@ -26,6 +27,14 @@ export interface StabilityGeneratedImage {
   height?: number;
   style?: string;
   base64?: string;
+}
+
+// Error types that can occur with Stability API
+enum StabilityErrorType {
+  INSUFFICIENT_BALANCE = 'insufficient_balance',
+  INVALID_API_KEY = 'invalid_api_key',
+  RATE_LIMIT = 'rate_limit',
+  OTHER = 'other'
 }
 
 /**
@@ -76,7 +85,32 @@ export const generateStabilityImage = async (params: StabilityImageParams): Prom
     if (!response.ok) {
       const error = await response.json();
       console.error('Stability AI API error:', error);
-      throw new Error(`Stability AI API error: ${error.message || 'Unknown error'}`);
+      
+      // Determine the type of error
+      let errorType = StabilityErrorType.OTHER;
+      if (error.name === 'insufficient_balance') {
+        errorType = StabilityErrorType.INSUFFICIENT_BALANCE;
+      } else if (error.name === 'unauthorized' || error.name === 'invalid_api_key') {
+        errorType = StabilityErrorType.INVALID_API_KEY;
+      } else if (error.name === 'rate_limit_exceeded') {
+        errorType = StabilityErrorType.RATE_LIMIT;
+      }
+      
+      // Show specific error message based on error type
+      let errorMessage = error.message || 'Unknown error';
+      switch (errorType) {
+        case StabilityErrorType.INSUFFICIENT_BALANCE:
+          errorMessage = 'Your Stability AI account has insufficient balance. Using fallback image generation.';
+          break;
+        case StabilityErrorType.INVALID_API_KEY:
+          errorMessage = 'Invalid Stability AI API key. Using fallback image generation.';
+          break;
+        case StabilityErrorType.RATE_LIMIT:
+          errorMessage = 'Rate limit exceeded for Stability AI. Using fallback image generation.';
+          break;
+      }
+      
+      throw new Error(`Stability AI API error: ${errorMessage}`);
     }
     
     const responseJSON = await response.json();
@@ -107,17 +141,19 @@ export const generateStabilityImage = async (params: StabilityImageParams): Prom
     
     // Show error toast
     toast({
-      title: "Image Generation Failed",
-      description: error instanceof Error ? error.message : "Failed to generate image",
+      title: "Stability AI Generation Failed",
+      description: error instanceof Error ? error.message : "Failed to generate image with Stability AI. Using fallback service.",
       variant: "destructive"
     });
     
-    // Return a fallback image
+    // Return a fallback image with a special property indicating it's a fallback
     return {
       url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
       prompt: params.prompt,
       timestamp: new Date(),
-      style: "fallback"
+      style: "fallback",
+      width: params.width || 1024,
+      height: params.height || 1024
     };
   }
 };

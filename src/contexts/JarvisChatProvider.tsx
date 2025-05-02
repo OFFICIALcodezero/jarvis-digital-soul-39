@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { parseImageRequest } from '@/services/imagePromptParser';
 import { generateImage, GeneratedImage } from '@/services/imageGenerationService';
 import { parseImagePrompt, generateStabilityImage, StabilityImageParams, StabilityGeneratedImage } from '@/services/stabilityAIService';
-import { Progress } from "@/components/ui/progress";
+import { toast } from '@/components/ui/use-toast';
 
 // Define the context type
 export interface JarvisChatContextType {
@@ -34,6 +34,12 @@ export const JarvisChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
   const [preferStabilityAI, setPreferStabilityAI] = useState(true);
+  const [stabilityAIFailed, setStabilityAIFailed] = useState(false);
+
+  useEffect(() => {
+    // Reset stability failed state when component mounts or when switching preferences
+    setStabilityAIFailed(false);
+  }, [preferStabilityAI]);
 
   const handleImageGenerationFromPrompt = async (prompt: string, isRefine = false): Promise<GeneratedImage | StabilityGeneratedImage> => {
     try {
@@ -50,14 +56,35 @@ export const JarvisChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
       let generatedImage;
       
-      if (preferStabilityAI) {
-        // Use Stability AI for higher quality
-        const imageParams = parseImagePrompt(prompt);
-        generatedImage = await generateStabilityImage(imageParams);
+      if (preferStabilityAI && !stabilityAIFailed) {
+        try {
+          // Use Stability AI for higher quality
+          const imageParams = parseImagePrompt(prompt);
+          generatedImage = await generateStabilityImage(imageParams);
+          
+          // Check if we got a fallback image (indicates Stability AI failed)
+          if (generatedImage.style === "fallback") {
+            setStabilityAIFailed(true);
+            throw new Error("Stability AI returned a fallback image, trying alternative generator");
+          }
+        } catch (error) {
+          console.error('Stability AI generation error:', error);
+          setStabilityAIFailed(true);
+          throw error; // Re-throw to trigger fallback
+        }
       } else {
-        // Fallback to original image generator
+        // Use original image generator (either by preference or as fallback)
         const params = parseImageRequest(prompt);
         generatedImage = await generateImage(params);
+        
+        if (stabilityAIFailed && !isRefine) {
+          // Show notification about fallback only on first attempt, not on refinements
+          toast({
+            title: "Using Fallback Image Generator",
+            description: "Stability AI service is unavailable. Using alternative image generation.",
+            variant: "default"
+          });
+        }
       }
       
       clearInterval(progressInterval);
@@ -70,9 +97,9 @@ export const JarvisChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       console.error('Error generating image:', error);
       
       // If Stability AI fails, try the fallback
-      if (preferStabilityAI) {
+      if (preferStabilityAI && !stabilityAIFailed) {
         console.log('Stability AI failed, trying fallback image generator');
-        setPreferStabilityAI(false);
+        setStabilityAIFailed(true);
         return handleImageGenerationFromPrompt(prompt, isRefine);
       }
       

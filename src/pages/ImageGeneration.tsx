@@ -1,15 +1,55 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useJarvisChat } from '../contexts/JarvisChatProvider';
 import ImageGenerationTool from '@/components/ImageGenerationTool';
 import { GeneratedImage } from '@/services/imageGenerationService';
 import { StabilityGeneratedImage } from '@/services/stabilityAIService';
-import { Image, Sparkles } from 'lucide-react';
+import { Image, Sparkles, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { toast } from '@/components/ui/use-toast';
 
 const ImageGeneration: React.FC = () => {
   const { activeImage, setActiveImage, handleImageGenerationFromPrompt } = useJarvisChat();
   const [generatedImages, setGeneratedImages] = useState<Array<GeneratedImage | StabilityGeneratedImage>>([]);
+  const [stabilityAIStatus, setStabilityAIStatus] = useState<'checking' | 'available' | 'unavailable'>('checking');
+
+  useEffect(() => {
+    // Check if Stability AI service is available
+    const checkStabilityService = async () => {
+      try {
+        // Simple test request to check if the service has enough balance
+        const testResponse = await fetch('https://api.stability.ai/v1/user/balance', {
+          headers: {
+            'Authorization': `Bearer sk-xYCz2fSYMNumVv5SV0CJFP7sNcCz1h4QOGqGIGmN1MgYw7bH`,
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        if (testResponse.ok) {
+          const data = await testResponse.json();
+          if (data && data.credits >= 0.01) {
+            setStabilityAIStatus('available');
+          } else {
+            console.log('Insufficient Stability AI balance:', data);
+            setStabilityAIStatus('unavailable');
+            toast({
+              title: "Stability AI Service Limited",
+              description: "Your account has insufficient balance. Using fallback image generation service.",
+              variant: "default"
+            });
+          }
+        } else {
+          console.error('Failed to check Stability AI status:', await testResponse.text());
+          setStabilityAIStatus('unavailable');
+        }
+      } catch (error) {
+        console.error('Error checking Stability AI service:', error);
+        setStabilityAIStatus('unavailable');
+      }
+    };
+    
+    checkStabilityService();
+  }, []);
 
   const handleImageGenerated = (image: GeneratedImage | StabilityGeneratedImage) => {
     setGeneratedImages(prev => [image, ...prev]);
@@ -32,11 +72,20 @@ const ImageGeneration: React.FC = () => {
           </Link>
         </div>
         
+        {stabilityAIStatus === 'unavailable' && (
+          <div className="mb-4 p-3 bg-red-900/30 border border-red-800 rounded-lg flex items-center">
+            <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
+            <span className="text-sm">
+              Stability AI service is unavailable due to insufficient balance. Using fallback image generation service.
+            </span>
+          </div>
+        )}
+        
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
             <ImageGenerationTool 
               onImageGenerated={handleImageGenerated}
-              stabilityApiEnabled={true}  
+              stabilityApiEnabled={stabilityAIStatus !== 'unavailable'}  
             />
           </div>
           
@@ -68,6 +117,11 @@ const ImageGeneration: React.FC = () => {
                     <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-2">
                       <p className="text-xs text-white truncate">{img.prompt}</p>
                     </div>
+                    {img.style === 'fallback' && (
+                      <div className="absolute top-2 left-2 bg-yellow-500/70 text-black text-xs px-2 py-0.5 rounded-full">
+                        Fallback
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
