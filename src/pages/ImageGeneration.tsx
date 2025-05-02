@@ -4,17 +4,14 @@ import { useJarvisChat } from '../contexts/JarvisChatProvider';
 import ImageGenerationTool from '@/components/ImageGenerationTool';
 import { GeneratedImage } from '@/services/imageGenerationService';
 import { StabilityGeneratedImage } from '@/services/stabilityAIService';
-import { Image, Sparkles, AlertCircle, Shield } from 'lucide-react';
+import { Image, Sparkles, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from '@/components/ui/use-toast';
-import { logUserActivity, moderateContent } from '@/services/moderationService';
-import { Badge } from '@/components/ui/badge';
 
 const ImageGeneration: React.FC = () => {
   const { activeImage, setActiveImage, handleImageGenerationFromPrompt } = useJarvisChat();
   const [generatedImages, setGeneratedImages] = useState<Array<GeneratedImage | StabilityGeneratedImage>>([]);
   const [stabilityAIStatus, setStabilityAIStatus] = useState<'checking' | 'available' | 'unavailable'>('checking');
-  const [moderationEnabled, setModerationEnabled] = useState<boolean>(true);
 
   useEffect(() => {
     // Check if Stability AI service is available
@@ -54,38 +51,8 @@ const ImageGeneration: React.FC = () => {
     checkStabilityService();
   }, []);
 
-  const handleImageGenerated = async (image: GeneratedImage | StabilityGeneratedImage) => {
+  const handleImageGenerated = (image: GeneratedImage | StabilityGeneratedImage) => {
     setGeneratedImages(prev => [image, ...prev]);
-    
-    // Log this activity
-    await logUserActivity('image_generation', image.prompt);
-  };
-  
-  // Enhanced image generation handler with content moderation
-  const handleImageGenerationWithModeration = async (prompt: string) => {
-    // Skip moderation if disabled
-    if (!moderationEnabled) {
-      return handleImageGenerationFromPrompt(prompt);
-    }
-    
-    // Check content first
-    const moderationResult = await moderateContent(prompt);
-    
-    if (moderationResult.flagged) {
-      toast({
-        title: "Content Moderation Alert",
-        description: `Your prompt contains prohibited content: ${moderationResult.flaggedReason || 'Flagged content'}`,
-        variant: "destructive"
-      });
-      
-      // Log the flagged attempt
-      await logUserActivity('image_generation', `[BLOCKED] ${prompt}`);
-      
-      return null;
-    }
-    
-    // If content is safe, proceed with generation
-    return handleImageGenerationFromPrompt(prompt);
   };
 
   return (
@@ -100,19 +67,9 @@ const ImageGeneration: React.FC = () => {
             <Sparkles className="mr-2 h-6 w-6" />
             JARVIS Image Generation Studio
           </h1>
-          <div className="flex items-center space-x-4">
-            <Badge 
-              variant={moderationEnabled ? "default" : "outline"}
-              className="cursor-pointer"
-              onClick={() => setModerationEnabled(!moderationEnabled)}
-            >
-              <Shield className="h-3 w-3 mr-1" />
-              {moderationEnabled ? "Moderation On" : "Moderation Off"}
-            </Badge>
-            <Link to="/interface" className="neon-purple-text hover:text-purple-400 transition-colors">
-              Back to Interface
-            </Link>
-          </div>
+          <Link to="/interface" className="neon-purple-text hover:text-purple-400 transition-colors">
+            Back to Interface
+          </Link>
         </div>
         
         {stabilityAIStatus === 'unavailable' && (
@@ -128,8 +85,7 @@ const ImageGeneration: React.FC = () => {
           <div className="lg:col-span-2">
             <ImageGenerationTool 
               onImageGenerated={handleImageGenerated}
-              stabilityApiEnabled={stabilityAIStatus !== 'unavailable'}
-              onGenerateImage={handleImageGenerationWithModeration}  
+              stabilityApiEnabled={stabilityAIStatus !== 'unavailable'}  
             />
           </div>
           

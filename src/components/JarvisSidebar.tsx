@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, Image, Terminal, Settings, Shield } from "lucide-react";
+import { Home, Image, Terminal, Settings } from "lucide-react";
 import { cn } from "../lib/utils";
 
 const JarvisSidebar: React.FC = () => {
@@ -14,7 +14,6 @@ const JarvisSidebar: React.FC = () => {
     { name: "Terminal", path: "/", icon: <Terminal className="w-5 h-5" /> },
     { name: "Image Gen", path: "/image-generation", icon: <Image className="w-5 h-5" /> },
     { name: "Settings", path: "/settings", icon: <Settings className="w-5 h-5" /> },
-    { name: "Admin", path: "/admin", icon: <Shield className="w-5 h-5" /> },
   ];
 
   return (
