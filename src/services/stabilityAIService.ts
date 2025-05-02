@@ -1,8 +1,7 @@
-
 import { toast } from '@/components/ui/use-toast';
 
 // Define the Stability AI API key
-const STABILITY_API_KEY = 'sk-xYCz2fSYMNumVv5SV0CJFP7sNcCz1h4QOGqGIGmN1MgYw7bH';
+const STABILITY_API_KEY = 'sk-ojZpqN5iveqZ0RbzSiTDYroW069i5COt1PlRzSDrf6TTk9gD';
 
 // API endpoint for text-to-image generation
 const API_HOST = 'https://api.stability.ai';

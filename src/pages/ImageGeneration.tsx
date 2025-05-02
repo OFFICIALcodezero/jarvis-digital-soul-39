@@ -20,7 +20,7 @@ const ImageGeneration: React.FC = () => {
         // Simple test request to check if the service has enough balance
         const testResponse = await fetch('https://api.stability.ai/v1/user/balance', {
           headers: {
-            'Authorization': `Bearer sk-xYCz2fSYMNumVv5SV0CJFP7sNcCz1h4QOGqGIGmN1MgYw7bH`,
+            'Authorization': `Bearer sk-ojZpqN5iveqZ0RbzSiTDYroW069i5COt1PlRzSDrf6TTk9gD`,
             'Content-Type': 'application/json',
           }
         });
