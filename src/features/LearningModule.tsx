@@ -52,7 +52,11 @@ export const LearningModule: React.FC<LearningModuleProps> = ({
             <span className="text-white">Learning Progress</span>
             <span className="text-jarvis">{overallLearningProgress}%</span>
           </div>
-          <Progress value={overallLearningProgress} className="h-2 bg-black/50" indicatorClassName="bg-jarvis" />
+          <Progress 
+            value={overallLearningProgress} 
+            className="h-2 bg-black/50" 
+            indicatorClassName="bg-jarvis" 
+          />
         </div>
         
         <Tabs defaultValue="preferences">
