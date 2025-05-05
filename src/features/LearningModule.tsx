@@ -55,7 +55,6 @@ export const LearningModule: React.FC<LearningModuleProps> = ({
           <Progress 
             value={overallLearningProgress} 
             className="h-2 bg-black/50" 
-            indicatorClassName="bg-jarvis" 
           />
         </div>
         

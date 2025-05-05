@@ -1,7 +1,12 @@
 
 import React from 'react';
-import { CalendarEvent } from '@/services/timeCalendarService';
 import { Calendar, Clock } from 'lucide-react';
+
+export interface CalendarEvent {
+  title: string;
+  time: string;
+  location?: string;
+}
 
 interface CalendarWidgetProps {
   events: CalendarEvent[];
@@ -9,17 +14,19 @@ interface CalendarWidgetProps {
 }
 
 const CalendarWidget: React.FC<CalendarWidgetProps> = ({ events, isCompact = false }) => {
-  if (!events || events.length === 0) return null;
-  
   if (isCompact) {
-    const nextEvent = events[0];
+    const nextEvent = events && events.length > 0 ? events[0] : null;
     return (
       <div className="calendar-widget-compact bg-black/40 p-3 rounded-lg border border-[#33c3f0]/20">
         <div className="flex items-center">
           <Calendar className="h-5 w-5 text-[#33c3f0]" />
           <div className="ml-2 text-sm">
             <span className="text-white font-medium">Next:</span>
-            <span className="text-gray-300 ml-1">{nextEvent.title} ({nextEvent.time})</span>
+            {nextEvent ? (
+              <span className="text-gray-300 ml-1">{nextEvent.title} ({nextEvent.time})</span>
+            ) : (
+              <span className="text-gray-300 ml-1">No upcoming events</span>
+            )}
           </div>
         </div>
       </div>

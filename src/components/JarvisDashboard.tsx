@@ -1,13 +1,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { useJarvisChat } from './JarvisChatContext';
-import { getWeatherData } from '@/services/weatherService';
-import { getNewsData } from '@/services/newsService';
 import WeatherWidget from './widgets/WeatherWidget';
 import NewsWidget from './widgets/NewsWidget';
 import BrainPanel from './BrainPanel';
 import CalendarWidget from './widgets/CalendarWidget';
-import ImageGenerationWidget from './widgets/ImageGenerationWidget';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Brain, Calendar, CloudSun, Image, Newspaper } from 'lucide-react';
 
@@ -47,22 +44,73 @@ const JarvisDashboard: React.FC<JarvisDashboardProps> = ({ compact = false }) =>
   const { hackerModeActive } = useJarvisChat();
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [news, setNews] = useState<NewsData | null>(null);
+  const [calendarEvents] = useState([
+    { 
+      title: "Team Meeting", 
+      time: "09:30 AM", 
+      location: "Conference Room B" 
+    },
+    { 
+      title: "Client Call", 
+      time: "11:00 AM", 
+      location: "Zoom" 
+    },
+    { 
+      title: "Lunch with Jane", 
+      time: "12:30 PM", 
+      location: "Cafe Bistro" 
+    }
+  ]);
 
   useEffect(() => {
-    // Fetch initial data for widgets
-    const fetchData = async () => {
-      try {
-        const weatherData = await getWeatherData();
-        setWeather(weatherData);
-
-        const newsData = await getNewsData();
-        setNews(newsData);
-      } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-      }
+    // Mock weather data
+    const mockWeatherData: WeatherData = {
+      location: "New York, NY",
+      temperature: 72,
+      condition: "Partly Cloudy",
+      icon: "partly-cloudy",
+      forecast: [
+        { day: "Mon", temperature: 72, condition: "Partly Cloudy", icon: "partly-cloudy" },
+        { day: "Tue", temperature: 75, condition: "Sunny", icon: "sunny" },
+        { day: "Wed", temperature: 68, condition: "Rain", icon: "rain" },
+        { day: "Thu", temperature: 70, condition: "Cloudy", icon: "cloudy" },
+        { day: "Fri", temperature: 73, condition: "Sunny", icon: "sunny" }
+      ]
+    };
+    
+    // Mock news data
+    const mockNewsData: NewsData = {
+      articles: [
+        {
+          title: "AI Breakthrough: New Model Achieves Human-Level Understanding",
+          description: "Researchers have developed a new AI model that demonstrates unprecedented levels of language comprehension.",
+          url: "#",
+          source: "Tech News Daily",
+          publishedAt: new Date().toISOString(),
+          category: "technology"
+        },
+        {
+          title: "Global Climate Summit Concludes with New Agreements",
+          description: "World leaders reached consensus on several key environmental policies at this year's climate summit.",
+          url: "#",
+          source: "World Report",
+          publishedAt: new Date(Date.now() - 3600000).toISOString(),
+          category: "environment"
+        },
+        {
+          title: "Stock Markets Rally After Federal Reserve Announcement",
+          description: "Markets responded positively to the latest interest rate decision from the Federal Reserve.",
+          url: "#",
+          source: "Financial Times",
+          publishedAt: new Date(Date.now() - 7200000).toISOString(),
+          category: "finance"
+        }
+      ],
+      lastUpdated: new Date()
     };
 
-    fetchData();
+    setWeather(mockWeatherData);
+    setNews(mockNewsData);
   }, []);
 
   if (compact) {
@@ -162,7 +210,7 @@ const JarvisDashboard: React.FC<JarvisDashboardProps> = ({ compact = false }) =>
         
         <TabsContent value="calendar">
           <div className="p-4">
-            <CalendarWidget />
+            <CalendarWidget events={calendarEvents} />
           </div>
         </TabsContent>
       </Tabs>

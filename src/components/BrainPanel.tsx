@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { CircleNotch, Brain, Zap, Bell, PieChart, List, Gauge, Star } from 'lucide-react';
+import { Loader2, Brain, Zap, Bell, PieChart, List, Gauge, Star } from 'lucide-react';
 import { useJarvisChat } from './JarvisChatContext';
 import { TaskList } from './TaskList';
 import { EmotionalIntelligence } from '../features/EmotionalIntelligence';
@@ -13,10 +13,32 @@ interface BrainPanelProps {
 }
 
 const BrainPanel: React.FC<BrainPanelProps> = ({ isHackerMode = false }) => {
-  const { emotionalData } = useJarvisChat();
+  // Since emotionalData doesn't exist on the context type, we'll create local data
+  const { messages } = useJarvisChat();
   const [cpuUsage, setCpuUsage] = React.useState(42);
   const [ramUsage, setRamUsage] = React.useState(35);
   const [networkUsage, setNetworkUsage] = React.useState(28);
+  
+  // Sample emotional data for the component
+  const [emotionalData] = React.useState({
+    emotions: {
+      dominant: "neutral",
+      emotions: {
+        joy: 0.2,
+        sadness: 0.1,
+        anger: 0.05,
+        fear: 0.05,
+        surprise: 0.1,
+        trust: 0.5
+      },
+      intensity: 0.5
+    },
+    sentiment: {
+      score: 0.3,
+      magnitude: 0.4,
+      label: "positive" as const
+    }
+  });
   
   // Simulated system stats that update periodically
   React.useEffect(() => {
@@ -86,7 +108,7 @@ const BrainPanel: React.FC<BrainPanelProps> = ({ isHackerMode = false }) => {
         <CardContent className="space-y-2">
           <div className="flex justify-between items-center">
             <span>Neural Processing</span>
-            <CircleNotch 
+            <Loader2 
               className={`animate-spin ${isHackerMode ? 'text-red-400' : 'text-jarvis'}`} 
               size={18} 
             />

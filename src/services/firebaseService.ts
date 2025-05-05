@@ -34,8 +34,8 @@ export const initializeFirebase = async (): Promise<boolean> => {
   
   try {
     // Dynamically import Firebase
-    const firebase = await import('firebase/compat/app');
-    await import('firebase/compat/firestore');
+    const firebase = await import('firebase/app');
+    await import('firebase/firestore');
     
     // Initialize Firebase
     firebase.default.initializeApp(firebaseConfig);

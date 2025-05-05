@@ -1,16 +1,59 @@
 
 import React, { useState, useEffect } from 'react';
-import { NewsArticle, getNewsUpdates } from '@/services/newsService';
 import { Newspaper, Calendar, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
+
+interface NewsArticle {
+  title: string;
+  description: string;
+  summary?: string;
+  url: string;
+  source: string;
+  publishedAt: string;
+  category?: string;
+}
 
 interface NewsWidgetProps {
   articles?: NewsArticle[];
   isCompact?: boolean;
   autoRefresh?: boolean;
 }
+
+// Mock function to simulate API call
+const getNewsUpdates = async ({ count = 5 }: { count: number }) => {
+  // This is a mock function that would normally fetch from an API
+  return [
+    {
+      title: "AI Breakthrough: New Model Achieves Human-Level Understanding",
+      summary: "Researchers have developed a new AI model that demonstrates unprecedented levels of language comprehension.",
+      description: "Researchers have developed a new AI model that demonstrates unprecedented levels of language comprehension.",
+      url: "#",
+      source: "Tech News Daily",
+      publishedAt: new Date().toISOString(),
+      category: "technology"
+    },
+    {
+      title: "Global Climate Summit Concludes with New Agreements",
+      summary: "World leaders reached consensus on several key environmental policies at this year's climate summit.",
+      description: "World leaders reached consensus on several key environmental policies at this year's climate summit.",
+      url: "#",
+      source: "World Report",
+      publishedAt: new Date(Date.now() - 3600000).toISOString(),
+      category: "environment"
+    },
+    {
+      title: "Stock Markets Rally After Federal Reserve Announcement",
+      summary: "Markets responded positively to the latest interest rate decision from the Federal Reserve.",
+      description: "Markets responded positively to the latest interest rate decision from the Federal Reserve.",
+      url: "#",
+      source: "Financial Times",
+      publishedAt: new Date(Date.now() - 7200000).toISOString(),
+      category: "finance"
+    }
+  ];
+};
 
 const NewsWidget: React.FC<NewsWidgetProps> = ({ 
   articles: initialArticles, 
@@ -101,7 +144,7 @@ const NewsWidget: React.FC<NewsWidgetProps> = ({
     : articles.filter(article => article.category === activeCategory);
   
   // Get unique categories
-  const categories = ['all', ...new Set(articles.map(article => article.category))];
+  const categories = ['all', ...new Set(articles.map(article => article.category).filter(Boolean))];
   
   // Initialize fetch if no articles provided
   useEffect(() => {
@@ -136,7 +179,6 @@ const NewsWidget: React.FC<NewsWidgetProps> = ({
           <Progress 
             value={refreshProgress} 
             className="h-1 bg-black/50 absolute bottom-0 left-0 right-0" 
-            indicatorClassName="bg-[#33c3f0]" 
           />
         )}
       </div>
@@ -218,7 +260,6 @@ const NewsWidget: React.FC<NewsWidgetProps> = ({
         <Progress 
           value={refreshProgress} 
           className="h-1 bg-black/50 absolute bottom-0 left-0 right-0" 
-          indicatorClassName="bg-[#33c3f0]" 
         />
       )}
     </div>
