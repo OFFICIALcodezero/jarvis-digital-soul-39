@@ -1,4 +1,3 @@
-
 import { getWeatherResponse } from './weatherService';
 import { getNewsResponse } from './newsService';
 import { getTimeCalendarResponse } from './timeCalendarService';
@@ -46,6 +45,32 @@ export const processSkillCommand = async (command: string): Promise<SkillRespons
         data: taskResponse.data || {},
         shouldSpeak: true,
         skillType: 'task'
+      };
+    }
+    
+    // Emotion recognition (when the user asks about emotions or seems emotional)
+    else if (lowerCommand.includes('how do i sound') ||
+             lowerCommand.includes('how do i feel') ||
+             lowerCommand.includes('analyze my emotion') ||
+             lowerCommand.includes('analyze my sentiment') ||
+             lowerCommand.includes('my mood')) {
+      
+      const emotions = analyzeEmotions(command);
+      const sentiment = analyzeSentiment(command);
+      
+      let response = `I detect ${emotions.dominant} as your primary emotion`;
+      
+      if (sentiment.magnitude > 0.5) {
+        response += ` with a ${sentiment.label} sentiment (${sentiment.score.toFixed(2)}).`;
+      } else {
+        response += '.';
+      }
+      
+      return {
+        text: response,
+        data: { emotions, sentiment },
+        shouldSpeak: true,
+        skillType: 'emotion'
       };
     }
     
@@ -166,32 +191,6 @@ export const processSkillCommand = async (command: string): Promise<SkillRespons
         data: generatedImage,
         shouldSpeak: true,
         skillType: 'image'
-      };
-    }
-    
-    // Emotion recognition (when the user asks about emotions or seems emotional)
-    else if (lowerCommand.includes('how do i sound') ||
-             lowerCommand.includes('how do i feel') ||
-             lowerCommand.includes('analyze my emotion') ||
-             lowerCommand.includes('analyze my sentiment') ||
-             lowerCommand.includes('my mood')) {
-      
-      const emotions = analyzeEmotions(command);
-      const sentiment = analyzeSentiment(command);
-      
-      let response = `I detect ${emotions.dominant} as your primary emotion`;
-      
-      if (sentiment.magnitude > 0.5) {
-        response += ` with a ${sentiment.label} sentiment (${sentiment.score.toFixed(2)}).`;
-      } else {
-        response += '.';
-      }
-      
-      return {
-        text: response,
-        data: { emotions, sentiment },
-        shouldSpeak: true,
-        skillType: 'emotion'
       };
     }
     

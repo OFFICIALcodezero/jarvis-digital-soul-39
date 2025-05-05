@@ -1,34 +1,53 @@
 
-// Task management service to handle reminders and tasks
+import { v4 as uuidv4 } from 'uuid';
 
 export interface Task {
   id: string;
-  title: string;
-  description?: string;
-  priority: 'low' | 'medium' | 'high';
-  dueDate?: Date;
+  text: string;
   completed: boolean;
+  priority: 'high' | 'medium' | 'low';
+  category?: string;
+  dueDate?: Date;
   createdAt: Date;
 }
 
-export interface Reminder {
-  id: string;
-  title: string;
-  time: Date;
-  completed: boolean;
-}
-
-// In-memory storage for tasks and reminders
-// In a production app, this would be persisted to localStorage or a backend
-let tasks: Task[] = [];
-let reminders: Reminder[] = [];
-
-// Task management functions
-export const addTask = (taskData: Omit<Task, 'id' | 'createdAt' | 'completed'>): Task => {
-  const newTask: Task = {
-    id: Date.now().toString(),
-    ...taskData,
+// In-memory storage for tasks
+let tasks: Task[] = [
+  {
+    id: uuidv4(),
+    text: "Check system updates",
     completed: false,
+    priority: 'medium',
+    category: 'system',
+    createdAt: new Date()
+  },
+  {
+    id: uuidv4(),
+    text: "Update security protocols",
+    completed: true,
+    priority: 'high',
+    category: 'security',
+    createdAt: new Date(Date.now() - 86400000) // 1 day ago
+  }
+];
+
+// Basic CRUD operations
+export const getTasks = (): Task[] => {
+  return [...tasks];
+};
+
+export const getTask = (id: string): Task | undefined => {
+  return tasks.find(task => task.id === id);
+};
+
+export const addTask = (text: string, options?: Partial<Omit<Task, 'id' | 'text' | 'createdAt'>>): Task => {
+  const newTask: Task = {
+    id: uuidv4(),
+    text,
+    completed: false,
+    priority: options?.priority || 'medium',
+    category: options?.category,
+    dueDate: options?.dueDate,
     createdAt: new Date()
   };
   
@@ -36,199 +55,191 @@ export const addTask = (taskData: Omit<Task, 'id' | 'createdAt' | 'completed'>):
   return newTask;
 };
 
-export const updateTask = (id: string, updates: Partial<Omit<Task, 'id' | 'createdAt'>>): Task | null => {
-  const taskIndex = tasks.findIndex(task => task.id === id);
+export const updateTask = (id: string, updates: Partial<Omit<Task, 'id' | 'createdAt'>>): Task => {
+  const index = tasks.findIndex(task => task.id === id);
+  if (index === -1) {
+    throw new Error(`Task with id ${id} not found`);
+  }
   
-  if (taskIndex === -1) return null;
-  
-  tasks[taskIndex] = {
-    ...tasks[taskIndex],
+  tasks[index] = {
+    ...tasks[index],
     ...updates
   };
   
-  return tasks[taskIndex];
+  return tasks[index];
 };
 
-export const deleteTask = (id: string): boolean => {
-  const initialLength = tasks.length;
-  tasks = tasks.filter(task => task.id !== id);
-  return tasks.length !== initialLength;
-};
-
-export const getTasks = (filterCompleted?: boolean): Task[] => {
-  if (filterCompleted === undefined) return tasks;
-  return tasks.filter(task => task.completed === filterCompleted);
-};
-
-export const getTaskById = (id: string): Task | undefined => {
-  return tasks.find(task => task.id === id);
-};
-
-// Reminder management functions
-export const addReminder = (reminderData: Omit<Reminder, 'id' | 'completed'>): Reminder => {
-  const newReminder: Reminder = {
-    id: Date.now().toString(),
-    ...reminderData,
-    completed: false
-  };
-  
-  reminders.push(newReminder);
-  return newReminder;
-};
-
-export const updateReminder = (id: string, updates: Partial<Omit<Reminder, 'id'>>): Reminder | null => {
-  const reminderIndex = reminders.findIndex(reminder => reminder.id === id);
-  
-  if (reminderIndex === -1) return null;
-  
-  reminders[reminderIndex] = {
-    ...reminders[reminderIndex],
-    ...updates
-  };
-  
-  return reminders[reminderIndex];
-};
-
-export const deleteReminder = (id: string): boolean => {
-  const initialLength = reminders.length;
-  reminders = reminders.filter(reminder => reminder.id !== id);
-  return reminders.length !== initialLength;
-};
-
-export const getReminders = (filterCompleted?: boolean): Reminder[] => {
-  if (filterCompleted === undefined) return reminders;
-  return reminders.filter(reminder => reminder.completed === filterCompleted);
-};
-
-export const getReminderById = (id: string): Reminder | undefined => {
-  return reminders.find(reminder => reminder.id === id);
-};
-
-// Extract task-related information from user input
-export const extractTaskFromText = (text: string): Partial<Task> | null => {
-  // Simple regex-based extraction
-  const priorityMatch = text.match(/\b(high|medium|low)(?:\s+priority)?\b/i);
-  const dateMatch = text.match(/\b(today|tomorrow|next week|on\s+\w+)\b/i);
-  
-  // Try to extract the task title - everything after "add task" or "create task" or "remind me to"
-  let titleMatch = text.match(/(?:add|create)\s+(?:a\s+)?task\s+(?:to\s+)?(.*?)(?:\s+with|\s+on|\s+by|\s+at|\s+priority|\s+due|\.|$)/i);
-  
-  if (!titleMatch) {
-    titleMatch = text.match(/remind\s+me\s+to\s+(.*?)(?:\s+on|\s+at|\s+by|\.|$)/i);
+export const removeTask = (id: string): void => {
+  const index = tasks.findIndex(task => task.id === id);
+  if (index !== -1) {
+    tasks.splice(index, 1);
   }
-  
-  if (!titleMatch) return null;
-  
-  const title = titleMatch[1].trim();
-  
-  // Calculate due date if present
-  let dueDate: Date | undefined = undefined;
-  if (dateMatch) {
-    const dateStr = dateMatch[1].toLowerCase();
-    const now = new Date();
-    
-    if (dateStr === 'today') {
-      dueDate = new Date(now);
-    } else if (dateStr === 'tomorrow') {
-      dueDate = new Date(now);
-      dueDate.setDate(dueDate.getDate() + 1);
-    } else if (dateStr === 'next week') {
-      dueDate = new Date(now);
-      dueDate.setDate(dueDate.getDate() + 7);
-    }
-    // Additional date parsing logic could be added here
-  }
-  
-  // Parse priority
-  let priority: 'low' | 'medium' | 'high' = 'medium';
-  if (priorityMatch) {
-    const priorityStr = priorityMatch[1].toLowerCase();
-    priority = priorityStr as 'low' | 'medium' | 'high';
-  }
-  
-  return {
-    title,
-    priority,
-    dueDate
-  };
 };
 
-// Natural language processing for task commands
-export const processTaskCommand = (command: string): { 
-  response: string; 
-  action?: 'add' | 'list' | 'update' | 'delete';
-  data?: any;
-} => {
+// Process command to extract task information
+export const processTaskCommand = (command: string): { response: string; data?: any } => {
   const lowerCommand = command.toLowerCase();
   
+  // Extract priority
+  let priority: 'high' | 'medium' | 'low' = 'medium';
+  if (lowerCommand.includes('urgent') || lowerCommand.includes('important') || lowerCommand.includes('high priority')) {
+    priority = 'high';
+  } else if (lowerCommand.includes('low priority') || lowerCommand.includes('not urgent')) {
+    priority = 'low';
+  }
+  
+  // Extract category
+  let category: string | undefined = undefined;
+  const categoryMatches = command.match(/category[:\s]+(\w+)/i);
+  if (categoryMatches && categoryMatches[1]) {
+    category = categoryMatches[1];
+  }
+  
+  // Extract due date (simple patterns)
+  let dueDate: Date | undefined = undefined;
+  if (lowerCommand.includes('today')) {
+    dueDate = new Date();
+  } else if (lowerCommand.includes('tomorrow')) {
+    dueDate = new Date();
+    dueDate.setDate(dueDate.getDate() + 1);
+  } else if (lowerCommand.includes('next week')) {
+    dueDate = new Date();
+    dueDate.setDate(dueDate.getDate() + 7);
+  }
+  
   // Add task
-  if (lowerCommand.includes('add task') || 
-      lowerCommand.includes('create task') || 
-      lowerCommand.includes('remind me to')) {
+  if (lowerCommand.includes('add task') || lowerCommand.includes('create task') || lowerCommand.includes('new task')) {
+    // Extract task text - simple approach
+    let taskText = command.replace(/add task|create task|new task/i, '').trim();
     
-    const taskData = extractTaskFromText(command);
+    // Remove priority and category indicators
+    taskText = taskText.replace(/(high|low) priority/i, '').trim();
+    taskText = taskText.replace(/category[:\s]+\w+/i, '').trim();
     
-    if (taskData && taskData.title) {
-      const task = addTask({
-        title: taskData.title,
-        priority: taskData.priority || 'medium',
-        dueDate: taskData.dueDate,
-        description: ''
-      });
-      
-      let response = `I've added your task: "${task.title}"`;
-      if (task.dueDate) {
-        response += ` due on ${task.dueDate.toLocaleDateString()}`;
-      }
-      
-      return {
-        response,
-        action: 'add',
-        data: task
-      };
-    }
+    // Create the task
+    const task = addTask(taskText, { priority, category, dueDate });
+    
+    return {
+      response: `Task "${taskText}" has been added ${priority === 'high' ? 'with high priority' : ''}.`,
+      data: task
+    };
   }
   
   // List tasks
-  if (lowerCommand.includes('list tasks') || 
-      lowerCommand.includes('show tasks') || 
-      lowerCommand.includes('view tasks') ||
-      lowerCommand.includes('what are my tasks') ||
-      lowerCommand.match(/tasks?\s+for\s+today/)) {
+  else if (lowerCommand.includes('list tasks') || lowerCommand.includes('show tasks') || lowerCommand.includes('my tasks')) {
+    const allTasks = getTasks();
     
-    const pendingTasks = getTasks(false).filter(t => !t.completed);
-    
-    if (pendingTasks.length === 0) {
+    if (allTasks.length === 0) {
       return {
-        response: "You don't have any pending tasks.",
-        action: 'list',
-        data: []
+        response: "You don't have any tasks at the moment.",
+        data: { tasks: [] }
       };
     }
     
-    const taskList = pendingTasks.map(t => `• ${t.title}${t.dueDate ? ` (due ${t.dueDate.toLocaleDateString()})` : ''}`).join('\n');
+    const pendingTasks = allTasks.filter(task => !task.completed);
+    const completedTasks = allTasks.filter(task => task.completed);
+    
+    const response = `You have ${pendingTasks.length} pending tasks and ${completedTasks.length} completed tasks.`;
     
     return {
-      response: `Here are your pending tasks:\n${taskList}`,
-      action: 'list',
-      data: pendingTasks
+      response,
+      data: { tasks: allTasks }
     };
   }
   
-  // Mark task as complete
-  if (lowerCommand.includes('complete task') || 
-      lowerCommand.includes('mark task') || 
-      lowerCommand.includes('finish task')) {
+  // Mark task as completed
+  else if (lowerCommand.includes('complete task') || lowerCommand.includes('mark task') || lowerCommand.includes('finish task')) {
+    // For simplicity, we'll just complete the most recent task
+    // In a real application, you would identify the task more precisely
+    const pendingTasks = getTasks().filter(task => !task.completed);
     
-    // This would need more sophisticated NLP to extract which task to complete
+    if (pendingTasks.length === 0) {
+      return {
+        response: "You don't have any pending tasks to complete."
+      };
+    }
+    
+    // Sort by created date, most recent first
+    pendingTasks.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    
+    const task = updateTask(pendingTasks[0].id, { completed: true });
+    
     return {
-      response: "I'll need you to specify which task you'd like to mark as complete.",
-      action: 'update'
+      response: `I've marked the task "${task.text}" as completed.`,
+      data: task
     };
   }
   
-  // Default response
+  // Delete task
+  else if (lowerCommand.includes('delete task') || lowerCommand.includes('remove task')) {
+    const allTasks = getTasks();
+    
+    if (allTasks.length === 0) {
+      return {
+        response: "You don't have any tasks to delete."
+      };
+    }
+    
+    // For simplicity, delete the most recent task
+    allTasks.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    
+    const taskToDelete = allTasks[0];
+    removeTask(taskToDelete.id);
+    
+    return {
+      response: `I've deleted the task "${taskToDelete.text}".`,
+      data: { deletedTask: taskToDelete }
+    };
+  }
+  
+  // Fallback
   return {
-    response: "I'm not sure what you want to do with your tasks. You can say things like 'add task', 'list tasks', or 'complete task'."
+    response: "I'm not sure what you want to do with your tasks. You can add, list, complete, or delete tasks."
+  };
+};
+
+// Parse natural language to extract task information
+export const parseTaskFromText = (text: string): { text: string; priority: 'high' | 'medium' | 'low'; category?: string; dueDate?: Date } => {
+  const lowerText = text.toLowerCase();
+  
+  // Extract priority
+  let priority: 'high' | 'medium' | 'low' = 'medium';
+  if (lowerText.includes('urgent') || lowerText.includes('important') || lowerText.includes('high priority')) {
+    priority = 'high';
+  } else if (lowerText.includes('low priority') || lowerText.includes('not urgent')) {
+    priority = 'low';
+  }
+  
+  // Extract category
+  let category: string | undefined = undefined;
+  const categoryMatches = text.match(/category[:\s]+(\w+)/i);
+  if (categoryMatches && categoryMatches[1]) {
+    category = categoryMatches[1];
+  }
+  
+  // Extract due date (simple patterns)
+  let dueDate: Date | undefined = undefined;
+  if (lowerText.includes('today')) {
+    dueDate = new Date();
+  } else if (lowerText.includes('tomorrow')) {
+    dueDate = new Date();
+    dueDate.setDate(dueDate.getDate() + 1);
+  } else if (lowerText.includes('next week')) {
+    dueDate = new Date();
+    dueDate.setDate(dueDate.getDate() + 7);
+  }
+  
+  // Clean up the text
+  let taskText = text
+    .replace(/(urgent|important|high priority|low priority|not urgent)/i, '')
+    .replace(/category[:\s]+\w+/i, '')
+    .replace(/(today|tomorrow|next week)/i, '')
+    .trim();
+  
+  return {
+    text: taskText,
+    priority,
+    category,
+    dueDate
   };
 };

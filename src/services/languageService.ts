@@ -1,168 +1,157 @@
 
-// Language service for multilingual support
 import { toast } from '@/components/ui/use-toast';
 
-export interface LanguageOption {
+export interface Language {
   code: string;
   name: string;
-  nativeName: string;
-  flag?: string;
 }
 
-// Supported languages
-export const supportedLanguages: LanguageOption[] = [
-  { code: 'en', name: 'English', nativeName: 'English', flag: '🇺🇸' },
-  { code: 'es', name: 'Spanish', nativeName: 'Español', flag: '🇪🇸' },
-  { code: 'fr', name: 'French', nativeName: 'Français', flag: '🇫🇷' },
-  { code: 'de', name: 'German', nativeName: 'Deutsch', flag: '🇩🇪' },
-  { code: 'it', name: 'Italian', nativeName: 'Italiano', flag: '🇮🇹' },
-  { code: 'pt', name: 'Portuguese', nativeName: 'Português', flag: '🇵🇹' },
-  { code: 'ja', name: 'Japanese', nativeName: '日本語', flag: '🇯🇵' },
-  { code: 'zh', name: 'Chinese', nativeName: '中文', flag: '🇨🇳' },
-  { code: 'ru', name: 'Russian', nativeName: 'Русский', flag: '🇷🇺' },
-  { code: 'ar', name: 'Arabic', nativeName: 'العربية', flag: '🇸🇦' },
+export const supportedLanguages: Language[] = [
+  { code: 'en', name: 'English' },
+  { code: 'es', name: 'Spanish' },
+  { code: 'fr', name: 'French' },
+  { code: 'de', name: 'German' },
+  { code: 'it', name: 'Italian' },
+  { code: 'pt', name: 'Portuguese' },
+  { code: 'ru', name: 'Russian' },
+  { code: 'ja', name: 'Japanese' },
+  { code: 'zh', name: 'Chinese' },
+  { code: 'ar', name: 'Arabic' },
+  { code: 'hi', name: 'Hindi' },
+  { code: 'ko', name: 'Korean' },
+  { code: 'nl', name: 'Dutch' },
+  { code: 'sv', name: 'Swedish' },
+  { code: 'fi', name: 'Finnish' },
+  { code: 'no', name: 'Norwegian' },
+  { code: 'da', name: 'Danish' },
+  { code: 'pl', name: 'Polish' },
+  { code: 'tr', name: 'Turkish' },
+  { code: 'el', name: 'Greek' }
 ];
 
-// Get language by code
-export const getLanguageByCode = (code: string): LanguageOption | undefined => {
-  return supportedLanguages.find(lang => lang.code === code);
+// Common translation request patterns
+const translationPatterns = [
+  /translate\s+(this|that)?\s*to\s+(\w+)/i,
+  /translate\s+(this|that)?\s*into\s+(\w+)/i,
+  /say\s+(this|that)?\s*in\s+(\w+)/i,
+  /how\s+do\s+you\s+say\s+(.*)\s+in\s+(\w+)/i,
+  /in\s+(\w+)\s+language/i
+];
+
+// Check if a message is a translation request
+export const isTranslationRequest = (message: string): boolean => {
+  return translationPatterns.some(pattern => pattern.test(message));
 };
 
-// Detect language from text (simplified implementation)
-export const detectLanguage = async (text: string): Promise<string> => {
-  // This would typically use a language detection API or library
-  // For now, we'll use a very simple approach
-  
-  try {
-    // Basic pattern matching for some common languages
-    const lowerText = text.toLowerCase().trim();
-    
-    if (/^[\u0600-\u06FF\s]+$/.test(lowerText)) return 'ar'; // Arabic
-    if (/^[\u0400-\u04FF\s]+$/.test(lowerText)) return 'ru'; // Russian
-    if (/^[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\s]+$/.test(lowerText)) { 
-      // Chinese/Japanese characters
-      return /[\u3040-\u309F\u30A0-\u30FF]/.test(lowerText) ? 'ja' : 'zh';
+// Extract the target language from a translation request
+export const extractTargetLanguage = (message: string): string | null => {
+  for (const pattern of translationPatterns) {
+    const match = message.match(pattern);
+    if (match && match[2]) {
+      // Try to map the language name to a language code
+      const languageName = match[2].toLowerCase();
+      const language = supportedLanguages.find(
+        lang => lang.name.toLowerCase() === languageName || lang.code.toLowerCase() === languageName
+      );
+      
+      return language ? language.code : null;
     }
-    
-    // Simple keyword detection
-    const spanishWords = ['hola', 'como', 'estas', 'gracias', 'por', 'favor', 'qué', 'dónde', 'cuándo'];
-    const frenchWords = ['bonjour', 'salut', 'merci', 'oui', 'non', 'comment', 'où', 'quand', 'pourquoi'];
-    const germanWords = ['hallo', 'guten', 'danke', 'bitte', 'ja', 'nein', 'wie', 'wo', 'wann'];
-    const italianWords = ['ciao', 'buongiorno', 'grazie', 'prego', 'sì', 'no', 'come', 'dove', 'quando'];
-    const portugueseWords = ['olá', 'como', 'obrigado', 'sim', 'não', 'onde', 'quando', 'por', 'que'];
-    
-    const words = lowerText.split(/\W+/);
-    
-    let counts = {
-      es: 0, fr: 0, de: 0, it: 0, pt: 0, en: 0
-    };
-    
-    words.forEach(word => {
-      if (spanishWords.includes(word)) counts.es++;
-      if (frenchWords.includes(word)) counts.fr++;
-      if (germanWords.includes(word)) counts.de++;
-      if (italianWords.includes(word)) counts.it++;
-      if (portugueseWords.includes(word)) counts.pt++;
-      // English is default
-    });
-    
-    // Find the language with the highest count
-    const detected = Object.entries(counts)
-      .filter(([_, count]) => count > 0)
-      .sort(([_, a], [__, b]) => b - a)[0];
-    
-    // Default to English if no clear matches
-    return detected ? detected[0] : 'en';
-    
-  } catch (error) {
-    console.error('Language detection error:', error);
-    return 'en'; // Default to English on error
-  }
-};
-
-// Translate text (for a production app, use a translation API)
-export const translateText = async (text: string, targetLanguage: string): Promise<string> => {
-  try {
-    toast({
-      title: "Translation Requested",
-      description: `Translating to ${getLanguageByCode(targetLanguage)?.name || targetLanguage}...`,
-    });
-    
-    // In a real implementation, we would call a translation API here
-    // For now, we'll just pretend to translate
-    return `[Translated to ${getLanguageByCode(targetLanguage)?.name || targetLanguage}]: ${text}`;
-  } catch (error) {
-    console.error('Translation error:', error);
-    toast({
-      title: "Translation Error",
-      description: "Failed to translate the text. Please try again.",
-      variant: "destructive"
-    });
-    return text;
-  }
-};
-
-// Format language options for UI select component
-export const getLanguageSelectOptions = () => {
-  return supportedLanguages.map(lang => ({
-    value: lang.code,
-    label: `${lang.flag || ''} ${lang.name} (${lang.nativeName})`,
-  }));
-};
-
-// Check if a command is a translation request
-export const isTranslationRequest = (command: string): boolean => {
-  const lowerCommand = command.toLowerCase();
-  
-  return lowerCommand.includes('translate to') || 
-         lowerCommand.includes('translate this to') ||
-         lowerCommand.includes('in spanish') ||
-         lowerCommand.includes('in french') ||
-         lowerCommand.includes('in german') ||
-         lowerCommand.includes('in italian') ||
-         lowerCommand.includes('in portuguese') ||
-         lowerCommand.includes('in japanese') ||
-         lowerCommand.includes('in chinese') ||
-         lowerCommand.includes('in russian') ||
-         lowerCommand.includes('in arabic');
-};
-
-// Extract target language from a translation request
-export const extractTargetLanguage = (command: string): string | null => {
-  const lowerCommand = command.toLowerCase();
-  
-  // Check for "translate to [language]" pattern
-  const translateMatch = lowerCommand.match(/translate(?:\s+this)?\s+to\s+(\w+)/i);
-  if (translateMatch) {
-    const langName = translateMatch[1].toLowerCase();
-    const lang = supportedLanguages.find(l => 
-      l.name.toLowerCase() === langName || 
-      l.nativeName.toLowerCase() === langName
-    );
-    return lang ? lang.code : null;
-  }
-  
-  // Check for "in [language]" pattern
-  const inMatch = lowerCommand.match(/in\s+(\w+)(?:\s+language)?/i);
-  if (inMatch) {
-    const langName = inMatch[1].toLowerCase();
-    const lang = supportedLanguages.find(l => 
-      l.name.toLowerCase() === langName || 
-      l.nativeName.toLowerCase() === langName
-    );
-    return lang ? lang.code : null;
   }
   
   return null;
 };
 
 // Process a translation request
-export const processTranslationRequest = async (command: string, text: string): Promise<string> => {
-  const targetLang = extractTargetLanguage(command);
+export const processTranslationRequest = async (
+  message: string, 
+  textToTranslate: string
+): Promise<string> => {
+  try {
+    const targetLanguage = extractTargetLanguage(message);
+    
+    if (!targetLanguage) {
+      return "I couldn't determine which language to translate to. Please specify the target language clearly.";
+    }
+    
+    // Get the text to translate
+    let text = textToTranslate || message.replace(/translate\s+(this|that)?\s*(to|into|in)\s+\w+/i, '').trim();
+    
+    // If the text is empty, ask for clarification
+    if (!text) {
+      return "What would you like me to translate?";
+    }
+    
+    // Use translation API to translate the text
+    const translatedText = await translateText(text, targetLanguage);
+    
+    // Get language name for the response
+    const language = supportedLanguages.find(lang => lang.code === targetLanguage);
+    const languageName = language ? language.name : targetLanguage;
+    
+    return `"${text}" in ${languageName} is: "${translatedText}"`;
+  } catch (error) {
+    console.error("Translation error:", error);
+    return "I encountered an error while translating. Please try again.";
+  }
+};
+
+// Function to translate text using an API
+export const translateText = async (text: string, targetLanguage: string): Promise<string> => {
+  // For this implementation we'll just simulate a translation
+  // In a real application, you would use a translation API like Google Translate
   
-  if (!targetLang) {
-    return "I'm not sure which language you want me to translate to. Please specify a language.";
+  // Simulate API call delay
+  await new Promise(resolve => setTimeout(resolve, 500));
+  
+  // Simple translation simulation
+  if (targetLanguage === 'es') {
+    return text
+      .replace(/hello/gi, 'hola')
+      .replace(/goodbye/gi, 'adiós')
+      .replace(/thank you/gi, 'gracias')
+      .replace(/please/gi, 'por favor')
+      .replace(/how are you/gi, '¿cómo estás?')
+      .replace(/good morning/gi, 'buenos días')
+      .replace(/good afternoon/gi, 'buenas tardes')
+      .replace(/good evening/gi, 'buenas noches')
+      .replace(/what is your name/gi, '¿cómo te llamas?');
+  } else if (targetLanguage === 'fr') {
+    return text
+      .replace(/hello/gi, 'bonjour')
+      .replace(/goodbye/gi, 'au revoir')
+      .replace(/thank you/gi, 'merci')
+      .replace(/please/gi, 's\'il vous plaît')
+      .replace(/how are you/gi, 'comment allez-vous?')
+      .replace(/good morning/gi, 'bonjour')
+      .replace(/good afternoon/gi, 'bon après-midi')
+      .replace(/good evening/gi, 'bonsoir')
+      .replace(/what is your name/gi, 'comment vous appelez-vous?');
   }
   
-  return await translateText(text, targetLang);
+  // For other languages just return the original text with a placeholder
+  return `[${text} translated to ${targetLanguage}]`;
+};
+
+// Detect the language of a text
+export const detectLanguage = async (text: string): Promise<string> => {
+  // In a real application, you would use a language detection API
+  // This is a simplified simulation
+  
+  // Default to English
+  let detectedLanguage = 'en';
+  
+  const lowerText = text.toLowerCase();
+  
+  // Very basic language detection based on common words
+  if (/hola|buenos días|cómo estás|gracias|por favor|qué|cómo/.test(lowerText)) {
+    detectedLanguage = 'es';
+  } else if (/bonjour|merci|comment|s'il vous plaît|oui|non|je suis/.test(lowerText)) {
+    detectedLanguage = 'fr';
+  } else if (/guten tag|danke|bitte|wie geht es dir|ja|nein|ich bin/.test(lowerText)) {
+    detectedLanguage = 'de';
+  } else if (/ciao|buongiorno|grazie|per favore|come stai|sì|no|io sono/.test(lowerText)) {
+    detectedLanguage = 'it';
+  }
+  
+  return detectedLanguage;
 };

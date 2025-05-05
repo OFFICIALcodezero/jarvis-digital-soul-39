@@ -9,6 +9,7 @@ import { AssistantType } from '@/pages/JarvisInterface';
 import { processSkillCommand, isSkillCommand } from '@/services/skillsService';
 import { analyzeEmotions, analyzeSentiment } from '@/services/emotionalIntelligenceService';
 import { detectLanguage } from '@/services/languageService';
+import { parseTaskFromText } from '@/services/taskManagementService';
 
 export const useChatLogic = (
   activeMode: 'normal' | 'voice' | 'face' | 'hacker',
@@ -106,6 +107,9 @@ export const useChatLogic = (
       const emotions = analyzeEmotions(message);
       const sentiment = analyzeSentiment(message);
       setEmotionalData({ emotions, sentiment });
+      
+      // Check for task-related content
+      const taskInfo = parseTaskFromText(message);
       
       updateUserMemory(message);
 
