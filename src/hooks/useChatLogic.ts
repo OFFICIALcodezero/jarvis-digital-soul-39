@@ -1,5 +1,5 @@
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { toast } from '@/components/ui/use-toast';
 import { getApiKey } from '../utils/apiKeyManager';
 import { Message, ConversationContext } from '@/types/chat';
@@ -7,6 +7,8 @@ import { generateAssistantResponse } from '@/services/aiAssistantService';
 import { getUserMemory, updateUserMemory } from '@/services/aiService';
 import { AssistantType } from '@/pages/JarvisInterface';
 import { processSkillCommand, isSkillCommand } from '@/services/skillsService';
+import { analyzeEmotions, analyzeSentiment } from '@/services/emotionalIntelligenceService';
+import { detectLanguage } from '@/services/languageService';
 
 export const useChatLogic = (
   activeMode: 'normal' | 'voice' | 'face' | 'hacker',
@@ -31,6 +33,10 @@ export const useChatLogic = (
     recentTopics: [],
     userPreferences: getUserMemory(),
     sessionStartTime: new Date()
+  });
+  const [emotionalData, setEmotionalData] = useState({
+    emotions: null,
+    sentiment: null
   });
   
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -96,14 +102,31 @@ export const useChatLogic = (
     addMessage('user', message);
     
     try {
+      // Analyze emotions for emotional intelligence
+      const emotions = analyzeEmotions(message);
+      const sentiment = analyzeSentiment(message);
+      setEmotionalData({ emotions, sentiment });
+      
       updateUserMemory(message);
+
+      // Detect language
+      const detectedLanguage = await detectLanguage(message);
+      if (detectedLanguage !== selectedLanguage) {
+        // We can use this for auto language switching if needed
+        console.log(`Detected language: ${detectedLanguage}, currently using: ${selectedLanguage}`);
+      }
       
       if (isSkillCommand(message)) {
         const skillResponse = await processSkillCommand(message);
         await simulateTyping(skillResponse.text);
         
         setIsProcessing(false);
-        return { shouldSpeak: skillResponse.shouldSpeak, text: skillResponse.text };
+        return { 
+          shouldSpeak: skillResponse.shouldSpeak, 
+          text: skillResponse.text,
+          data: skillResponse.data,
+          skillType: skillResponse.skillType
+        };
       }
       
       const chatHistory = messages.map(msg => ({
@@ -151,5 +174,6 @@ export const useChatLogic = (
     processUserMessage,
     scrollToBottom,
     setMessages,
+    emotionalData,
   };
 };
