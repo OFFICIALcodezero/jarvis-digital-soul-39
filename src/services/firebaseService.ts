@@ -34,12 +34,12 @@ export const initializeFirebase = async (): Promise<boolean> => {
   
   try {
     // Dynamically import Firebase
-    const firebase = await import('firebase/app');
-    await import('firebase/firestore');
+    const firebaseApp = await import('firebase/app');
+    const firestoreModule = await import('firebase/firestore');
     
     // Initialize Firebase
-    firebase.default.initializeApp(firebaseConfig);
-    db = firebase.default.firestore();
+    const app = firebaseApp.initializeApp(firebaseConfig);
+    db = firestoreModule.getFirestore(app);
     firebaseInitialized = true;
     
     console.log("Firebase initialized successfully");
@@ -61,11 +61,14 @@ export const listenForCommands = async (callback: (command: CommandData) => void
     return () => {};
   }
   
-  // Listen to the 'commands' collection for new documents
-  const unsubscribe = db.collection("commands")
-    .orderBy("timestamp", "desc")
-    .limit(1)
-    .onSnapshot((snapshot: any) => {
+  try {
+    const { collection, query, orderBy, limit, onSnapshot } = await import('firebase/firestore');
+    
+    // Listen to the 'commands' collection for new documents
+    const commandsRef = collection(db, "commands");
+    const q = query(commandsRef, orderBy("timestamp", "desc"), limit(1));
+    
+    const unsubscribe = onSnapshot(q, (snapshot: any) => {
       snapshot.docChanges().forEach((change: any) => {
         if (change.type === "added") {
           const data = change.doc.data();
@@ -76,8 +79,12 @@ export const listenForCommands = async (callback: (command: CommandData) => void
     }, (error: any) => {
       console.error("Error listening to commands:", error);
     });
-  
-  return unsubscribe;
+    
+    return unsubscribe;
+  } catch (error) {
+    console.error("Error setting up command listener:", error);
+    return () => {};
+  }
 };
 
 // Send a command to Firebase
@@ -92,7 +99,8 @@ export const sendCommand = async (command: CommandData): Promise<boolean> => {
   }
   
   try {
-    await db.collection("commands").add({
+    const { collection, addDoc } = await import('firebase/firestore');
+    await addDoc(collection(db, "commands"), {
       ...command,
       timestamp: new Date().toISOString()
     });
