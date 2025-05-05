@@ -1,4 +1,3 @@
-
 import { getWeatherResponse } from './weatherService';
 import { getNewsResponse } from './newsService';
 import { getTimeCalendarResponse } from './timeCalendarService';
@@ -32,11 +31,15 @@ export const processSkillCommand = async (command: string): Promise<SkillRespons
       };
     }
     
-    // News related queries
+    // News related queries - Enhanced to cover more news-related terms
     else if (lowerCommand.includes('news') || 
              lowerCommand.includes('headlines') || 
              lowerCommand.includes('happening') ||
-             lowerCommand.includes('latest stories')) {
+             lowerCommand.includes('latest stories') ||
+             lowerCommand.includes('current events') ||
+             lowerCommand.includes('breaking news') ||
+             lowerCommand.includes('updates') ||
+             lowerCommand.includes('today\'s news')) {
       const response = await getNewsResponse(command);
       return {
         text: response.text,
@@ -158,6 +161,10 @@ export const isSkillCommand = (command: string): boolean => {
          lowerCommand.includes('news') ||
          lowerCommand.includes('headlines') ||
          lowerCommand.includes('happening') ||
+         lowerCommand.includes('current events') ||
+         lowerCommand.includes('breaking news') ||
+         lowerCommand.includes('updates') ||
+         lowerCommand.includes('today\'s news') ||
          lowerCommand.includes('time') ||
          lowerCommand.includes('date') ||
          lowerCommand.includes('day') ||
