@@ -128,7 +128,7 @@ const JarvisDashboard: React.FC<JarvisDashboardProps> = ({
         </div>
         
         {weatherData && (
-          <WeatherWidget data={weatherData} />
+          <WeatherWidget />
         )}
         {calendarEvents && calendarEvents.length > 0 && (
           <CalendarWidget events={calendarEvents} />
@@ -139,7 +139,7 @@ const JarvisDashboard: React.FC<JarvisDashboardProps> = ({
       <div className="md:hidden space-y-2 mt-2">
         <NewsWidget articles={newsArticles} isCompact={true} />
         {weatherData && (
-          <WeatherWidget data={weatherData} isCompact={true} />
+          <WeatherWidget isCompact={true} />
         )}
         {calendarEvents && calendarEvents.length > 0 && (
           <CalendarWidget events={calendarEvents} isCompact={true} />
