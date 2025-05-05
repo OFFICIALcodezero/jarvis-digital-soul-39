@@ -11,6 +11,7 @@ import JarvisModeEnhancer from './components/JarvisModeEnhancer';
 import { JarvisChatProvider } from "./contexts/JarvisChatProvider";
 import ErrorBoundary from './components/ErrorBoundary';
 import FeaturesOverview from "./pages/FeaturesOverview";
+import SatelliteSurveillancePage from "./pages/SatelliteSurveillance";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
               <Route path="/images" element={<ImageGeneration />} />
               <Route path="/settings" element={<JarvisSettings />} />
               <Route path="/features" element={<FeaturesOverview />} />
+              <Route path="/satellite" element={<SatelliteSurveillancePage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </JarvisModeEnhancer>
