@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Core Jarvis Admin Panel</title>
+  <style>
+    body {
+      background-color: black;
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      padding-top: 50px;
+    }
+    input {
+      padding: 10px;
+      width: 300px;
+      border-radius: 5px;
+      border: none;
+      outline: none;
+    }
+    button {
+      padding: 10px 20px;
+      margin-top: 20px;
+      border: none;
+      background: #00ffee;
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    button:hover {
+      background: #00ccaa;
+    }
+  </style>
+</head>
+<body>
+  <h1>Core Jarvis Admin Panel</h1>
+  <p>Send a real-time command to Jarvis</p>
+  <input id="commandInput" type="text" placeholder="Enter command like open_browser"/>
+  <br />
+  <button onclick="sendCommand()">Send Command</button>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+
+  <script>
+    // Your Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSy...XYZ",
+      authDomain: "corejarvis.firebaseapp.com",
+      projectId: "corejarvis",
+      storageBucket: "corejarvis.appspot.com",
+      messagingSenderId: "1234567890",
+      appId: "1:1234567890:web:abc123"
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // Send Command Function
+    function sendCommand() {
+      const cmd = document.getElementById("commandInput").value;
+      if (cmd === "") {
+        alert("Please enter a command.");
+        return;
+      }
+
+      db.collection("commands").add({
+        command: cmd,
+        timestamp: Date.now(),
+        executed: false
+      }).then(() => {
+        alert("✅ Command sent to Jarvis successfully.");
+        document.getElementById("commandInput").value = "";
+      }).catch((error) => {
+        alert("❌ Error: " + error.message);
+      });
+    }
+  </script>
+</body>
+</html>
