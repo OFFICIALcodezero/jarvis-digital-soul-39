@@ -64,11 +64,13 @@ interface NetworkScannerProps {
   isActive: boolean;
 }
 
-export const NetworkScanner: React.FC<NetworkScannerProps> = ({ isActive }) => {
+export import { scanNetwork, portScan, serviceDetection } from '@/services/securityTools';
+
+const NetworkScanner: React.FC<NetworkScannerProps> = ({ isActive }) => {
   const [status, setStatus] = useState<'idle' | 'scanning' | 'complete' | 'failed'>('idle');
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<string | undefined>(undefined);
-  const [devices, setDevices] = useState<string[]>([]);
+  const [devices, setDevices] = useState<any[]>([]);
   
   useEffect(() => {
     if (!isActive) {
@@ -79,13 +81,17 @@ export const NetworkScanner: React.FC<NetworkScannerProps> = ({ isActive }) => {
     
     setStatus('scanning');
     
-    const networkDevices = [
-      '192.168.1.1 - Router/Gateway [open ports: 80, 443]',
-      '192.168.1.10 - Desktop PC [open ports: 445, 3389]',
-      '192.168.1.15 - Smart TV [open ports: 8008, 8009]',
-      '192.168.1.20 - IoT Hub [open ports: 1883, 8883]',
-      '192.168.1.25 - Network Printer [open ports: 9100, 631]'
-    ];
+    try {
+      const scannedDevices = await scanNetwork('192.168.1.0/24');
+      for (const device of scannedDevices) {
+        const openPorts = await portScan(device.ip, '1-1000');
+        device.ports = openPorts;
+        if (openPorts.length > 0) {
+          const service = await serviceDetection(device.ip, openPorts[0]);
+          device.service = service;
+        }
+      }
+      setDevices(scannedDevices);
     
     let currentProgress = 0;
     const interval = setInterval(() => {
