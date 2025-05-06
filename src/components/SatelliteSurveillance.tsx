@@ -8,7 +8,17 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { cn } from '@/lib/utils';
 
-// DO NOT import Leaflet CSS here, we'll import it dynamically
+// Define a type for the dynamically imported modules
+type LeafletModules = {
+  MapContainer: React.ComponentType<any>;
+  TileLayer: React.ComponentType<any>;
+  ZoomControl: React.ComponentType<any>;
+  LayersControl: {
+    BaseLayer: React.ComponentType<any>;
+    Overlay: React.ComponentType<any>;
+    default: React.ComponentType<any>;
+  };
+};
 
 const SatelliteSurveillance: React.FC = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -16,10 +26,8 @@ const SatelliteSurveillance: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [mapCenter] = useState<[number, number]>([20.5937, 78.9629]); // Center of India
   const [mapZoom] = useState<number>(5);
-  const [MapContainer, setMapContainer] = useState<any>(null);
-  const [TileLayer, setTileLayer] = useState<any>(null);
-  const [ZoomControl, setZoomControl] = useState<any>(null);
-  const [LayersControl, setLayersControl] = useState<any>(null);
+  const [leafletLoaded, setLeafletLoaded] = useState<boolean>(false);
+  const [leafletModules, setLeafletModules] = useState<LeafletModules | null>(null);
 
   useEffect(() => {
     // Update formatted date whenever date changes
@@ -40,22 +48,33 @@ const SatelliteSurveillance: React.FC = () => {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       // Dynamically import Leaflet CSS
-      import('leaflet/dist/leaflet.css')
-        .then(() => console.log('Leaflet CSS loaded'))
-        .catch(err => console.error('Failed to load Leaflet CSS:', err));
-      
-      // Dynamically import React Leaflet components
-      Promise.all([
-        import('react-leaflet').then(module => {
-          setMapContainer(module.MapContainer);
-          setTileLayer(module.TileLayer);
-          setZoomControl(module.ZoomControl);
-          setLayersControl(module.LayersControl);
+      const loadLeaflet = async () => {
+        try {
+          await import('leaflet/dist/leaflet.css');
+          console.log('Leaflet CSS loaded');
+          
+          // Import React-Leaflet modules
+          const reactLeaflet = await import('react-leaflet');
+          
+          setLeafletModules({
+            MapContainer: reactLeaflet.MapContainer,
+            TileLayer: reactLeaflet.TileLayer,
+            ZoomControl: reactLeaflet.ZoomControl,
+            LayersControl: {
+              BaseLayer: reactLeaflet.LayersControl.BaseLayer,
+              Overlay: reactLeaflet.LayersControl.Overlay,
+              default: reactLeaflet.LayersControl,
+            }
+          });
+          
           console.log('React Leaflet modules loaded successfully');
-        })
-      ]).catch(err => {
-        console.error('Error loading React Leaflet modules:', err);
-      });
+          setLeafletLoaded(true);
+        } catch (err) {
+          console.error('Failed to load Leaflet modules:', err);
+        }
+      };
+
+      loadLeaflet();
     }
   }, []);
 
@@ -72,7 +91,7 @@ const SatelliteSurveillance: React.FC = () => {
 
   // Render the map only when all required components are loaded
   const renderMap = () => {
-    if (!MapContainer || !TileLayer || !ZoomControl || !LayersControl) {
+    if (!leafletLoaded || !leafletModules) {
       return (
         <div className="h-full w-full flex items-center justify-center">
           <span className="text-[#33c3f0]">Loading map components...</span>
@@ -80,37 +99,46 @@ const SatelliteSurveillance: React.FC = () => {
       );
     }
 
-    // Extract LayersControl.BaseLayer and LayersControl.Overlay
-    const { BaseLayer, Overlay } = LayersControl;
+    // Use the dynamically imported components
+    const { MapContainer, TileLayer, ZoomControl } = leafletModules;
+    const LayersControl = leafletModules.LayersControl.default;
+    const { BaseLayer, Overlay } = leafletModules.LayersControl;
+
+    // Ensure this code only runs in the browser
+    if (typeof window === 'undefined') {
+      return <div>Loading map...</div>;
+    }
     
     return (
-      <MapContainer
-        center={mapCenter}
-        zoom={mapZoom}
-        style={{ height: "100%", width: "100%" }}
-        zoomControl={false}
-      >
-        <ZoomControl position="bottomright" />
-        <LayersControl position="topright">
-          <BaseLayer checked name="OpenStreetMap">
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-          </BaseLayer>
-          <Overlay checked name="MODIS Terra True Color">
-            <TileLayer
-              url={`https://gibs-{s}.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/${
-                date ? getGIBSDate(date) : getGIBSDate(new Date())
-              }/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg`}
-              attribution="&copy; NASA Earth Observations"
-              subdomains={['a', 'b', 'c']}
-              maxNativeZoom={9}
-              maxZoom={12}
-            />
-          </Overlay>
-        </LayersControl>
-      </MapContainer>
+      <div style={{ height: "100%", width: "100%" }}>
+        <MapContainer
+          center={mapCenter}
+          zoom={mapZoom}
+          style={{ height: "100%", width: "100%" }}
+          zoomControl={false}
+        >
+          <ZoomControl position="bottomright" />
+          <LayersControl position="topright">
+            <BaseLayer checked name="OpenStreetMap">
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+            </BaseLayer>
+            <Overlay checked name="MODIS Terra True Color">
+              <TileLayer
+                url={`https://gibs-{s}.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/${
+                  date ? getGIBSDate(date) : getGIBSDate(new Date())
+                }/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg`}
+                attribution="&copy; NASA Earth Observations"
+                subdomains={['a', 'b', 'c']}
+                maxNativeZoom={9}
+                maxZoom={12}
+              />
+            </Overlay>
+          </LayersControl>
+        </MapContainer>
+      </div>
     );
   };
 
