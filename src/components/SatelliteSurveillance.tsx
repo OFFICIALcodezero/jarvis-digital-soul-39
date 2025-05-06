@@ -2,13 +2,17 @@
 import React, { useState, useEffect } from 'react';
 import { format, subDays } from 'date-fns';
 import { Calendar as CalendarIcon, Satellite } from 'lucide-react';
-import { MapContainer, TileLayer, LayersControl, ZoomControl } from 'react-leaflet';
 import { Button } from './ui/button';
 import { Calendar } from './ui/calendar';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { cn } from '@/lib/utils';
+
+// Import Leaflet CSS
 import 'leaflet/dist/leaflet.css';
+
+// Import React-Leaflet components dynamically to avoid SSR issues
+import { MapContainer, TileLayer, LayersControl, ZoomControl } from 'react-leaflet';
 
 const SatelliteSurveillance: React.FC = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -89,33 +93,35 @@ const SatelliteSurveillance: React.FC = () => {
           </div>
         ) : (
           <div className="h-[500px] md:h-[600px]">
-            <MapContainer
-              center={mapCenter}
-              zoom={mapZoom}
-              style={{ height: "100%", width: "100%" }}
-              zoomControl={false}
-            >
-              <ZoomControl position="bottomright" />
-              <LayersControl position="topright">
-                <LayersControl.BaseLayer checked name="OpenStreetMap">
-                  <TileLayer
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  />
-                </LayersControl.BaseLayer>
-                <LayersControl.Overlay checked name="MODIS Terra True Color">
-                  <TileLayer
-                    url={`https://gibs-{s}.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/${
-                      date ? getGIBSDate(date) : getGIBSDate(new Date())
-                    }/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg`}
-                    attribution="&copy; NASA Earth Observations"
-                    subdomains={['a', 'b', 'c']}
-                    maxNativeZoom={9}
-                    maxZoom={12}
-                  />
-                </LayersControl.Overlay>
-              </LayersControl>
-            </MapContainer>
+            {typeof window !== 'undefined' && (
+              <MapContainer
+                center={mapCenter}
+                zoom={mapZoom}
+                style={{ height: "100%", width: "100%" }}
+                zoomControl={false}
+              >
+                <ZoomControl position="bottomright" />
+                <LayersControl position="topright">
+                  <LayersControl.BaseLayer checked name="OpenStreetMap">
+                    <TileLayer
+                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    />
+                  </LayersControl.BaseLayer>
+                  <LayersControl.Overlay checked name="MODIS Terra True Color">
+                    <TileLayer
+                      url={`https://gibs-{s}.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/${
+                        date ? getGIBSDate(date) : getGIBSDate(new Date())
+                      }/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg`}
+                      attribution="&copy; NASA Earth Observations"
+                      subdomains={['a', 'b', 'c']}
+                      maxNativeZoom={9}
+                      maxZoom={12}
+                    />
+                  </LayersControl.Overlay>
+                </LayersControl>
+              </MapContainer>
+            )}
           </div>
         )}
       </CardContent>
