@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useEffect } from 'react';
 import { format, subDays } from 'date-fns';
 import { Calendar as CalendarIcon, Satellite } from 'lucide-react';
 import { Button } from './ui/button';
@@ -8,8 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { cn } from '@/lib/utils';
 
-// Import Leaflet CSS
-import 'leaflet/dist/leaflet.css';
+// DO NOT import Leaflet CSS here, we'll import it dynamically
 
 const SatelliteSurveillance: React.FC = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -17,20 +16,13 @@ const SatelliteSurveillance: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [mapCenter] = useState<[number, number]>([20.5937, 78.9629]); // Center of India
   const [mapZoom] = useState<number>(5);
-  const [isBrowser, setIsBrowser] = useState<boolean>(false);
-  const [MapComponents, setMapComponents] = useState<any>(null);
+  const [MapContainer, setMapContainer] = useState<any>(null);
+  const [TileLayer, setTileLayer] = useState<any>(null);
+  const [ZoomControl, setZoomControl] = useState<any>(null);
+  const [LayersControl, setLayersControl] = useState<any>(null);
 
   useEffect(() => {
-    // Flag to indicate we're now in the browser environment
-    setIsBrowser(true);
-    
-    // Dynamically import Leaflet components only in browser
-    if (typeof window !== 'undefined') {
-      import('react-leaflet').then((module) => {
-        setMapComponents(module);
-      });
-    }
-    
+    // Update formatted date whenever date changes
     if (date) {
       setFormattedDate(format(date, 'yyyy-MM-dd'));
     }
@@ -44,6 +36,29 @@ const SatelliteSurveillance: React.FC = () => {
     return () => clearTimeout(timer);
   }, [date]);
 
+  // Load Leaflet and React-Leaflet components only in browser
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // Dynamically import Leaflet CSS
+      import('leaflet/dist/leaflet.css')
+        .then(() => console.log('Leaflet CSS loaded'))
+        .catch(err => console.error('Failed to load Leaflet CSS:', err));
+      
+      // Dynamically import React Leaflet components
+      Promise.all([
+        import('react-leaflet').then(module => {
+          setMapContainer(module.MapContainer);
+          setTileLayer(module.TileLayer);
+          setZoomControl(module.ZoomControl);
+          setLayersControl(module.LayersControl);
+          console.log('React Leaflet modules loaded successfully');
+        })
+      ]).catch(err => {
+        console.error('Error loading React Leaflet modules:', err);
+      });
+    }
+  }, []);
+
   // NASA GIBS requires dates in "YYYY/MM/DD" format for their WMTS service
   const getGIBSDate = (date: Date): string => {
     return format(date, 'yyyy/MM/dd');
@@ -53,6 +68,50 @@ const SatelliteSurveillance: React.FC = () => {
   const disabledDays = (day: Date): boolean => {
     // MODIS data is typically available with a 1-day delay
     return day > subDays(new Date(), 1);
+  };
+
+  // Render the map only when all required components are loaded
+  const renderMap = () => {
+    if (!MapContainer || !TileLayer || !ZoomControl || !LayersControl) {
+      return (
+        <div className="h-full w-full flex items-center justify-center">
+          <span className="text-[#33c3f0]">Loading map components...</span>
+        </div>
+      );
+    }
+
+    // Extract LayersControl.BaseLayer and LayersControl.Overlay
+    const { BaseLayer, Overlay } = LayersControl;
+    
+    return (
+      <MapContainer
+        center={mapCenter}
+        zoom={mapZoom}
+        style={{ height: "100%", width: "100%" }}
+        zoomControl={false}
+      >
+        <ZoomControl position="bottomright" />
+        <LayersControl position="topright">
+          <BaseLayer checked name="OpenStreetMap">
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+          </BaseLayer>
+          <Overlay checked name="MODIS Terra True Color">
+            <TileLayer
+              url={`https://gibs-{s}.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/${
+                date ? getGIBSDate(date) : getGIBSDate(new Date())
+              }/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg`}
+              attribution="&copy; NASA Earth Observations"
+              subdomains={['a', 'b', 'c']}
+              maxNativeZoom={9}
+              maxZoom={12}
+            />
+          </Overlay>
+        </LayersControl>
+      </MapContainer>
+    );
   };
 
   return (
@@ -102,41 +161,7 @@ const SatelliteSurveillance: React.FC = () => {
           </div>
         ) : (
           <div className="h-[500px] md:h-[600px]">
-            {isBrowser && MapComponents && (
-              <Suspense fallback={
-                <div className="h-full w-full flex items-center justify-center">
-                  <span className="text-[#33c3f0]">Loading map...</span>
-                </div>
-              }>
-                <MapComponents.MapContainer
-                  center={mapCenter}
-                  zoom={mapZoom}
-                  style={{ height: "100%", width: "100%" }}
-                  zoomControl={false}
-                >
-                  <MapComponents.ZoomControl position="bottomright" />
-                  <MapComponents.LayersControl position="topright">
-                    <MapComponents.LayersControl.BaseLayer checked name="OpenStreetMap">
-                      <MapComponents.TileLayer
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                      />
-                    </MapComponents.LayersControl.BaseLayer>
-                    <MapComponents.LayersControl.Overlay checked name="MODIS Terra True Color">
-                      <MapComponents.TileLayer
-                        url={`https://gibs-{s}.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/${
-                          date ? getGIBSDate(date) : getGIBSDate(new Date())
-                        }/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg`}
-                        attribution="&copy; NASA Earth Observations"
-                        subdomains={['a', 'b', 'c']}
-                        maxNativeZoom={9}
-                        maxZoom={12}
-                      />
-                    </MapComponents.LayersControl.Overlay>
-                  </MapComponents.LayersControl>
-                </MapComponents.MapContainer>
-              </Suspense>
-            )}
+            {typeof window !== 'undefined' && renderMap()}
           </div>
         )}
       </CardContent>
