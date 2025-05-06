@@ -81,17 +81,25 @@ const NetworkScanner: React.FC<NetworkScannerProps> = ({ isActive }) => {
     
     setStatus('scanning');
     
-    try {
-      const scannedDevices = await scanNetwork('192.168.1.0/24');
-      for (const device of scannedDevices) {
-        const openPorts = await portScan(device.ip, '1-1000');
-        device.ports = openPorts;
-        if (openPorts.length > 0) {
-          const service = await serviceDetection(device.ip, openPorts[0]);
-          device.service = service;
+    const performScan = async () => {
+      try {
+        const scannedDevices = await scanNetwork('192.168.1.0/24');
+        for (const device of scannedDevices) {
+          const openPorts = await portScan(device.ip, '1-1000');
+          device.ports = openPorts;
+          if (openPorts.length > 0) {
+            const service = await serviceDetection(device.ip, openPorts[0]);
+            device.service = service;
+          }
         }
+        setDevices(scannedDevices);
+      } catch (error) {
+        console.error('Scan failed:', error);
+        setStatus('failed');
       }
-      setDevices(scannedDevices);
+    };
+
+    performScan();
     
     let currentProgress = 0;
     const interval = setInterval(() => {
