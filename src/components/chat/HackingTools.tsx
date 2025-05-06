@@ -64,7 +64,7 @@ interface NetworkScannerProps {
   isActive: boolean;
 }
 
-export import { scanNetwork, portScan, serviceDetection } from '@/services/securityTools';
+import { scanNetwork, portScan, serviceDetection } from '@/services/securityTools';
 
 const NetworkScanner: React.FC<NetworkScannerProps> = ({ isActive }) => {
   const [status, setStatus] = useState<'idle' | 'scanning' | 'complete' | 'failed'>('idle');
