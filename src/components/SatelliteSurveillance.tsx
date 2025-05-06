@@ -11,17 +11,18 @@ import { cn } from '@/lib/utils';
 // Import Leaflet CSS
 import 'leaflet/dist/leaflet.css';
 
-// Import React-Leaflet components dynamically to avoid SSR issues
-import { MapContainer, TileLayer, LayersControl, ZoomControl } from 'react-leaflet';
-
 const SatelliteSurveillance: React.FC = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [formattedDate, setFormattedDate] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
   const [mapCenter] = useState<[number, number]>([20.5937, 78.9629]); // Center of India
   const [mapZoom] = useState<number>(5);
+  const [isBrowser, setIsBrowser] = useState<boolean>(false);
 
   useEffect(() => {
+    // Flag to indicate we're now in the browser environment
+    setIsBrowser(true);
+    
     if (date) {
       setFormattedDate(format(date, 'yyyy-MM-dd'));
     }
@@ -45,6 +46,11 @@ const SatelliteSurveillance: React.FC = () => {
     // MODIS data is typically available with a 1-day delay
     return day > subDays(new Date(), 1);
   };
+
+  // Lazily load React Leaflet components only on the client side
+  const MapComponents = isBrowser 
+    ? require('react-leaflet') 
+    : null;
 
   return (
     <Card className={`rounded-lg border border-[#33c3f0]/20 overflow-hidden bg-black/40`}>
@@ -93,23 +99,23 @@ const SatelliteSurveillance: React.FC = () => {
           </div>
         ) : (
           <div className="h-[500px] md:h-[600px]">
-            {typeof window !== 'undefined' && (
-              <MapContainer
+            {isBrowser && MapComponents && (
+              <MapComponents.MapContainer
                 center={mapCenter}
                 zoom={mapZoom}
                 style={{ height: "100%", width: "100%" }}
                 zoomControl={false}
               >
-                <ZoomControl position="bottomright" />
-                <LayersControl position="topright">
-                  <LayersControl.BaseLayer checked name="OpenStreetMap">
-                    <TileLayer
+                <MapComponents.ZoomControl position="bottomright" />
+                <MapComponents.LayersControl position="topright">
+                  <MapComponents.LayersControl.BaseLayer checked name="OpenStreetMap">
+                    <MapComponents.TileLayer
                       attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                       url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     />
-                  </LayersControl.BaseLayer>
-                  <LayersControl.Overlay checked name="MODIS Terra True Color">
-                    <TileLayer
+                  </MapComponents.LayersControl.BaseLayer>
+                  <MapComponents.LayersControl.Overlay checked name="MODIS Terra True Color">
+                    <MapComponents.TileLayer
                       url={`https://gibs-{s}.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/${
                         date ? getGIBSDate(date) : getGIBSDate(new Date())
                       }/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg`}
@@ -118,9 +124,9 @@ const SatelliteSurveillance: React.FC = () => {
                       maxNativeZoom={9}
                       maxZoom={12}
                     />
-                  </LayersControl.Overlay>
-                </LayersControl>
-              </MapContainer>
+                  </MapComponents.LayersControl.Overlay>
+                </MapComponents.LayersControl>
+              </MapComponents.MapContainer>
             )}
           </div>
         )}
