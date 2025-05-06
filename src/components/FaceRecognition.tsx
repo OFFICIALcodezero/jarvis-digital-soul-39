@@ -31,9 +31,13 @@ const FaceRecognition: React.FC<FaceRecognitionProps> = ({
     
     const initFaceDetection = async () => {
       try {
-        // Check if face-api.js is loaded, if not, load it
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        if (stream) {
+          stream.getTracks().forEach(track => track.stop());
+          setCameraPermission('granted');
+        }
+        
         if (!(window as any).faceapi) {
-          // This is a simplified version - in a real app, properly load face-api.js from CDN or package
           toast({
             title: "Face API",
             description: "Loading face recognition capabilities...",
