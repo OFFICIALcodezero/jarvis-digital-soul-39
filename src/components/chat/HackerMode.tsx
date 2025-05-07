@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { generateAssistantResponse } from '@/services/aiAssistantService';
 import { Terminal, Code, Database, Shield, Wifi, Server, Lock, RefreshCw, Camera, Printer, Search, Activity, AlertTriangle, RotateCw, Fingerprint, Eye, Download, Clock, Radar } from 'lucide-react';
@@ -43,7 +42,9 @@ import {
   recognizeFaces,
   encryptAndLogVoiceCommand,
   getEncryptedVoiceLogs,
-  SystemBackup
+  SystemBackup,
+  DetectedObject,
+  RecognizedFace
 } from '@/services/securityFeatures';
 
 export interface HackerModeProps {
@@ -52,9 +53,9 @@ export interface HackerModeProps {
   onDeactivate?: () => void;
 }
 
-// Create a type for functions that process canvas data
-interface CanvasProcessor {
-  (canvasElement: HTMLCanvasElement): Promise<any>;
+// Create a type for functions that process canvas data with proper return types
+interface CanvasProcessor<T> {
+  (imageData: ImageData | HTMLImageElement | HTMLVideoElement): Promise<T>;
 }
 
 const HackerMode: React.FC<HackerModeProps> = ({ hackerOutput, setHackerOutput, onDeactivate }) => {
@@ -98,11 +99,19 @@ const HackerMode: React.FC<HackerModeProps> = ({ hackerOutput, setHackerOutput, 
   }, []);
   
   // Helper function for processing canvas data with proper typing
-  const processCanvasWithFunction = async (processor: CanvasProcessor): Promise<any> => {
+  const processCanvasWithFunction = async <T,>(processor: CanvasProcessor<T>): Promise<T | null> => {
     if (!canvasRef.current) return null;
     
     try {
-      return await processor(canvasRef.current);
+      // Get the canvas context and extract image data
+      const context = canvasRef.current.getContext('2d');
+      if (!context) return null;
+      
+      // Convert canvas to ImageData which is accepted by our processor functions
+      const imageData = context.getImageData(0, 0, canvasRef.current.width, canvasRef.current.height);
+      
+      // Process the image data with the provided function
+      return await processor(imageData);
     } catch (error) {
       console.error("Error processing canvas:", error);
       return null;
@@ -352,10 +361,10 @@ const HackerMode: React.FC<HackerModeProps> = ({ hackerOutput, setHackerOutput, 
                       // Draw video to canvas for analysis
                       context.drawImage(videoRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);
                       
-                      // Analyze the image
-                      const recognizedFaces = await processCanvasWithFunction(recognizeFaces);
+                      // Analyze the image with proper typing
+                      const recognizedFaces = await processCanvasWithFunction<RecognizedFace[]>(recognizeFaces);
                       
-                      if (recognizedFaces.length > 0) {
+                      if (recognizedFaces && recognizedFaces.length > 0) {
                         recognizedFaces.forEach(face => {
                           if (face.name) {
                             appendOutput(`\n✓ Face recognized: ${face.name} (${(face.confidence * 100).toFixed(1)}% confidence)`);
@@ -451,10 +460,10 @@ const HackerMode: React.FC<HackerModeProps> = ({ hackerOutput, setHackerOutput, 
                       // Draw video to canvas for analysis
                       context.drawImage(videoRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);
                       
-                      // Detect objects in the image
-                      const detectedObjects = await processCanvasWithFunction(detectObjectsInImage);
+                      // Detect objects in the image with proper typing
+                      const detectedObjects = await processCanvasWithFunction<DetectedObject[]>(detectObjectsInImage);
                       
-                      if (detectedObjects.length > 0) {
+                      if (detectedObjects && detectedObjects.length > 0) {
                         appendOutput(`\nObjects detected (${new Date().toLocaleTimeString()}):`);
                         detectedObjects.forEach(obj => {
                           appendOutput(`  - ${obj.label} (${(obj.confidence * 100).toFixed(1)}% confidence)`);
@@ -1029,4 +1038,3 @@ Use these commands to enhance system security and monitor for threats.
 };
 
 export default HackerMode;
-
