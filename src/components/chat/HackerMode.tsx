@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { generateAssistantResponse } from '@/services/aiAssistantService';
 import { Terminal, Code, Database, Shield, Wifi, Server, Lock, RefreshCw, Camera, Printer, Search, Activity, AlertTriangle, RotateCw, Fingerprint, Eye, Download, Clock, Radar } from 'lucide-react';
@@ -51,6 +52,11 @@ export interface HackerModeProps {
   onDeactivate?: () => void;
 }
 
+// Create a type for functions that process canvas data
+interface CanvasProcessor {
+  (canvasElement: HTMLCanvasElement): Promise<any>;
+}
+
 const HackerMode: React.FC<HackerModeProps> = ({ hackerOutput, setHackerOutput, onDeactivate }) => {
   const [input, setInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -90,6 +96,18 @@ const HackerMode: React.FC<HackerModeProps> = ({ hackerOutput, setHackerOutput, 
       }
     };
   }, []);
+  
+  // Helper function for processing canvas data with proper typing
+  const processCanvasWithFunction = async (processor: CanvasProcessor): Promise<any> => {
+    if (!canvasRef.current) return null;
+    
+    try {
+      return await processor(canvasRef.current);
+    } catch (error) {
+      console.error("Error processing canvas:", error);
+      return null;
+    }
+  };
 
   const handleCommand = async (command: string) => {
     if (!command.trim()) return;
@@ -117,7 +135,6 @@ const HackerMode: React.FC<HackerModeProps> = ({ hackerOutput, setHackerOutput, 
       // Handle commands with real functionality
       switch(lowerCmd) {
         // Original commands
-        // ... keep existing code (the original command handlers) the same ...
         case 'scan':
           const scanResult = await scanNetwork();
           appendOutput(`\n${scanResult}`);
@@ -146,11 +163,11 @@ const HackerMode: React.FC<HackerModeProps> = ({ hackerOutput, setHackerOutput, 
           break;
           
         case 'keylogger':
-          const operation = args[0]?.toLowerCase();
-          if (operation !== 'start' && operation !== 'stop') {
+          const keyloggerOperation = args[0]?.toLowerCase();
+          if (keyloggerOperation !== 'start' && keyloggerOperation !== 'stop') {
             appendOutput('\nUsage: keylogger <start|stop>');
           } else {
-            const keyloggerResult = await handleKeylogger(operation);
+            const keyloggerResult = await handleKeylogger(keyloggerOperation);
             appendOutput(`\n${keyloggerResult}`);
           }
           break;
@@ -287,9 +304,9 @@ const HackerMode: React.FC<HackerModeProps> = ({ hackerOutput, setHackerOutput, 
         // Face Recognition Access
         case 'faceauth':
         case 'facerecognition':
-          const operation = args[0]?.toLowerCase();
+          const faceAuthOperation = args[0]?.toLowerCase();
           
-          if (operation === 'stop') {
+          if (faceAuthOperation === 'stop') {
             if (faceRecognitionActive) {
               setFaceRecognitionActive(false);
               if (videoRef.current && videoRef.current.srcObject) {
@@ -336,7 +353,7 @@ const HackerMode: React.FC<HackerModeProps> = ({ hackerOutput, setHackerOutput, 
                       context.drawImage(videoRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);
                       
                       // Analyze the image
-                      const recognizedFaces = await recognizeFaces(canvasRef.current);
+                      const recognizedFaces = await processCanvasWithFunction(recognizeFaces);
                       
                       if (recognizedFaces.length > 0) {
                         recognizedFaces.forEach(face => {
@@ -435,7 +452,7 @@ const HackerMode: React.FC<HackerModeProps> = ({ hackerOutput, setHackerOutput, 
                       context.drawImage(videoRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);
                       
                       // Detect objects in the image
-                      const detectedObjects = await detectObjectsInImage(canvasRef.current);
+                      const detectedObjects = await processCanvasWithFunction(detectObjectsInImage);
                       
                       if (detectedObjects.length > 0) {
                         appendOutput(`\nObjects detected (${new Date().toLocaleTimeString()}):`);
@@ -1012,3 +1029,4 @@ Use these commands to enhance system security and monitor for threats.
 };
 
 export default HackerMode;
+
