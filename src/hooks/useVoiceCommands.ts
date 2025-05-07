@@ -19,14 +19,12 @@ export const useVoiceCommands = (isListening: boolean) => {
   // Use context directly to avoid dependency on useJarvisChat hook
   const jarvisChat = useContext(JarvisChatContext);
   
-  // Safely access properties using optional chaining
-  // The type issue is that these properties don't exist in JarvisChatContextType
-  // So we're providing fallback values when they don't exist
-  const activeMode = jarvisChat && 'activeMode' in jarvisChat 
+  // Default values for properties that may not exist in the context
+  const activeMode = typeof jarvisChat === 'object' && jarvisChat !== null && 'activeMode' in jarvisChat 
     ? (jarvisChat as any).activeMode 
     : 'normal';
     
-  const setIsSpeaking = jarvisChat && 'setIsSpeaking' in jarvisChat
+  const setIsSpeaking = typeof jarvisChat === 'object' && jarvisChat !== null && 'setIsSpeaking' in jarvisChat
     ? (jarvisChat as any).setIsSpeaking 
     : (() => {});
   
