@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import ArcReactor from '@/components/background/ArcReactor';
@@ -13,6 +12,7 @@ import JarvisCentralCore from '@/components/JarvisCentralCore';
 import VoiceActivation from '@/components/VoiceActivation';
 import ChatMode from '@/components/chat/ChatMode';
 import HackerMode from '@/components/chat/HackerMode';
+import JarvisVoiceCommands from '@/components/JarvisVoiceCommands';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Mic, Brain, Sparkles, Cpu, Bot, Volume2, VolumeX, Image, Terminal } from 'lucide-react';
@@ -214,6 +214,14 @@ const JarvisInterface = () => {
       )}
       
       <ArcReactor />
+      
+      {/* Core components responsible for system functionality */}
+      <JarvisCore />
+      <JarvisVoiceCommands 
+        isListening={isListening} 
+        hackerModeActive={hackerModeActive}
+        onActivateHacker={activateHackerMode}
+      />
       
       <div className={`w-full jarvis-panel flex items-center justify-between p-3 ${hackerModeActive ? 'border-red-500/20' : 'border-jarvis/20'}`}>
         <div className="flex items-center">
