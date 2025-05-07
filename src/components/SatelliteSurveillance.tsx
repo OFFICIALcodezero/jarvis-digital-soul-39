@@ -8,10 +8,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { cn } from '@/lib/utils';
 
-// Define a type for the Leaflet Map
-type LeafletMap = {
+// Define a better type for the Leaflet Map instance
+interface LeafletMapWithLayers {
   remove: () => void;
-};
+  eachLayer: (callback: (layer: any) => void) => void;
+  removeLayer: (layer: any) => void;
+}
 
 const SatelliteSurveillance: React.FC = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -20,7 +22,7 @@ const SatelliteSurveillance: React.FC = () => {
   const [mapCenter] = useState<[number, number]>([20.5937, 78.9629]); // Center of India
   const [mapZoom] = useState<number>(5);
   const [leafletLoaded, setLeafletLoaded] = useState<boolean>(false);
-  const mapRef = useRef<LeafletMap | null>(null);
+  const mapRef = useRef<LeafletMapWithLayers | null>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -53,12 +55,11 @@ const SatelliteSurveillance: React.FC = () => {
         
         // Then import the actual modules
         const L = await import('leaflet');
-        const ReactLeaflet = await import('react-leaflet');
         
         if (!isMounted) return;
         
         setLeafletLoaded(true);
-        console.log('Leaflet and React-Leaflet loaded successfully');
+        console.log('Leaflet loaded successfully');
         
         // Initialize map after components are loaded
         if (mapContainerRef.current && !mapRef.current) {
@@ -92,17 +93,17 @@ const SatelliteSurveillance: React.FC = () => {
         center: mapCenter,
         zoom: mapZoom,
         zoomControl: false
-      });
+      }) as unknown as LeafletMapWithLayers; // Cast to our interface
       
       mapRef.current = map;
       
       // Add zoom control
-      L.control.zoom({ position: 'bottomright' }).addTo(map);
+      L.control.zoom({ position: 'bottomright' }).addTo(map as any);
       
       // Add base layer
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      }).addTo(map);
+      }).addTo(map as any);
       
       // Add MODIS Terra layer if date is available
       if (date) {
@@ -112,7 +113,7 @@ const SatelliteSurveillance: React.FC = () => {
           subdomains: ['a', 'b', 'c'],
           maxZoom: 12,
           maxNativeZoom: 9
-        }).addTo(map);
+        }).addTo(map as any);
       }
       
       console.log('Map initialized successfully');
@@ -146,7 +147,7 @@ const SatelliteSurveillance: React.FC = () => {
           subdomains: ['a', 'b', 'c'],
           maxZoom: 12,
           maxNativeZoom: 9
-        }).addTo(map);
+        }).addTo(map as any);
         
       } catch (error) {
         console.error('Error updating MODIS layer:', error);
