@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { format, subDays } from 'date-fns';
 import { Calendar as CalendarIcon, Satellite } from 'lucide-react';
 import { Button } from './ui/button';
@@ -8,16 +8,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { cn } from '@/lib/utils';
 
-// Define a type for the dynamically imported modules
-type LeafletModules = {
-  MapContainer: React.ComponentType<any>;
-  TileLayer: React.ComponentType<any>;
-  ZoomControl: React.ComponentType<any>;
-  LayersControl: {
-    BaseLayer: React.ComponentType<any>;
-    Overlay: React.ComponentType<any>;
-    default: React.ComponentType<any>;
-  };
+// Define a type for the Leaflet Map
+type LeafletMap = {
+  remove: () => void;
 };
 
 const SatelliteSurveillance: React.FC = () => {
@@ -27,7 +20,8 @@ const SatelliteSurveillance: React.FC = () => {
   const [mapCenter] = useState<[number, number]>([20.5937, 78.9629]); // Center of India
   const [mapZoom] = useState<number>(5);
   const [leafletLoaded, setLeafletLoaded] = useState<boolean>(false);
-  const [leafletModules, setLeafletModules] = useState<LeafletModules | null>(null);
+  const mapRef = useRef<LeafletMap | null>(null);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Update formatted date whenever date changes
@@ -46,100 +40,126 @@ const SatelliteSurveillance: React.FC = () => {
 
   // Load Leaflet and React-Leaflet components only in browser
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      // Dynamically import Leaflet CSS
-      const loadLeaflet = async () => {
-        try {
-          await import('leaflet/dist/leaflet.css');
-          console.log('Leaflet CSS loaded');
-          
-          // Import React-Leaflet modules
-          const reactLeaflet = await import('react-leaflet');
-          
-          setLeafletModules({
-            MapContainer: reactLeaflet.MapContainer,
-            TileLayer: reactLeaflet.TileLayer,
-            ZoomControl: reactLeaflet.ZoomControl,
-            LayersControl: {
-              BaseLayer: reactLeaflet.LayersControl.BaseLayer,
-              Overlay: reactLeaflet.LayersControl.Overlay,
-              default: reactLeaflet.LayersControl,
-            }
-          });
-          
-          console.log('React Leaflet modules loaded successfully');
-          setLeafletLoaded(true);
-        } catch (err) {
-          console.error('Failed to load Leaflet modules:', err);
-        }
-      };
+    // Check if we're in a browser environment
+    if (typeof window === 'undefined') return;
 
-      loadLeaflet();
-    }
+    let isMounted = true;
+    
+    const loadLeaflet = async () => {
+      try {
+        // First load the CSS
+        await import('leaflet/dist/leaflet.css');
+        console.log('Leaflet CSS loaded successfully');
+        
+        // Then import the actual modules
+        const L = await import('leaflet');
+        const ReactLeaflet = await import('react-leaflet');
+        
+        if (!isMounted) return;
+        
+        setLeafletLoaded(true);
+        console.log('Leaflet and React-Leaflet loaded successfully');
+        
+        // Initialize map after components are loaded
+        if (mapContainerRef.current && !mapRef.current) {
+          setTimeout(initializeMap, 100);
+        }
+      } catch (error) {
+        console.error('Failed to load Leaflet modules:', error);
+      }
+    };
+
+    loadLeaflet();
+    
+    return () => {
+      isMounted = false;
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+    };
   }, []);
 
-  // NASA GIBS requires dates in "YYYY/MM/DD" format for their WMTS service
-  const getGIBSDate = (date: Date): string => {
-    return format(date, 'yyyy/MM/dd');
+  // Function to initialize the map using vanilla Leaflet
+  const initializeMap = async () => {
+    if (!mapContainerRef.current || mapRef.current) return;
+    
+    try {
+      const L = await import('leaflet');
+
+      // Create the map instance
+      const map = L.map(mapContainerRef.current, {
+        center: mapCenter,
+        zoom: mapZoom,
+        zoomControl: false
+      });
+      
+      mapRef.current = map;
+      
+      // Add zoom control
+      L.control.zoom({ position: 'bottomright' }).addTo(map);
+      
+      // Add base layer
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map);
+      
+      // Add MODIS Terra layer if date is available
+      if (date) {
+        const gibsDate = format(date, 'yyyy/MM/dd');
+        L.tileLayer(`https://gibs-{s}.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/${gibsDate}/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg`, {
+          attribution: '&copy; NASA Earth Observations',
+          subdomains: ['a', 'b', 'c'],
+          maxZoom: 12,
+          maxNativeZoom: 9
+        }).addTo(map);
+      }
+      
+      console.log('Map initialized successfully');
+    } catch (error) {
+      console.error('Error initializing map:', error);
+    }
   };
+
+  // Update the MODIS layer when date changes
+  useEffect(() => {
+    if (!mapRef.current || !leafletLoaded || !date) return;
+    
+    const updateModisLayer = async () => {
+      try {
+        const L = await import('leaflet');
+        const map = mapRef.current;
+        
+        if (!map) return;
+        
+        // Remove existing MODIS layers
+        map.eachLayer((layer: any) => {
+          if (layer._url && layer._url.includes('earthdata.nasa.gov')) {
+            map.removeLayer(layer);
+          }
+        });
+        
+        // Add new MODIS layer
+        const gibsDate = format(date, 'yyyy/MM/dd');
+        L.tileLayer(`https://gibs-{s}.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/${gibsDate}/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg`, {
+          attribution: '&copy; NASA Earth Observations',
+          subdomains: ['a', 'b', 'c'],
+          maxZoom: 12,
+          maxNativeZoom: 9
+        }).addTo(map);
+        
+      } catch (error) {
+        console.error('Error updating MODIS layer:', error);
+      }
+    };
+    
+    updateModisLayer();
+  }, [date, leafletLoaded]);
 
   // Disable future dates for the date picker
   const disabledDays = (day: Date): boolean => {
     // MODIS data is typically available with a 1-day delay
     return day > subDays(new Date(), 1);
-  };
-
-  // Render the map only when all required components are loaded
-  const renderMap = () => {
-    if (!leafletLoaded || !leafletModules) {
-      return (
-        <div className="h-full w-full flex items-center justify-center">
-          <span className="text-[#33c3f0]">Loading map components...</span>
-        </div>
-      );
-    }
-
-    // Use the dynamically imported components
-    const { MapContainer, TileLayer, ZoomControl } = leafletModules;
-    const LayersControl = leafletModules.LayersControl.default;
-    const { BaseLayer, Overlay } = leafletModules.LayersControl;
-
-    // Ensure this code only runs in the browser
-    if (typeof window === 'undefined') {
-      return <div>Loading map...</div>;
-    }
-    
-    return (
-      <div style={{ height: "100%", width: "100%" }}>
-        <MapContainer
-          center={mapCenter}
-          zoom={mapZoom}
-          style={{ height: "100%", width: "100%" }}
-          zoomControl={false}
-        >
-          <ZoomControl position="bottomright" />
-          <LayersControl position="topright">
-            <BaseLayer checked name="OpenStreetMap">
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-            </BaseLayer>
-            <Overlay checked name="MODIS Terra True Color">
-              <TileLayer
-                url={`https://gibs-{s}.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/${
-                  date ? getGIBSDate(date) : getGIBSDate(new Date())
-                }/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg`}
-                attribution="&copy; NASA Earth Observations"
-                subdomains={['a', 'b', 'c']}
-                maxNativeZoom={9}
-                maxZoom={12}
-              />
-            </Overlay>
-          </LayersControl>
-        </MapContainer>
-      </div>
-    );
   };
 
   return (
@@ -188,8 +208,12 @@ const SatelliteSurveillance: React.FC = () => {
             </div>
           </div>
         ) : (
-          <div className="h-[500px] md:h-[600px]">
-            {typeof window !== 'undefined' && renderMap()}
+          <div className="h-[500px] md:h-[600px]" ref={mapContainerRef}>
+            {!leafletLoaded && (
+              <div className="h-full w-full flex items-center justify-center">
+                <span className="text-[#33c3f0]">Loading map components...</span>
+              </div>
+            )}
           </div>
         )}
       </CardContent>
