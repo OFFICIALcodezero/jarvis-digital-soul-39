@@ -21,6 +21,7 @@ const JarvisVoiceCommands: React.FC<JarvisVoiceCommandsProps> = ({
   // Only use sendMessage if the context is available
   const sendMessage = (message: string) => {
     if (jarvisChat) {
+      // Use handleImageGenerationFromPrompt which is available in the context
       jarvisChat.handleImageGenerationFromPrompt(message);
     }
   };

@@ -18,7 +18,9 @@ export const useVoiceCommands = (isListening: boolean) => {
   
   // Use context directly to avoid dependency on useJarvisChat hook
   const jarvisChat = useContext(JarvisChatContext);
-  const activeMode = jarvisChat?.activeMode;
+  
+  // Safely access properties from the context (these are the ones available in JarvisChatProvider.tsx)
+  const activeMode = jarvisChat?.activeMode || 'normal';
   const setIsSpeaking = jarvisChat?.setIsSpeaking || (() => {});
   
   // Register a new command
