@@ -1,7 +1,7 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useContext } from 'react';
 import { toast } from '@/components/ui/use-toast';
-import { useJarvisChat } from '@/components/JarvisChatContext';
+import { JarvisChatContext } from '@/contexts/JarvisChatProvider';
 
 type CommandHandler = (transcript: string) => void;
 
@@ -15,7 +15,11 @@ export const useVoiceCommands = (isListening: boolean) => {
   const [transcript, setTranscript] = useState<string>('');
   const [commands, setCommands] = useState<Map<string, VoiceCommandConfig>>(new Map());
   const [isProcessingCommand, setIsProcessingCommand] = useState(false);
-  const { activeMode, setIsSpeaking } = useJarvisChat();
+  
+  // Use context directly to avoid dependency on useJarvisChat hook
+  const jarvisChat = useContext(JarvisChatContext);
+  const activeMode = jarvisChat?.activeMode;
+  const setIsSpeaking = jarvisChat?.setIsSpeaking || (() => {});
   
   // Register a new command
   const registerCommand = useCallback((name: string, config: VoiceCommandConfig) => {

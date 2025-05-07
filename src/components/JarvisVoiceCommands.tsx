@@ -1,7 +1,7 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useContext } from 'react';
 import { useVoiceCommands } from '@/hooks/useVoiceCommands';
-import { useJarvisChat } from '@/components/JarvisChatContext';
+import { JarvisChatContext } from '@/contexts/JarvisChatProvider';
 
 interface JarvisVoiceCommandsProps {
   isListening: boolean;
@@ -15,7 +15,15 @@ const JarvisVoiceCommands: React.FC<JarvisVoiceCommandsProps> = ({
   onActivateHacker
 }) => {
   const { transcript, registerCommand, unregisterCommand } = useVoiceCommands(isListening);
-  const { sendMessage } = useJarvisChat();
+  // Use the context directly instead of the hook to avoid the provider requirement
+  const jarvisChat = useContext(JarvisChatContext);
+  
+  // Only use sendMessage if the context is available
+  const sendMessage = (message: string) => {
+    if (jarvisChat) {
+      jarvisChat.handleImageGenerationFromPrompt(message);
+    }
+  };
   
   // Register available voice commands
   useEffect(() => {
