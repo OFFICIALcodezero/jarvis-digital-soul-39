@@ -18,11 +18,11 @@ const JarvisVoiceCommands: React.FC<JarvisVoiceCommandsProps> = ({
   // Use the context directly instead of the hook to avoid the provider requirement
   const jarvisChat = useContext(JarvisChatContext);
   
-  // Only use sendMessage if the context is available
+  // Safely send message if the context is available
   const sendMessage = (message: string) => {
-    if (jarvisChat) {
+    if (jarvisChat && 'handleImageGenerationFromPrompt' in jarvisChat) {
       // Use handleImageGenerationFromPrompt which is available in the context
-      jarvisChat.handleImageGenerationFromPrompt(message);
+      (jarvisChat as any).handleImageGenerationFromPrompt(message);
     }
   };
   
