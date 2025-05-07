@@ -88,8 +88,8 @@ const NetworkScanner: React.FC<NetworkScannerProps> = ({ isActive }) => {
           const openPorts = await portScan(device.ip, '1-1000');
           device.ports = openPorts;
           if (openPorts.length > 0) {
-            const service = await serviceDetection(device.ip, openPorts[0]);
-            device.service = service;
+            const serviceInfo = await serviceDetection(device.ip, openPorts[0]);
+            device.services = [serviceInfo]; // Fix: using services (array) instead of service
           }
         }
         setDevices(scannedDevices);
@@ -109,13 +109,14 @@ const NetworkScanner: React.FC<NetworkScannerProps> = ({ isActive }) => {
       if (currentProgress >= 100) {
         clearInterval(interval);
         setStatus('complete');
-        setDevices(networkDevices);
-        setResult(`Found ${networkDevices.length} devices\n` + networkDevices.join('\n'));
+        // Fix: using the devices state variable instead of undefined networkDevices
+        setResult(`Found ${devices.length} devices\n` + 
+                  devices.map(d => `${d.ip} (${d.type}) - ${d.status}`).join('\n'));
       }
     }, 150);
     
     return () => clearInterval(interval);
-  }, [isActive]);
+  }, [isActive, devices]);
   
   return (
     <HackingTool 
