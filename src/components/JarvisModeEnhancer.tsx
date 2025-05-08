@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import JarvisChatMainEnhanced from './JarvisChatMainEnhanced';
-import { JarvisChatProvider } from './JarvisChatContext';
+import { JarvisChatProvider } from '../contexts/JarvisChatProvider';
 
 // This component is responsible for enhancing the Jarvis interface
 // by replacing the standard chat with our enhanced version that includes
