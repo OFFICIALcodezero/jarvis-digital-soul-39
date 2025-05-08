@@ -20,7 +20,7 @@ const JarvisVoiceCommands: React.FC<JarvisVoiceCommandsProps> = ({
   
   // Get chat context for messaging
   const jarvisChat = useContext(JarvisChatContext);
-  const processUserMessage = jarvisChat?.processUserMessage;
+  const sendMessage = jarvisChat?.sendMessage; // Use sendMessage instead of processUserMessage
   
   useEffect(() => {
     // Security commands
@@ -98,8 +98,8 @@ const JarvisVoiceCommands: React.FC<JarvisVoiceCommandsProps> = ({
     registerCommand('worldNews', {
       pattern: /(world news|global news|what's happening|news headlines|latest news)/i,
       handler: async () => {
-        if (processUserMessage) {
-          await processUserMessage("Show me the latest world news");
+        if (sendMessage) {
+          await sendMessage("Show me the latest world news");
         } else {
           // Fallback if context not available
           const response = await getNewsResponse("world news");
@@ -116,8 +116,8 @@ const JarvisVoiceCommands: React.FC<JarvisVoiceCommandsProps> = ({
     registerCommand('techNews', {
       pattern: /(tech news|technology news|tech updates)/i,
       handler: async () => {
-        if (processUserMessage) {
-          await processUserMessage("Show me the latest tech news");
+        if (sendMessage) {
+          await sendMessage("Show me the latest tech news");
         } else {
           // Fallback if context not available
           const response = await getNewsResponse("tech news");
@@ -134,8 +134,8 @@ const JarvisVoiceCommands: React.FC<JarvisVoiceCommandsProps> = ({
     registerCommand('indiaNews', {
       pattern: /(india news|indian news|news from india)/i,
       handler: async () => {
-        if (processUserMessage) {
-          await processUserMessage("Show me the latest news from India");
+        if (sendMessage) {
+          await sendMessage("Show me the latest news from India");
         } else {
           // Fallback if context not available
           const response = await getNewsResponse("news in India");
@@ -155,8 +155,8 @@ const JarvisVoiceCommands: React.FC<JarvisVoiceCommandsProps> = ({
         const match = transcript.match(/news (about|on) ([a-zA-Z\s]+)/i);
         if (match && match[2]) {
           const topic = match[2].trim();
-          if (processUserMessage) {
-            await processUserMessage(`Show me news about ${topic}`);
+          if (sendMessage) {
+            await sendMessage(`Show me news about ${topic}`);
           } else {
             // Fallback if context not available
             const response = await getNewsResponse(`news on ${topic}`);
@@ -181,7 +181,7 @@ const JarvisVoiceCommands: React.FC<JarvisVoiceCommandsProps> = ({
       unregisterCommand('indiaNews');
       unregisterCommand('customNews');
     };
-  }, [registerCommand, unregisterCommand, hackerModeActive, onActivateHacker, processUserMessage]);
+  }, [registerCommand, unregisterCommand, hackerModeActive, onActivateHacker, sendMessage]);
   
   return null; // This component doesn't render anything
 };

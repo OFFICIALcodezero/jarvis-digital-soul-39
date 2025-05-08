@@ -37,7 +37,7 @@ export const isSkillCommand = (message: string): boolean => {
     lowerMessage.includes('news') ||
     lowerMessage.includes('headlines') ||
     lowerMessage.includes('updates') ||
-    lowerMessage.match(/what('s| is) happening/i) ||
+    Boolean(lowerMessage.match(/what('s| is) happening/i)) ||
     
     // Briefing related
     lowerMessage.includes('brief me') ||
@@ -85,7 +85,7 @@ export const processSkillCommand = async (message: string): Promise<SkillRespons
       return {
         text: response.text,
         shouldSpeak: true,
-        data: response.weather,
+        data: response.data,
         skillType: 'weather'
       };
     }

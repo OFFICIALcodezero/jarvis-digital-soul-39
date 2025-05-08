@@ -4,6 +4,7 @@ import { parseImageRequest } from '@/services/imagePromptParser';
 import { generateImage, GeneratedImage } from '@/services/imageGenerationService';
 import { parseImagePrompt, generateStabilityImage, StabilityImageParams, StabilityGeneratedImage } from '@/services/stabilityAIService';
 import { toast } from '@/components/ui/use-toast';
+import { Message, MessageSuggestion } from '@/types/chat';
 
 // Define the context type
 export interface JarvisChatContextType {
@@ -11,7 +12,8 @@ export interface JarvisChatContextType {
   setActiveImage: React.Dispatch<React.SetStateAction<GeneratedImage | StabilityGeneratedImage | null>>;
   handleImageGenerationFromPrompt: (prompt: string, isRefine?: boolean) => Promise<GeneratedImage | StabilityGeneratedImage>;
   handleRefineImage: (prevPrompt: string, refinement: string) => Promise<GeneratedImage | StabilityGeneratedImage>;
-  messages?: any[];
+  messages?: Message[];
+  sendMessage?: (content: string, suggestions?: MessageSuggestion[]) => Promise<void>;
   isGeneratingImage: boolean;
   generationProgress: number;
 }
