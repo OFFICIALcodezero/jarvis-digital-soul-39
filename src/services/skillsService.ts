@@ -3,6 +3,9 @@ import { getTimeCalendarResponse } from './timeCalendarService';
 import { getWeatherResponse } from './weatherService';
 import { getNewsResponse } from './newsService';
 import { getDailyBriefing } from './dailyBriefingService';
+import { processCalculation, isCalculationRequest } from './calculatorService';
+import { processWorldClockQuery, isWorldClockQuery } from './worldClockService';
+import { processHistoryQuery } from './chatHistoryService';
 import { toast } from '@/components/ui/use-toast';
 
 export interface SkillResponse {
@@ -21,6 +24,7 @@ export const isSkillCommand = (message: string): boolean => {
     lowerMessage.includes('what time') || 
     lowerMessage.includes('current time') ||
     lowerMessage.includes('what is the time') ||
+    isWorldClockQuery(message) ||
     
     // Date related
     lowerMessage.includes('what day') ||
@@ -48,7 +52,16 @@ export const isSkillCommand = (message: string): boolean => {
     // Calendar related
     lowerMessage.includes('schedule') ||
     lowerMessage.includes('calendar') ||
-    lowerMessage.includes('events')
+    lowerMessage.includes('events') ||
+    
+    // Calculator related
+    isCalculationRequest(message) ||
+    
+    // Chat history related
+    lowerMessage.includes('chat history') ||
+    lowerMessage.includes('past questions') ||
+    lowerMessage.includes('asked earlier') ||
+    lowerMessage.includes('previous conversations')
   );
 };
 
@@ -66,6 +79,20 @@ export const processSkillCommand = async (message: string): Promise<SkillRespons
       lowerMessage.includes('calendar') ||
       lowerMessage.includes('events')
     ) {
+      // Check for world clock query first
+      if (isWorldClockQuery(message)) {
+        const worldClockResponse = processWorldClockQuery(message);
+        if (worldClockResponse) {
+          return {
+            text: `The current time in ${worldClockResponse.location} is ${worldClockResponse.time} (${worldClockResponse.date}). It's currently ${worldClockResponse.dayPeriod} there.`,
+            shouldSpeak: true,
+            data: worldClockResponse,
+            skillType: 'worldClock'
+          };
+        }
+      }
+      
+      // Default time calendar response
       const response = await getTimeCalendarResponse(message);
       return {
         text: response.text,
@@ -95,7 +122,7 @@ export const processSkillCommand = async (message: string): Promise<SkillRespons
       lowerMessage.includes('news') || 
       lowerMessage.includes('headlines') ||
       lowerMessage.includes('updates') ||
-      lowerMessage.match(/what('s| is) happening/i)
+      Boolean(lowerMessage.match(/what('s| is) happening/i))
     ) {
       const response = await getNewsResponse(message);
       return {
@@ -119,6 +146,39 @@ export const processSkillCommand = async (message: string): Promise<SkillRespons
         shouldSpeak: true,
         data: response.briefing,
         skillType: 'briefing'
+      };
+    }
+    
+    // Calculator
+    if (isCalculationRequest(message)) {
+      const calculationResult = processCalculation(message);
+      
+      let responseText = '';
+      if (calculationResult.error) {
+        responseText = `I couldn't calculate that. ${calculationResult.error}`;
+      } else {
+        responseText = `The result of ${calculationResult.expression} is ${calculationResult.result}`;
+        if (calculationResult.steps) {
+          responseText += `. Here are the steps: ${calculationResult.steps.join(', ')}`;
+        }
+      }
+      
+      return {
+        text: responseText,
+        shouldSpeak: true,
+        data: calculationResult,
+        skillType: 'calculator'
+      };
+    }
+    
+    // Chat History
+    const historyResponse = processHistoryQuery(message);
+    if (historyResponse) {
+      return {
+        text: historyResponse[0].content,
+        shouldSpeak: true,
+        data: historyResponse[0].data,
+        skillType: 'history'
       };
     }
     

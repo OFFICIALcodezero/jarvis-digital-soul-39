@@ -4,6 +4,9 @@ import { useVoiceCommands } from '@/hooks/useVoiceCommands';
 import { toast } from '@/components/ui/use-toast';
 import { JarvisChatContext } from '@/contexts/JarvisChatProvider';
 import { getNewsResponse } from '@/services/newsService';
+import { processFileManagerCommand } from '@/services/fileManagerService';
+import { processCalculation } from '@/services/calculatorService';
+import { processWorldClockQuery, isWorldClockQuery } from '@/services/worldClockService';
 
 interface JarvisVoiceCommandsProps {
   isListening: boolean;
@@ -20,7 +23,7 @@ const JarvisVoiceCommands: React.FC<JarvisVoiceCommandsProps> = ({
   
   // Get chat context for messaging
   const jarvisChat = useContext(JarvisChatContext);
-  const sendMessage = jarvisChat?.sendMessage; // Use sendMessage instead of processUserMessage
+  const sendMessage = jarvisChat?.sendMessage;
   
   useEffect(() => {
     // Security commands
@@ -170,6 +173,80 @@ const JarvisVoiceCommands: React.FC<JarvisVoiceCommandsProps> = ({
       feedback: "Searching for news on your requested topic."
     });
     
+    // File management commands
+    registerCommand('fileManager', {
+      pattern: /(open|create|rename|move|delete|list) (file|folder|document)/i,
+      handler: async (transcript) => {
+        const response = processFileManagerCommand(transcript);
+        if (response) {
+          if (sendMessage) {
+            await sendMessage(transcript);
+          } else {
+            toast({
+              title: "File Manager",
+              description: response.message,
+              variant: response.success ? "default" : "destructive"
+            });
+          }
+        }
+      },
+      feedback: "Processing file management request."
+    });
+    
+    // Calculator commands
+    registerCommand('calculator', {
+      pattern: /(calculate|compute|what is|\d+\s*[\+\-\*\/]\s*\d+|convert)/i,
+      handler: async (transcript) => {
+        const result = processCalculation(transcript);
+        if (sendMessage) {
+          await sendMessage(transcript);
+        } else {
+          toast({
+            title: "Calculator",
+            description: result.error || `${result.expression} = ${result.result}`,
+            variant: result.error ? "destructive" : "default"
+          });
+        }
+      },
+      feedback: "Calculating your request."
+    });
+    
+    // World clock commands
+    registerCommand('worldClock', {
+      pattern: /(time|clock) in ([a-zA-Z\s]+)/i,
+      handler: async (transcript) => {
+        if (isWorldClockQuery(transcript)) {
+          const worldClockResult = processWorldClockQuery(transcript);
+          
+          if (sendMessage) {
+            await sendMessage(transcript);
+          } else if (worldClockResult) {
+            toast({
+              title: `Time in ${worldClockResult.location}`,
+              description: `${worldClockResult.time} (${worldClockResult.date})`,
+            });
+          }
+        }
+      },
+      feedback: "Checking world clock information."
+    });
+    
+    // Chat history commands
+    registerCommand('chatHistory', {
+      pattern: /(show|get) (my|the) (chat history|past questions|conversations|previous)/i,
+      handler: async () => {
+        if (sendMessage) {
+          await sendMessage("Show my chat history");
+        } else {
+          toast({
+            title: "Chat History",
+            description: "Retrieving your chat history...",
+          });
+        }
+      },
+      feedback: "Retrieving your chat history."
+    });
+    
     return () => {
       // Cleanup
       unregisterCommand('securityScan');
@@ -180,6 +257,10 @@ const JarvisVoiceCommands: React.FC<JarvisVoiceCommandsProps> = ({
       unregisterCommand('techNews');
       unregisterCommand('indiaNews');
       unregisterCommand('customNews');
+      unregisterCommand('fileManager');
+      unregisterCommand('calculator');
+      unregisterCommand('worldClock');
+      unregisterCommand('chatHistory');
     };
   }, [registerCommand, unregisterCommand, hackerModeActive, onActivateHacker, sendMessage]);
   

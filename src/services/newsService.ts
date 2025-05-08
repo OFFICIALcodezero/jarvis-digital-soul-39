@@ -1,4 +1,3 @@
-
 import { toast } from '@/components/ui/use-toast';
 
 export interface NewsArticle {
@@ -22,8 +21,9 @@ const NEWS_API_KEY = 'b1953fe4e78644a29515ffa6d1d08fb7';
 
 export const getNewsUpdates = async (query: NewsQuery = {}): Promise<NewsArticle[]> => {
   try {
-    // Create the NewsAPI URL
-    let apiUrl = 'https://newsapi.org/v2/top-headlines?';
+    // Create the NewsAPI URL - Using a proxy to avoid CORS issues
+    // Note: In production, this should be handled by a backend service
+    let apiUrl = 'https://cors-anywhere.herokuapp.com/https://newsapi.org/v2/top-headlines?';
     
     // Add parameters based on query
     const params = new URLSearchParams();
@@ -51,7 +51,11 @@ export const getNewsUpdates = async (query: NewsQuery = {}): Promise<NewsArticle
     params.append('apiKey', NEWS_API_KEY);
     
     // Fetch the news from NewsAPI
-    const response = await fetch(apiUrl + params.toString());
+    const response = await fetch(apiUrl + params.toString(), {
+      headers: {
+        'Origin': window.location.origin
+      }
+    });
     
     if (!response.ok) {
       throw new Error(`NewsAPI returned ${response.status}: ${response.statusText}`);

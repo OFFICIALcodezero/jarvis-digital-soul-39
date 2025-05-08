@@ -1,9 +1,9 @@
-
 import React, { createContext, useState, useContext, useRef, useEffect } from "react";
 import { Message, MessageSuggestion, JarvisChatProps } from "@/types/chat";
 import { generateAssistantResponse, synthesizeSpeech } from "@/services/aiAssistantService";
 import { getVoiceId } from "@/utils/apiKeyManager";
 import { processSkillCommand, isSkillCommand } from "@/services/skillsService";
+import { saveToHistory } from "@/services/chatHistoryService";
 import { toast } from "./ui/use-toast";
 
 interface JarvisChatContextType {
@@ -200,7 +200,11 @@ export const JarvisChatProvider: React.FC<React.PropsWithChildren<JarvisChatProp
         }
       }
 
-      setMessages((prevMessages) => [...prevMessages, response]);
+      const updatedMessages = [...messages, newMessage, response];
+      setMessages(updatedMessages);
+      
+      // Save conversation to history
+      saveToHistory(updatedMessages);
       
       // Set new suggestions if provided
       if (messageSuggestions && messageSuggestions.length > 0) {
