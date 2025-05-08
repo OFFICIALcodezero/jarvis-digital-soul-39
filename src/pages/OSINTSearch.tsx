@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { JarvisHeader } from '@/components/interface/JarvisHeader';
+import JarvisHeader from '@/components/interface/JarvisHeader';
 import OSINTDashboard from '@/components/osint/OSINTDashboard';
 import OSINTSearchForm from '@/components/osint/OSINTSearchForm';
 import OSINTResultsViewer from '@/components/osint/OSINTResultsViewer';
