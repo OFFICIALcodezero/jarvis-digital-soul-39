@@ -7,10 +7,6 @@ import JarvisImageOverlayHandler from "./JarvisImageOverlayHandler";
 import HackerMode from "./chat/HackerMode";
 import type { JarvisChatProps } from "@/types/chat";
 
-interface JarvisChatComponentProps {
-  hackerMode?: boolean;
-}
-
 const JarvisChat: React.FC<JarvisChatProps> = (props) => {
   // Render Hacker Mode directly
   if (props.activeMode === 'hacker') {
@@ -34,7 +30,7 @@ const JarvisChat: React.FC<JarvisChatProps> = (props) => {
           )}
           {/* Main chat area */}
           <div className="flex-1 flex flex-col">
-            <JarvisChatMain />
+            <JarvisChatMain hackerMode={props.hackerModeActive} />
           </div>
         </div>
         <JarvisImageOverlayHandler />

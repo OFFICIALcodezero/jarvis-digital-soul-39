@@ -8,8 +8,29 @@ import HackerModeEnhanced from './chat/HackerModeEnhanced';
 import useHackerMode from '../hooks/useHackerMode';
 
 const JarvisChatMainEnhanced: React.FC = () => {
-  const jarvisChat = useJarvisChat();
   const [input, setInput] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [messages, setMessages] = useState<any[]>([]);
+  
+  // Try to use the JarvisChat context, but provide fallbacks if it's not available
+  let jarvisChat;
+  try {
+    jarvisChat = useJarvisChat();
+  } catch (error) {
+    console.warn("JarvisChat context not available, using fallback values");
+    jarvisChat = {
+      handleImageGenerationFromPrompt: async (text: string) => {
+        console.log("Image generation requested:", text);
+        return null;
+      },
+      isGeneratingImage: false,
+      messages: [],
+      activeImage: null,
+      setActiveImage: () => {},
+      handleRefineImage: async () => null,
+      generationProgress: 0
+    };
+  }
   
   const { isHackerModeActive, checkForHackerMode, deactivateHackerMode } = useHackerMode();
 
@@ -20,9 +41,15 @@ const JarvisChatMainEnhanced: React.FC = () => {
     
     // If not a hacker command and we have image generation handling available
     if (!isHackerCommand && jarvisChat.handleImageGenerationFromPrompt) {
+      setIsProcessing(true);
+      
       // We'll use image generation as a fallback since sendMessage isn't available
       jarvisChat.handleImageGenerationFromPrompt(text)
-        .catch(error => console.error("Failed to process message:", error));
+        .catch(error => console.error("Failed to process message:", error))
+        .finally(() => setIsProcessing(false));
+        
+      // Add the message to our local state
+      setMessages(prev => [...prev, { role: 'user', content: text, id: Date.now().toString() }]);
     }
     
     // Clear input
@@ -35,10 +62,10 @@ const JarvisChatMainEnhanced: React.FC = () => {
       deactivateHackerMode();
     }
   };
-
-  // Create a dummy messages array since we might not have one from context
-  const messages = jarvisChat.messages || [];
-  const isProcessing = jarvisChat.isGeneratingImage || false;
+  
+  // Use context messages if available, otherwise use local state
+  const displayMessages = jarvisChat.messages || messages;
+  const isCurrentlyProcessing = jarvisChat.isGeneratingImage || isProcessing;
   
   // Create dummy suggestions
   const defaultSuggestions = [
