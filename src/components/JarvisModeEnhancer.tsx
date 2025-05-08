@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import JarvisChatMainEnhanced from './JarvisChatMainEnhanced';
 import { JarvisChatProvider } from '../contexts/JarvisChatProvider';
@@ -8,6 +9,12 @@ import { JarvisChatProvider } from '../contexts/JarvisChatProvider';
 // additional hacker tools
 const JarvisModeEnhancer: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
+  // Define state needed by the JarvisChatProvider
+  const [messages, setMessages] = useState<any[]>([]);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [activeAssistant, setActiveAssistant] = useState('jarvis');
+  const [inputMode, setInputMode] = useState<'voice' | 'text'>('text');
 
   // Check if we're on the main Jarvis interface
   const isJarvisInterface = location.pathname === '/jarvis';
