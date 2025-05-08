@@ -1,59 +1,17 @@
 
 import React, { useState, useEffect } from 'react';
-import { Newspaper, Calendar, RefreshCw } from 'lucide-react';
+import { Newspaper, Calendar, RefreshCw, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
-
-interface NewsArticle {
-  title: string;
-  description: string;
-  summary?: string;
-  url: string;
-  source: string;
-  publishedAt: string;
-  category?: string;
-}
+import { NewsArticle, getNewsUpdates } from '@/services/newsService';
+import { toast } from '@/components/ui/use-toast';
 
 interface NewsWidgetProps {
   articles?: NewsArticle[];
   isCompact?: boolean;
   autoRefresh?: boolean;
 }
-
-// Mock function to simulate API call
-const getNewsUpdates = async ({ count = 5 }: { count: number }) => {
-  // This is a mock function that would normally fetch from an API
-  return [
-    {
-      title: "AI Breakthrough: New Model Achieves Human-Level Understanding",
-      summary: "Researchers have developed a new AI model that demonstrates unprecedented levels of language comprehension.",
-      description: "Researchers have developed a new AI model that demonstrates unprecedented levels of language comprehension.",
-      url: "#",
-      source: "Tech News Daily",
-      publishedAt: new Date().toISOString(),
-      category: "technology"
-    },
-    {
-      title: "Global Climate Summit Concludes with New Agreements",
-      summary: "World leaders reached consensus on several key environmental policies at this year's climate summit.",
-      description: "World leaders reached consensus on several key environmental policies at this year's climate summit.",
-      url: "#",
-      source: "World Report",
-      publishedAt: new Date(Date.now() - 3600000).toISOString(),
-      category: "environment"
-    },
-    {
-      title: "Stock Markets Rally After Federal Reserve Announcement",
-      summary: "Markets responded positively to the latest interest rate decision from the Federal Reserve.",
-      description: "Markets responded positively to the latest interest rate decision from the Federal Reserve.",
-      url: "#",
-      source: "Financial Times",
-      publishedAt: new Date(Date.now() - 7200000).toISOString(),
-      category: "finance"
-    }
-  ];
-};
 
 const NewsWidget: React.FC<NewsWidgetProps> = ({ 
   articles: initialArticles, 
@@ -110,6 +68,11 @@ const NewsWidget: React.FC<NewsWidgetProps> = ({
       setLastUpdated(new Date());
     } catch (error) {
       console.error('Failed to fetch news:', error);
+      toast({
+        title: "Error fetching news",
+        description: "Could not retrieve the latest news. Using cached data.",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
@@ -189,8 +152,8 @@ const NewsWidget: React.FC<NewsWidgetProps> = ({
     <div className="news-widget bg-black/40 p-4 rounded-lg border border-[#33c3f0]/20 relative">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center">
-          <Newspaper className="h-5 w-5 text-[#33c3f0] mr-2" />
-          <h3 className="text-[#33c3f0] font-medium">Latest News</h3>
+          <Globe className="h-5 w-5 text-[#33c3f0] mr-2" />
+          <h3 className="text-[#33c3f0] font-medium">Global News</h3>
         </div>
         
         <div className="flex items-center space-x-2 text-xs text-gray-300">

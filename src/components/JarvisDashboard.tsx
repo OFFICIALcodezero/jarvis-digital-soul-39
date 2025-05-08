@@ -6,7 +6,8 @@ import NewsWidget from './widgets/NewsWidget';
 import BrainPanel from './BrainPanel';
 import CalendarWidget from './widgets/CalendarWidget';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Brain, Calendar, CloudSun, Image, Newspaper } from 'lucide-react';
+import { Brain, Calendar, CloudSun, Globe, Newspaper } from 'lucide-react';
+import { getNewsUpdates, NewsArticle } from '@/services/newsService';
 
 export interface WeatherData {
   location: string;
@@ -21,20 +22,6 @@ export interface WeatherData {
   }[];
 }
 
-interface NewsArticle {
-  title: string;
-  description: string;
-  url: string;
-  source: string;
-  publishedAt: string;
-  category?: string;
-}
-
-interface NewsData {
-  articles: NewsArticle[];
-  lastUpdated?: Date;
-}
-
 interface JarvisDashboardProps {
   compact?: boolean;
 }
@@ -43,7 +30,7 @@ const JarvisDashboard: React.FC<JarvisDashboardProps> = ({ compact = false }) =>
   const [activeTab, setActiveTab] = useState('brain');
   const { hackerModeActive } = useJarvisChat();
   const [weather, setWeather] = useState<WeatherData | null>(null);
-  const [news, setNews] = useState<NewsData | null>(null);
+  const [news, setNews] = useState<NewsArticle[] | null>(null);
   const [calendarEvents] = useState([
     { 
       title: "Team Meeting", 
@@ -78,39 +65,19 @@ const JarvisDashboard: React.FC<JarvisDashboardProps> = ({ compact = false }) =>
       ]
     };
     
-    // Mock news data
-    const mockNewsData: NewsData = {
-      articles: [
-        {
-          title: "AI Breakthrough: New Model Achieves Human-Level Understanding",
-          description: "Researchers have developed a new AI model that demonstrates unprecedented levels of language comprehension.",
-          url: "#",
-          source: "Tech News Daily",
-          publishedAt: new Date().toISOString(),
-          category: "technology"
-        },
-        {
-          title: "Global Climate Summit Concludes with New Agreements",
-          description: "World leaders reached consensus on several key environmental policies at this year's climate summit.",
-          url: "#",
-          source: "World Report",
-          publishedAt: new Date(Date.now() - 3600000).toISOString(),
-          category: "environment"
-        },
-        {
-          title: "Stock Markets Rally After Federal Reserve Announcement",
-          description: "Markets responded positively to the latest interest rate decision from the Federal Reserve.",
-          url: "#",
-          source: "Financial Times",
-          publishedAt: new Date(Date.now() - 7200000).toISOString(),
-          category: "finance"
-        }
-      ],
-      lastUpdated: new Date()
-    };
-
     setWeather(mockWeatherData);
-    setNews(mockNewsData);
+    
+    // Fetch real news data
+    const fetchNews = async () => {
+      try {
+        const newsData = await getNewsUpdates({ count: 5 });
+        setNews(newsData);
+      } catch (error) {
+        console.error('Error fetching news in dashboard:', error);
+      }
+    };
+    
+    fetchNews();
   }, []);
 
   if (compact) {
@@ -127,10 +94,10 @@ const JarvisDashboard: React.FC<JarvisDashboardProps> = ({ compact = false }) =>
           <WeatherWidget isCompact={true} />
         )}
         
-        {news && news.articles.length > 0 && (
+        {news && news.length > 0 && (
           <div className="space-y-2">
             <h4 className="text-xs font-semibold text-gray-400">Latest News</h4>
-            <p className="text-xs truncate">{news.articles[0].title}</p>
+            <p className="text-xs truncate">{news[0].title}</p>
           </div>
         )}
       </div>
@@ -174,7 +141,7 @@ const JarvisDashboard: React.FC<JarvisDashboardProps> = ({ compact = false }) =>
                   : ''
               }
             >
-              <Newspaper className="h-4 w-4 mr-2" />
+              <Globe className="h-4 w-4 mr-2" />
               <span className="hidden sm:inline">News</span>
             </TabsTrigger>
             
@@ -204,7 +171,7 @@ const JarvisDashboard: React.FC<JarvisDashboardProps> = ({ compact = false }) =>
         
         <TabsContent value="news">
           <div className="p-4">
-            <NewsWidget />
+            <NewsWidget articles={news || []} />
           </div>
         </TabsContent>
         

@@ -128,7 +128,11 @@ export const useVoiceCommands = (isListening: boolean) => {
       "Hey Jarvis, activate emergency mode",
       "Jarvis, launch hacking mode",
       "Jarvis, check for updates",
-      "Hey Jarvis, scan for objects"
+      "Hey Jarvis, scan for objects",
+      "Jarvis, show me the latest news",
+      "Hey Jarvis, what's the weather today",
+      "Jarvis, show tech news",
+      "Hey Jarvis, news from India"
     ];
     
     // Only for development/testing purposes
