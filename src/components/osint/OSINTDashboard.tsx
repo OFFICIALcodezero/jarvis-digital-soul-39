@@ -78,20 +78,21 @@ const OSINTDashboard: React.FC<OSINTDashboardProps> = ({ results }) => {
                     ))}
                   </Pie>
                   <ChartTooltip content={<ChartTooltipContent />} />
-                </ResponsiveContainer>
-              </ChartContainer>
-            </div>
-            <div className="mt-2 grid grid-cols-2 gap-2">
-              {sourceData.map((entry, index) => (
-                <div key={`legend-${index}`} className="flex items-center text-xs">
-                  <span 
-                    className="inline-block w-3 h-3 mr-2 rounded-sm" 
-                    style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                  />
-                  <span>{entry.name}: {entry.value}</span>
-                </div>
-              ))}
-            </div>
+                </PieChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </div>
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            {sourceData.map((entry, index) => (
+              <div key={`legend-${index}`} className="flex items-center text-xs">
+                <span 
+                  className="inline-block w-3 h-3 mr-2 rounded-sm" 
+                  style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                />
+                <span>{entry.name}: {entry.value}</span>
+              </div>
+            ))}
+          </div>
         </Card>
         
         <Card className="p-4 bg-black/40 border-jarvis/20">
@@ -121,9 +122,10 @@ const OSINTDashboard: React.FC<OSINTDashboardProps> = ({ results }) => {
                     dot={{ fill: '#1EAEDB', strokeWidth: 2 }} 
                   />
                   <ChartTooltip content={<ChartTooltipContent />} />
-                </ResponsiveContainer>
-              </ChartContainer>
-            </div>
+                </LineChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </div>
         </Card>
 
         <Card className="p-4 bg-black/40 border-jarvis/20">
@@ -151,9 +153,10 @@ const OSINTDashboard: React.FC<OSINTDashboardProps> = ({ results }) => {
                     radius={[4, 4, 0, 0]} 
                   />
                   <ChartTooltip content={<ChartTooltipContent />} />
-                </ResponsiveContainer>
-              </ChartContainer>
-            </div>
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </div>
         </Card>
         
         <Card className="p-4 bg-black/40 border-jarvis/20">
