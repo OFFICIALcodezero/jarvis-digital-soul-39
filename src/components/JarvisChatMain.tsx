@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import ChatLayout from "./chat/ChatLayout";
 import { useJarvisChat } from "./JarvisChatContext";
+import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 
 interface JarvisChatMainProps {
   hackerMode?: boolean;
@@ -13,7 +15,8 @@ const JarvisChatMain: React.FC<JarvisChatMainProps> = ({ hackerMode = false }) =
     isProcessing,
     activeAssistant,
     inputMode, 
-    setInputMode
+    setInputMode,
+    isSpeaking
   } = useJarvisChat();
   
   const [input, setInput] = useState("");
@@ -21,11 +24,32 @@ const JarvisChatMain: React.FC<JarvisChatMainProps> = ({ hackerMode = false }) =
   const currentTypingText = "";
   const selectedLanguage = "en";
   const setSelectedLanguage = () => {};
-  const audioPlaying = false;
+  const audioPlaying = isSpeaking;
   const [volume, setVolume] = useState(80);
   const stopSpeaking = () => {};
   const toggleMute = () => {};
-  const isListening = false;
+  
+  const {
+    isListening,
+    transcript,
+    startListening,
+    stopListening,
+    clearTranscript
+  } = useSpeechRecognition();
+  
+  // Process voice input when in voice mode
+  useEffect(() => {
+    if (inputMode === 'voice' && transcript && !isProcessing) {
+      // Check for wake word
+      const hasWakeWord = /\b(jarvis|hey jarvis|hey j.a.r.v.i.s|j.a.r.v.i.s)\b/i.test(transcript);
+      
+      if (hasWakeWord) {
+        console.log("Processing voice command:", transcript);
+        sendMessage(transcript);
+        clearTranscript();
+      }
+    }
+  }, [transcript, inputMode, isProcessing, sendMessage, clearTranscript]);
 
   // Enhanced suggestions with more image generation examples
   const getSuggestions = (): string[] => {

@@ -264,7 +264,7 @@ const JarvisVoiceCommands: React.FC<JarvisVoiceCommandsProps> = ({
     };
   }, [registerCommand, unregisterCommand, hackerModeActive, onActivateHacker, sendMessage]);
   
-  return null; // This component doesn't render anything
+  return null; // This is a non-visual component
 };
 
 export default JarvisVoiceCommands;

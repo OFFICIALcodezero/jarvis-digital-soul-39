@@ -13,9 +13,9 @@ interface VoiceActivationProps {
 
 const VoiceActivation: React.FC<VoiceActivationProps> = ({
   onCommandReceived,
-  isListening,
-  toggleListening,
-  isSpeaking,
+  isListening = false,
+  toggleListening = () => {},
+  isSpeaking = false,
   hackerMode = false
 }) => {
   // The Iron Man should glow when Jarvis is speaking or actively processing

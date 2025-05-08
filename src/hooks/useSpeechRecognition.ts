@@ -28,13 +28,52 @@ export const useSpeechRecognition = (): UseSpeechRecognitionReturn => {
         recognitionInstance.continuous = true;
         recognitionInstance.interimResults = true;
         recognitionInstance.lang = 'en-US';
+        
+        // Set up recognition event handlers
+        recognitionInstance.onresult = (event) => {
+          const transcript = Array.from(event.results)
+            .map(result => result[0].transcript)
+            .join('');
+          console.log("Speech recognized:", transcript);
+          setTranscript(transcript);
+        };
+        
+        recognitionInstance.onend = () => {
+          console.log("Speech recognition ended");
+          setIsListening(false);
+          
+          // Auto-restart if we're supposed to be listening
+          if (isListening) {
+            try {
+              console.log("Auto-restarting speech recognition");
+              recognitionInstance.start();
+            } catch (e) {
+              console.error("Could not restart recognition:", e);
+            }
+          }
+        };
+        
+        recognitionInstance.onerror = (event) => {
+          console.error("Speech recognition error:", event.error);
+          setError(event.error);
+          setIsListening(false);
+          
+          if (event.error !== 'aborted') {
+            toast({
+              title: "Speech Recognition Error",
+              description: `Error: ${event.error}. Please try again.`,
+              variant: "destructive"
+            });
+          }
+        };
+        
         setRecognition(recognitionInstance);
       } else {
         setIsSupported(false);
         setError('Speech recognition is not supported in this browser');
         toast({
           title: "Not Supported",
-          description: "Speech recognition is not supported in this browser",
+          description: "Speech recognition is not supported in this browser. Please use Chrome, Edge, or Safari.",
           variant: "destructive"
         });
       }
@@ -59,13 +98,14 @@ export const useSpeechRecognition = (): UseSpeechRecognitionReturn => {
     try {
       recognition.start();
       setIsListening(true);
+      console.log("Speech recognition started");
     } catch (error) {
       console.error('Speech recognition error:', error);
       setError('Could not start speech recognition');
       setIsListening(false);
       toast({
         title: "Error",
-        description: "Could not start speech recognition",
+        description: "Could not start speech recognition. Please try again.",
         variant: "destructive"
       });
     }
@@ -77,6 +117,7 @@ export const useSpeechRecognition = (): UseSpeechRecognitionReturn => {
     try {
       recognition.stop();
       setIsListening(false);
+      console.log("Speech recognition stopped");
     } catch (error) {
       console.error('Error stopping recognition:', error);
     }
@@ -85,42 +126,6 @@ export const useSpeechRecognition = (): UseSpeechRecognitionReturn => {
   const clearTranscript = useCallback(() => {
     setTranscript('');
   }, []);
-
-  useEffect(() => {
-    if (!recognition) return;
-
-    const handleResult = (event: SpeechRecognitionEvent) => {
-      const transcript = Array.from(event.results)
-        .map(result => result[0].transcript)
-        .join('');
-      setTranscript(transcript);
-    };
-
-    const handleEnd = () => {
-      setIsListening(false);
-    };
-
-    const handleError = (event: SpeechRecognitionErrorEvent) => {
-      console.error('Speech recognition error:', event.error);
-      setIsListening(false);
-      setError(event.error);
-      toast({
-        title: "Error",
-        description: `Speech recognition error: ${event.error}`,
-        variant: "destructive"
-      });
-    };
-
-    recognition.onresult = handleResult;
-    recognition.onend = handleEnd;
-    recognition.onerror = handleError;
-
-    return () => {
-      recognition.onresult = null;
-      recognition.onend = null;
-      recognition.onerror = null;
-    };
-  }, [recognition]);
 
   return {
     isListening,

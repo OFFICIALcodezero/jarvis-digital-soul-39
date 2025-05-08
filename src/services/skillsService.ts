@@ -19,6 +19,8 @@ export interface SkillResponse {
 export const isSkillCommand = (message: string): boolean => {
   const lowerMessage = message.toLowerCase();
   
+  const matchResult = Boolean(lowerMessage.match(/what('s| is) happening/i));
+  
   return (
     // Time related
     lowerMessage.includes('what time') || 
@@ -41,7 +43,7 @@ export const isSkillCommand = (message: string): boolean => {
     lowerMessage.includes('news') ||
     lowerMessage.includes('headlines') ||
     lowerMessage.includes('updates') ||
-    Boolean(lowerMessage.match(/what('s| is) happening/i)) ||
+    matchResult ||
     
     // Briefing related
     lowerMessage.includes('brief me') ||

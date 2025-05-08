@@ -13,6 +13,7 @@ import VoiceActivation from '@/components/VoiceActivation';
 import ChatMode from '@/components/chat/ChatMode';
 import HackerMode from '@/components/chat/HackerMode';
 import JarvisVoiceCommands from '@/components/JarvisVoiceCommands';
+import VoiceCommandIntegration from '@/features/VoiceCommandIntegration';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Mic, Brain, Sparkles, Cpu, Bot, Volume2, VolumeX, Image, Terminal } from 'lucide-react';
@@ -197,6 +198,17 @@ const JarvisInterface = () => {
     });
   };
 
+  // Update the isListening state handler to actually toggle listening
+  const toggleListening = () => {
+    setIsListening(prev => !prev);
+    playSound(isListening ? 'deactivation' : 'activation');
+    
+    toast({
+      title: isListening ? "Voice Recognition Deactivated" : "Voice Recognition Activated",
+      description: isListening ? "I'll stop listening now." : "I'm listening for commands.",
+    });
+  };
+
   // Function to handle assistant changes with proper typing
   const handleAssistantChange = (assistant: string) => {
     setActiveAssistant(assistant as AssistantType);
@@ -222,7 +234,9 @@ const JarvisInterface = () => {
         hackerModeActive={hackerModeActive}
         onActivateHacker={activateHackerMode}
       />
+      <VoiceCommandIntegration isActive={isListening} />
       
+      {/* Core components responsible for system functionality */}
       <div className={`w-full jarvis-panel flex items-center justify-between p-3 ${hackerModeActive ? 'border-red-500/20' : 'border-jarvis/20'}`}>
         <div className="flex items-center">
           <div className={`text-xl font-bold ${hackerModeActive ? 'hacker-text' : 'text-jarvis text-glow'} mr-2`}>JARVIS</div>
@@ -276,7 +290,7 @@ const JarvisInterface = () => {
             <div className="mt-4">
               <VoiceActivation 
                 isListening={isListening}
-                toggleListening={() => setIsListening(!isListening)}
+                toggleListening={toggleListening}
                 isSpeaking={isSpeaking}
                 hackerMode={hackerModeActive}
               />
