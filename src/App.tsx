@@ -23,6 +23,7 @@ function App() {
               <Route path="/" element={<Index />} />
               <Route path="/startup" element={<Startup />} />
               <Route path="/interface" element={<JarvisInterface />} />
+              <Route path="/jarvis" element={<JarvisInterface />} /> 
               <Route path="/image-generation" element={<ImageGeneration />} />
               <Route path="/images" element={<ImageGeneration />} />
               <Route path="/settings" element={<JarvisSettings />} />
