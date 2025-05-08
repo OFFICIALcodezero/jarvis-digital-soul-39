@@ -8,7 +8,7 @@ interface TimeResponse {
   };
 }
 
-interface CalendarEvent {
+export interface CalendarEvent {
   title: string;
   start: Date;
   end: Date;
@@ -89,6 +89,26 @@ export const getTimeCalendarResponse = async (query: string): Promise<TimeRespon
       data: {}
     };
   }
+};
+
+// Add the missing exports that the dailyBriefingService is trying to use
+export const getCalendarEvents = (): { title: string; time: string }[] => {
+  // Get mock calendar events and format them for the daily briefing
+  const events = getMockCalendarEvents();
+  
+  return events.map(event => ({
+    title: event.title,
+    time: event.start.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+  }));
+};
+
+export const getCurrentDate = (): string => {
+  return new Date().toLocaleDateString('en-US', { 
+    weekday: 'long', 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  });
 };
 
 // Mock calendar data for demonstration purposes

@@ -19,7 +19,7 @@ interface TaskResponse {
 }
 
 // Persistent task storage using localStorage
-const getTasks = (): Task[] => {
+export const getTasks = (): Task[] => {
   try {
     const tasks = localStorage.getItem('jarvis_tasks');
     return tasks ? JSON.parse(tasks) : [];
@@ -35,6 +35,45 @@ const saveTasks = (tasks: Task[]): void => {
   } catch (error) {
     console.error('Error saving tasks:', error);
   }
+};
+
+// Add task function to export
+export const addTask = (text: string, priority: 'low' | 'medium' | 'high' = 'medium', dueDate?: Date): Task => {
+  const newTask: Task = {
+    id: Date.now().toString(),
+    text,
+    timestamp: new Date(),
+    completed: false,
+    priority,
+    dueDate
+  };
+  
+  const tasks = getTasks();
+  tasks.push(newTask);
+  saveTasks(tasks);
+  
+  return newTask;
+};
+
+// Update task function to export
+export const updateTask = (id: string, updates: Partial<Task>): Task => {
+  const tasks = getTasks();
+  const taskIndex = tasks.findIndex(task => task.id === id);
+  
+  if (taskIndex !== -1) {
+    tasks[taskIndex] = { ...tasks[taskIndex], ...updates };
+    saveTasks(tasks);
+    return tasks[taskIndex];
+  }
+  
+  throw new Error(`Task with ID ${id} not found`);
+};
+
+// Remove task function to export
+export const removeTask = (id: string): void => {
+  const tasks = getTasks();
+  const updatedTasks = tasks.filter(task => task.id !== id);
+  saveTasks(updatedTasks);
 };
 
 // Extract task details from a voice/text command
