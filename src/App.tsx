@@ -13,6 +13,7 @@ import { JarvisChatProvider } from "./contexts/JarvisChatProvider";
 import ErrorBoundary from './components/ErrorBoundary';
 import FeaturesOverview from "./pages/FeaturesOverview";
 import SatelliteSurveillancePage from "./pages/SatelliteSurveillance";
+import OSINTSearch from "./pages/OSINTSearch";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
               <Route path="/settings" element={<JarvisSettings />} />
               <Route path="/features" element={<FeaturesOverview />} />
               <Route path="/satellite" element={<SatelliteSurveillancePage />} />
+              <Route path="/osint" element={<OSINTSearch />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </JarvisModeEnhancer>
