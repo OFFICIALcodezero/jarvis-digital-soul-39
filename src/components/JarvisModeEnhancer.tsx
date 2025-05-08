@@ -15,15 +15,7 @@ const JarvisModeEnhancer: React.FC<{ children: React.ReactNode }> = ({ children 
   // If we're on the Jarvis interface, return our enhanced version
   if (isJarvisInterface) {
     return (
-      <JarvisChatProvider
-        activeMode="normal"
-        setIsSpeaking={() => {}}
-        isListening={false}
-        activeAssistant="jarvis"
-        setActiveAssistant={() => {}}
-        inputMode="text"
-        setInputMode={() => {}}
-      >
+      <JarvisChatProvider>
         <div className="flex flex-col h-full">
           <JarvisChatMainEnhanced />
         </div>
