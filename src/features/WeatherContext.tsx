@@ -1,13 +1,20 @@
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { getWeatherForecast } from '@/services/weatherService';
+import { toast } from '@/components/ui/use-toast';
 
-interface WeatherData {
+export interface WeatherData {
   temperature: number;
   condition: string;
   humidity?: number;
   windSpeed?: number;
   icon?: string;
+  location?: string;
+  forecast?: Array<{
+    day: string;
+    temperature: number;
+    condition: string;
+  }>;
 }
 
 interface WeatherContextType {
@@ -37,8 +44,8 @@ export const WeatherContextProvider: React.FC<{ children: ReactNode }> = ({ chil
     setError(null);
     
     try {
-      // In a real implementation, we would use coordinates with the weather service
-      // For now, we'll use the mock data from our existing weatherService
+      // For now using mock data with the coordinates
+      console.log(`Fetching weather for coordinates: ${latitude}, ${longitude}`);
       const weatherResponse = await getWeatherForecast({ location: "New York" });
       
       // Convert from the existing format to our new format
@@ -47,11 +54,27 @@ export const WeatherContextProvider: React.FC<{ children: ReactNode }> = ({ chil
         condition: weatherResponse.current.condition,
         humidity: weatherResponse.current.humidity,
         windSpeed: weatherResponse.current.windSpeed,
-        icon: weatherResponse.current.icon
+        icon: weatherResponse.current.icon,
+        location: `${latitude.toFixed(2)}, ${longitude.toFixed(2)}`,
+        forecast: weatherResponse.forecast?.map((day: any) => ({
+          day: day.day,
+          temperature: day.temp,
+          condition: day.condition
+        }))
+      });
+      
+      toast({
+        title: "Weather Updated",
+        description: `Weather data updated for your location`,
       });
     } catch (error) {
       console.error("Error fetching weather:", error);
       setError("Failed to fetch weather data");
+      toast({
+        title: "Weather Error",
+        description: "Could not retrieve weather data for your location",
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }

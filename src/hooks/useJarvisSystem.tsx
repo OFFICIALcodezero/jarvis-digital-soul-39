@@ -17,6 +17,7 @@ export const useJarvisSystem = () => {
   const [volume, setVolume] = useState<number>(0.8);
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [hackerModeActive, setHackerModeActive] = useState<boolean>(false);
+  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
 
   const elevenLabsKey = getApiKey('elevenlabs');
   const groqKey = getApiKey('groq');
@@ -37,7 +38,25 @@ export const useJarvisSystem = () => {
         variant: "destructive"
       });
     }
+    
+    // Check for camera permission when in face mode
+    if (activeMode === 'face') {
+      checkCameraPermission();
+    }
   }, [elevenLabsKey, groqKey, activeMode]);
+  
+  // Function to check camera permission
+  const checkCameraPermission = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      setHasCameraPermission(true);
+      // Stop tracks immediately after permission check
+      stream.getTracks().forEach(track => track.stop());
+    } catch (err) {
+      setHasCameraPermission(false);
+      console.error('Camera permission denied:', err);
+    }
+  };
 
   // Helper function to play a sound
   const playSound = useCallback((type: 'activation' | 'deactivation' | 'processing' | 'alert') => {
@@ -91,8 +110,11 @@ export const useJarvisSystem = () => {
       if (id === 'face') {
         toast({
           title: "Face Mode Activated",
-          description: "Jarvis AI Avatar is now active and will animate when speaking or listening.",
+          description: "Jarvis AI Avatar is now active with face recognition capabilities.",
         });
+        
+        // Check camera permission
+        checkCameraPermission();
       }
       
       if (!elevenLabsKey) {
@@ -186,6 +208,7 @@ export const useJarvisSystem = () => {
     volume,
     isMuted,
     hackerModeActive,
+    hasCameraPermission,
     handleToggleMode,
     toggleMute,
     handleMessageCheck,

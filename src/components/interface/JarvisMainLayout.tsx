@@ -1,9 +1,12 @@
+
 import React from 'react';
 import { AssistantType } from '@/pages/JarvisInterface';
 import VoiceActivation from '@/components/VoiceActivation';
 import JarvisCentralCore from '@/components/JarvisCentralCore';
 import JarvisChat from '@/components/JarvisChat';
 import HackerMode from '@/components/chat/HackerMode';
+import { LocationAwareness } from '@/features/LocationAwareness';
+import FaceDetection from '@/features/FaceDetection';
 
 interface JarvisMainLayoutProps {
   isSpeaking: boolean;
@@ -40,6 +43,31 @@ const JarvisMainLayout: React.FC<JarvisMainLayoutProps> = ({
   setInputMode,
   handleMessageCheck
 }) => {
+  // State for device integration
+  const [userLocation, setUserLocation] = React.useState<GeolocationPosition | null>(null);
+  const [locationLoading, setLocationLoading] = React.useState<boolean>(false);
+  const [locationError, setLocationError] = React.useState<string | null>(null);
+  
+  // Request geolocation when component mounts
+  React.useEffect(() => {
+    if ('geolocation' in navigator) {
+      setLocationLoading(true);
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation(position);
+          setLocationLoading(false);
+        },
+        (error) => {
+          console.error('Geolocation error:', error);
+          setLocationError('Unable to access your location. Please check permissions.');
+          setLocationLoading(false);
+        }
+      );
+    } else {
+      setLocationError('Geolocation is not supported by your browser.');
+    }
+  }, []);
+
   return (
     <div className="flex-1 flex flex-col lg:flex-row gap-4 p-4 z-10">
       <div className="lg:w-1/3 order-2 lg:order-1">
@@ -57,6 +85,19 @@ const JarvisMainLayout: React.FC<JarvisMainLayoutProps> = ({
               isSpeaking={isSpeaking}
               hackerMode={hackerModeActive}
             />
+          </div>
+          
+          <div className="mt-4 space-y-4">
+            <LocationAwareness 
+              userLocation={userLocation} 
+              isLoading={locationLoading} 
+              error={locationError} 
+              isHackerMode={hackerModeActive}
+            />
+            
+            {activeMode === 'face' && (
+              <FaceDetection isHackerMode={hackerModeActive} />
+            )}
           </div>
         </div>
       </div>
