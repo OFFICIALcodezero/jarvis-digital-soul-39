@@ -1,4 +1,5 @@
 
+import React from 'react';
 import { Toaster } from "@/components/ui/sonner";
 import { Routes, Route } from 'react-router-dom';
 import Index from "./pages/Index";
