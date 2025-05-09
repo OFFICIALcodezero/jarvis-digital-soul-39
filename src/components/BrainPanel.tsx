@@ -13,8 +13,15 @@ interface BrainPanelProps {
 }
 
 const BrainPanel: React.FC<BrainPanelProps> = ({ isHackerMode = false }) => {
-  // Since emotionalData doesn't exist on the context type, we'll create local data
-  const { messages } = useJarvisChat();
+  // Use try-catch to handle missing context
+  let messages = [];
+  try {
+    const context = useJarvisChat();
+    messages = context?.messages || [];
+  } catch (error) {
+    console.warn("JarvisChat context not available in BrainPanel, using default values");
+  }
+  
   const [cpuUsage, setCpuUsage] = React.useState(42);
   const [ramUsage, setRamUsage] = React.useState(35);
   const [networkUsage, setNetworkUsage] = React.useState(28);

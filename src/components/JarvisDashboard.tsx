@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { useJarvisChat } from '@/components/JarvisChatContext';
+import { useJarvisChat } from './JarvisChatContext';
 import WeatherWidget from './widgets/WeatherWidget';
 import NewsWidget from './widgets/NewsWidget';
 import BrainPanel from './BrainPanel';
@@ -28,7 +28,18 @@ interface JarvisDashboardProps {
 
 const JarvisDashboard: React.FC<JarvisDashboardProps> = ({ compact = false }) => {
   const [activeTab, setActiveTab] = useState('brain');
-  const { hackerModeActive } = useJarvisChat?.() || { hackerModeActive: false };
+  
+  // Use optional chaining and provide a default value to handle missing context
+  let jarvisChatContext;
+  try {
+    jarvisChatContext = useJarvisChat();
+  } catch (error) {
+    console.warn("JarvisChat context not available in Dashboard, using default values");
+    jarvisChatContext = { hackerModeActive: false };
+  }
+  
+  const { hackerModeActive = false } = jarvisChatContext || {};
+  
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [news, setNews] = useState<NewsArticle[] | null>(null);
   const [calendarEvents] = useState([
