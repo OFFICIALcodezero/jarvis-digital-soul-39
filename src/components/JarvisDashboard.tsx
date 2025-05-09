@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { useJarvisChat } from './JarvisChatContext';
+import { useJarvisChat } from '@/components/JarvisChatContext';
 import WeatherWidget from './widgets/WeatherWidget';
 import NewsWidget from './widgets/NewsWidget';
 import BrainPanel from './BrainPanel';
@@ -28,7 +28,7 @@ interface JarvisDashboardProps {
 
 const JarvisDashboard: React.FC<JarvisDashboardProps> = ({ compact = false }) => {
   const [activeTab, setActiveTab] = useState('brain');
-  const { hackerModeActive } = useJarvisChat();
+  const { hackerModeActive } = useJarvisChat?.() || { hackerModeActive: false };
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [news, setNews] = useState<NewsArticle[] | null>(null);
   const [calendarEvents] = useState([

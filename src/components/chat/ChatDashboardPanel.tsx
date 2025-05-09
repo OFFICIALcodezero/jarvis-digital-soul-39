@@ -14,7 +14,9 @@ const ChatDashboardPanel: React.FC<ChatDashboardPanelProps> = ({ messages, isTyp
   return (
     <div className="p-3 bg-black/20 border-b border-jarvis/20">
       <ErrorBoundaryWrapper>
-        <JarvisDashboard />
+        <JarvisChatProvider>
+          <JarvisDashboard />
+        </JarvisChatProvider>
       </ErrorBoundaryWrapper>
     </div>
   );
@@ -37,13 +39,9 @@ const ErrorBoundaryWrapper: React.FC<{children: React.ReactNode}> = ({ children 
     );
   }
 
-  // Try to render the dashboard, but catch errors if JarvisChat context is missing
+  // Try to render the dashboard, but catch errors
   try {
-    return (
-      <JarvisChatProvider>
-        {children}
-      </JarvisChatProvider>
-    );
+    return children;
   } catch (error) {
     console.error("Error rendering dashboard:", error);
     setHasError(true);
