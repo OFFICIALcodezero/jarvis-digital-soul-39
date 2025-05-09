@@ -28,6 +28,7 @@ export const useControlOptions = ({ activeMode, hackerModeActive }: ControlOptio
       icon: <Tv />,
       active: activeMode === 'face' && !hackerModeActive
     }
+    // Satellite and Hacker modes removed - can only be activated via voice commands
   ];
   
   return controlOptions;

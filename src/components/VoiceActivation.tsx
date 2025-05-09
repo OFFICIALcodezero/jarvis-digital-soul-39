@@ -18,8 +18,24 @@ const VoiceActivation: React.FC<VoiceActivationProps> = ({
   isSpeaking = false,
   hackerMode = false
 }) => {
-  // The Iron Man should glow when Jarvis is speaking or actively processing
-  const isJarvisActive = isSpeaking;
+  // The Iron Man should glow when Jarvis is speaking, actively processing, or listening
+  const isJarvisActive = isSpeaking || isListening;
+  const [pulseIntensity, setPulseIntensity] = useState(1);
+  
+  // Create a pulsing effect when listening
+  useEffect(() => {
+    let interval: number;
+    if (isListening) {
+      interval = window.setInterval(() => {
+        setPulseIntensity(prev => (prev === 1 ? 1.2 : 1));
+      }, 1000);
+    }
+    
+    return () => {
+      if (interval) clearInterval(interval);
+      setPulseIntensity(1);
+    };
+  }, [isListening]);
   
   return (
     <div className="flex flex-col items-center gap-3 relative">
@@ -34,7 +50,8 @@ const VoiceActivation: React.FC<VoiceActivationProps> = ({
           hackerMode 
             ? `${isListening ? 'bg-red-500/30 border-2 border-red-500' : 'bg-black/30 border border-red-500/30'}`
             : `${isListening ? 'bg-[#33c3f0]/30 border-2 border-[#33c3f0]' : 'bg-black/30 border border-[#33c3f0]/30'}`
-        }`}
+        } transform scale-${pulseIntensity}`}
+        style={{ transform: isListening ? `scale(${pulseIntensity})` : 'scale(1)' }}
       >
         {isListening ? (
           <Mic className={`h-6 w-6 ${hackerMode ? 'text-red-400' : 'text-white'} animate-pulse`} />
@@ -43,7 +60,7 @@ const VoiceActivation: React.FC<VoiceActivationProps> = ({
         )}
       </button>
       
-      {isSpeaking && (
+      {isJarvisActive && (
         <div className="flex items-center space-x-1 mt-2">
           <div className={`h-1 w-1 ${hackerMode ? 'bg-red-400' : 'bg-white'} rounded-full animate-pulse`}></div>
           <div className={`h-1 w-1 ${hackerMode ? 'bg-red-400' : 'bg-white'} rounded-full animate-pulse`} style={{ animationDelay: '0.2s' }}></div>
@@ -52,7 +69,7 @@ const VoiceActivation: React.FC<VoiceActivationProps> = ({
       )}
       
       <div className={`text-xs ${hackerMode ? 'text-red-400/70' : 'text-white/70'}`}>
-        {isListening ? "Listening..." : isSpeaking ? "Speaking..." : "Click to activate"}
+        {isListening ? "Listening for 'Jarvis'..." : isSpeaking ? "Speaking..." : "Click to activate"}
       </div>
     </div>
   );

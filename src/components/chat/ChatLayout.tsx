@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Message } from '@/types/chat';
 import ChatMode from './ChatMode';
@@ -27,6 +28,7 @@ interface ChatLayoutProps {
   handleSendMessage: () => void;
   getSuggestions: () => string[];
   hackerMode?: boolean;
+  toggleListening?: () => void;
 }
 
 const ChatLayout: React.FC<ChatLayoutProps> = ({
@@ -49,7 +51,8 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
   setInputMode,
   handleSendMessage,
   getSuggestions,
-  hackerMode
+  hackerMode,
+  toggleListening
 }) => {
   const chatModeProps = {
     messages,
@@ -70,7 +73,7 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
     toggleMute,
     onVolumeChange,
     isMicActive: isListening,
-    onMicToggle: () => {},
+    onMicToggle: toggleListening,
     inputMode,
     onInputModeChange: setInputMode
   };
