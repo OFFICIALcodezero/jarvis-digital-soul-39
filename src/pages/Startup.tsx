@@ -2,12 +2,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Progress } from '@/components/ui/progress';
+import GoogleSignInButton from '@/components/auth/GoogleSignInButton';
+import { useAuth } from '@/contexts/AuthContext';
 
 const StartupSequence = () => {
   const navigate = useNavigate();
   const [progress, setProgress] = useState(0);
   const [currentPhase, setCurrentPhase] = useState('Initializing systems');
   const [logs, setLogs] = useState<string[]>([]);
+  const { user, isLoading } = useAuth();
   
   const bootSequence = [
     { phase: 'Initializing systems', duration: 2000, logs: [
@@ -41,6 +44,13 @@ const StartupSequence = () => {
       'Ready to assist'
     ]}
   ];
+
+  useEffect(() => {
+    if (user) {
+      // Add personalized logs if user is signed in
+      setLogs(prev => [...prev, `Welcome back, ${user.displayName || 'User'}`]);
+    }
+  }, [user]);
   
   useEffect(() => {
     let currentIndex = 0;
@@ -95,6 +105,17 @@ const StartupSequence = () => {
         <div className="mb-12 text-center">
           <h1 className="text-4xl md:text-6xl font-bold mb-2 neon-purple-text animate-pulse-subtle">JARVIS</h1>
           <p className="text-[#8a8a9b]">Just A Rather Very Intelligent System</p>
+          
+          {/* Login Button */}
+          {!isLoading && (
+            <div className="mt-4">
+              {user ? (
+                <div className="text-jarvis">Signed in as {user.displayName || user.email}</div>
+              ) : (
+                <GoogleSignInButton variant="default" size="md" />
+              )}
+            </div>
+          )}
         </div>
         
         <div className="w-full glass-morphism neon-purple-border p-6 rounded-2xl mb-8">

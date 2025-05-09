@@ -1,10 +1,15 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ChevronRight } from 'lucide-react';
 import ArcReactor from '@/components/background/ArcReactor';
+import GoogleSignInButton from '@/components/auth/GoogleSignInButton';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Index = () => {
+  const { user } = useAuth();
+  
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-[#0f1019] to-[#121624] text-white p-4">
       <ArcReactor />
@@ -29,7 +34,19 @@ const Index = () => {
               <ChevronRight className="ml-2 h-5 w-5" />
             </Button>
           </Link>
+          
+          {!user && (
+            <div className="mt-4 md:mt-0">
+              <GoogleSignInButton variant="outline" size="lg" />
+            </div>
+          )}
         </div>
+        
+        {user && (
+          <div className="mt-4 text-jarvis">
+            Welcome back, {user.displayName || user.email}
+          </div>
+        )}
         
         <div className="mt-16 text-[#8a8a9b] text-sm">
           <p>© {new Date().getFullYear()} • JARVIS Digital Soul v1.0</p>

@@ -15,6 +15,15 @@ interface CommandData {
   [key: string]: any;
 }
 
+// User type definition
+export interface FirebaseUser {
+  uid: string;
+  displayName: string | null;
+  email: string | null;
+  photoURL: string | null;
+  lastSignInTime?: string;
+}
+
 // Firebase configuration (same as in admin.html)
 const firebaseConfig: FirebaseConfig = {
   apiKey: "AIzaSyCvFSBPzE9yne0ziYqruXAL5MLIHCHY10o",
@@ -28,6 +37,8 @@ const firebaseConfig: FirebaseConfig = {
 // Function to initialize Firebase - will use dynamic import to prevent loading issues
 let firebaseInitialized = false;
 let db: any = null;
+let auth: any = null;
+let googleProvider: any = null;
 
 export const initializeFirebase = async (): Promise<boolean> => {
   if (firebaseInitialized) return true;
@@ -36,10 +47,14 @@ export const initializeFirebase = async (): Promise<boolean> => {
     // Dynamically import Firebase
     const firebaseApp = await import('firebase/app');
     const firestoreModule = await import('firebase/firestore');
+    const authModule = await import('firebase/auth');
     
     // Initialize Firebase
     const app = firebaseApp.initializeApp(firebaseConfig);
     db = firestoreModule.getFirestore(app);
+    auth = authModule.getAuth(app);
+    googleProvider = new authModule.GoogleAuthProvider();
+    
     firebaseInitialized = true;
     
     console.log("Firebase initialized successfully");
@@ -47,6 +62,113 @@ export const initializeFirebase = async (): Promise<boolean> => {
   } catch (error) {
     console.error("Error initializing Firebase:", error);
     return false;
+  }
+};
+
+// Authentication functions
+export const signInWithGoogle = async (): Promise<FirebaseUser | null> => {
+  if (!await initializeFirebase()) {
+    toast({
+      title: "Firebase Error",
+      description: "Could not initialize Firebase for authentication.",
+      variant: "destructive"
+    });
+    return null;
+  }
+  
+  try {
+    const { signInWithPopup, GoogleAuthProvider } = await import('firebase/auth');
+    const result = await signInWithPopup(auth, googleProvider);
+    
+    // This gives you a Google Access Token
+    const credential = GoogleAuthProvider.credentialFromResult(result);
+    const user = result.user;
+    
+    // Create user profile data
+    const userData: FirebaseUser = {
+      uid: user.uid,
+      displayName: user.displayName,
+      email: user.email,
+      photoURL: user.photoURL,
+      lastSignInTime: user.metadata.lastSignInTime
+    };
+    
+    // Store or update user data in Firestore
+    await storeUserProfile(userData);
+    
+    toast({
+      title: "Sign In Successful",
+      description: `Welcome, ${user.displayName || "User"}!`,
+    });
+    
+    return userData;
+  } catch (error: any) {
+    console.error("Error signing in with Google:", error);
+    toast({
+      title: "Authentication Error",
+      description: error.message || "Failed to sign in with Google",
+      variant: "destructive"
+    });
+    return null;
+  }
+};
+
+export const signOut = async (): Promise<boolean> => {
+  if (!await initializeFirebase()) return false;
+  
+  try {
+    await auth.signOut();
+    toast({
+      title: "Signed Out",
+      description: "You have been successfully signed out."
+    });
+    return true;
+  } catch (error) {
+    console.error("Error signing out:", error);
+    toast({
+      title: "Sign Out Error",
+      description: "Failed to sign out.",
+      variant: "destructive"
+    });
+    return false;
+  }
+};
+
+export const getCurrentUser = async (): Promise<FirebaseUser | null> => {
+  if (!await initializeFirebase()) return null;
+  
+  return new Promise((resolve) => {
+    const unsubscribe = auth.onAuthStateChanged((user: any) => {
+      unsubscribe();
+      if (user) {
+        const userData: FirebaseUser = {
+          uid: user.uid,
+          displayName: user.displayName,
+          email: user.email,
+          photoURL: user.photoURL,
+          lastSignInTime: user.metadata.lastSignInTime
+        };
+        resolve(userData);
+      } else {
+        resolve(null);
+      }
+    });
+  });
+};
+
+// Store user profile in Firestore
+const storeUserProfile = async (userData: FirebaseUser): Promise<void> => {
+  if (!db) return;
+  
+  try {
+    const { doc, setDoc, serverTimestamp } = await import('firebase/firestore');
+    await setDoc(doc(db, "users", userData.uid), {
+      ...userData,
+      lastUpdated: serverTimestamp()
+    }, { merge: true });
+    console.log("User profile stored successfully");
+  } catch (error) {
+    console.error("Error storing user profile:", error);
   }
 };
 
