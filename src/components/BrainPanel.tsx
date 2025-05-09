@@ -1,11 +1,14 @@
+
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Loader2, Brain, Zap, Bell, PieChart, List, Gauge, Star } from 'lucide-react';
+import { Loader2, Brain, Zap, Bell, PieChart, List, Gauge, Star, CloudSun, MapPin } from 'lucide-react';
 import { useJarvisChat } from './JarvisChatContext';
 import { TaskList } from './TaskList';
 import { EmotionalIntelligence } from '../features/EmotionalIntelligence';
 import { NLP } from '../features/NLP';
+import { WeatherContextProvider } from '../features/WeatherContext';
+import { LocationAwareness } from '../features/LocationAwareness';
 
 interface BrainPanelProps {
   isHackerMode?: boolean;
@@ -39,6 +42,11 @@ const BrainPanel: React.FC<BrainPanelProps> = ({ isHackerMode = false }) => {
       type: "positive"
     }
   });
+
+  // User location state
+  const [userLocation, setUserLocation] = React.useState<GeolocationPosition | null>(null);
+  const [locationError, setLocationError] = React.useState<string | null>(null);
+  const [isLoadingLocation, setIsLoadingLocation] = React.useState(false);
   
   // Simulated system stats that update periodically
   React.useEffect(() => {
@@ -49,6 +57,26 @@ const BrainPanel: React.FC<BrainPanelProps> = ({ isHackerMode = false }) => {
     }, 8000);
     
     return () => clearInterval(interval);
+  }, []);
+
+  // Get user location if browser supports it
+  React.useEffect(() => {
+    if ("geolocation" in navigator) {
+      setIsLoadingLocation(true);
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation(position);
+          setIsLoadingLocation(false);
+        },
+        (error) => {
+          console.error("Error getting location:", error.message);
+          setLocationError(error.message);
+          setIsLoadingLocation(false);
+        }
+      );
+    } else {
+      setLocationError("Geolocation not supported by your browser");
+    }
   }, []);
   
   return (
@@ -153,6 +181,26 @@ const BrainPanel: React.FC<BrainPanelProps> = ({ isHackerMode = false }) => {
         </CardHeader>
         <CardContent>
           <TaskList isHackerMode={isHackerMode} />
+        </CardContent>
+      </Card>
+      
+      {/* Location Awareness & Weather Context */}
+      <Card className={`${isHackerMode ? 'bg-black/80 border-red-500/20' : 'bg-black/40 border-jarvis/20'}`}>
+        <CardHeader className="pb-2">
+          <CardTitle className={`flex items-center text-lg ${isHackerMode ? 'text-red-400' : 'text-jarvis'}`}>
+            <MapPin className="mr-2 h-5 w-5" /> Location Awareness
+          </CardTitle>
+          <CardDescription>Contextual location information</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <WeatherContextProvider>
+            <LocationAwareness 
+              userLocation={userLocation} 
+              isLoading={isLoadingLocation}
+              error={locationError}
+              isHackerMode={isHackerMode}
+            />
+          </WeatherContextProvider>
         </CardContent>
       </Card>
       

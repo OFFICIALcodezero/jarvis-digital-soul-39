@@ -4,15 +4,15 @@ import { Heart } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
-interface EmotionData {
+export interface EmotionData {
   joy: number;
   surprise: number;
   anger: number;
   sadness: number;
-  [key: string]: number;
+  [key: string]: number; // Allow for other emotion types
 }
 
-interface SentimentData {
+export interface SentimentData {
   score: number;
   comparative?: number;
   type: string;
