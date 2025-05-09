@@ -13,7 +13,7 @@ interface JarvisChatContextType {
   isProcessing: boolean;
   suggestions: MessageSuggestion[];
   setSuggestions: React.Dispatch<React.SetStateAction<MessageSuggestion[]>>;
-  activeMode: 'normal' | 'voice' | 'face' | 'hacker';
+  activeMode: 'normal' | 'voice' | 'face' | 'hacker' | 'satellite';
   isSpeaking: boolean;
   setIsSpeaking: (isSpeaking: boolean) => void;
   isListening: boolean;

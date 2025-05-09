@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { AssistantType } from '@/pages/JarvisInterface';
 import VoiceActivation from '@/components/VoiceActivation';
@@ -10,7 +9,7 @@ interface JarvisMainLayoutProps {
   isSpeaking: boolean;
   isListening: boolean;
   isProcessing: boolean;
-  activeMode: 'normal' | 'voice' | 'face';
+  activeMode: 'normal' | 'voice' | 'face' | 'satellite';
   hackerModeActive: boolean;
   mode: 'chat' | 'hacker';
   hackerOutput: string;
