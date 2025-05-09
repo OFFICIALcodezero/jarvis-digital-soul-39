@@ -1,4 +1,3 @@
-
 import { toast } from '../components/ui/sonner';
 
 // Mock news articles with threat data for simulation
@@ -83,10 +82,7 @@ export const sendWhatsAppAlert = async (threatData: any, phoneNumber: string) =>
   console.log("Threat data:", threatData);
   
   // Show toast notification to simulate the alert
-  toast("WhatsApp Alert Sent", {
-    description: `Alert about "${threatData.title}" sent to WhatsApp`,
-    duration: 5000,
-  });
+  toast(`WhatsApp Alert Sent: Alert about "${threatData.title}" sent to WhatsApp`);
   
   return {
     success: true,
@@ -100,9 +96,7 @@ export const sendWhatsAppAlert = async (threatData: any, phoneNumber: string) =>
  */
 export const detectThreats = async (phoneNumber: string) => {
   try {
-    toast("Initiating Threat Detection", {
-      description: "Scanning news sources for potential threats...",
-    });
+    toast("Initiating Threat Detection: Scanning news sources for potential threats...");
     
     // Step 1: Fetch threat news (simulated)
     const newsData = await fetchThreatNews();
@@ -115,10 +109,7 @@ export const detectThreats = async (phoneNumber: string) => {
     
     // Step 4: Send alerts for high threats
     if (highThreats.length > 0) {
-      toast("ALERT: Threats Detected", {
-        description: `${highThreats.length} high-level threats detected`,
-        duration: 8000,
-      });
+      toast(`ALERT: ${highThreats.length} high-level threats detected`);
       
       // Send WhatsApp alerts for each high threat
       for (const threat of highThreats) {
@@ -131,9 +122,7 @@ export const detectThreats = async (phoneNumber: string) => {
         threats: highThreats
       };
     } else {
-      toast("Scan Complete", {
-        description: "No immediate threats detected",
-      });
+      toast("Scan Complete: No immediate threats detected");
       
       return {
         status: "no_threats",
@@ -142,9 +131,7 @@ export const detectThreats = async (phoneNumber: string) => {
     }
   } catch (error) {
     console.error("Error in threat detection:", error);
-    toast("Threat Detection Error", {
-      description: "Failed to complete threat analysis",
-    });
+    toast("Threat Detection Error: Failed to complete threat analysis");
     
     return {
       status: "error",

@@ -35,8 +35,7 @@ const JarvisVoiceCommands: React.FC<JarvisVoiceCommandsProps> = ({
           window.JARVIS.security.scan();
         }
         
-        toast({
-          title: "Security Scan",
+        toast("Security Scan", {
           description: "Running security scan...",
         });
       },
@@ -51,8 +50,7 @@ const JarvisVoiceCommands: React.FC<JarvisVoiceCommandsProps> = ({
           window.JARVIS.security.setEmergencyMode();
         }
         
-        toast({
-          title: "EMERGENCY MODE",
+        toast("EMERGENCY MODE", {
           description: "Emergency protocols activated!",
         });
       },
@@ -67,8 +65,7 @@ const JarvisVoiceCommands: React.FC<JarvisVoiceCommandsProps> = ({
           onActivateHacker();
         }
         
-        toast({
-          title: "HACKER MODE",
+        toast("HACKER MODE", {
           description: "Initializing hacker mode...",
         });
       },
@@ -102,8 +99,7 @@ const JarvisVoiceCommands: React.FC<JarvisVoiceCommandsProps> = ({
             updateMessage += `${module}: ${status}. `;
           });
           
-          toast({
-            title: "System Updates",
+          toast("System Updates", {
             description: updateMessage,
           });
         }
@@ -120,8 +116,7 @@ const JarvisVoiceCommands: React.FC<JarvisVoiceCommandsProps> = ({
         } else {
           // Fallback if context not available
           const response = await getNewsResponse("world news");
-          toast({
-            title: "World News Headlines",
+          toast("World News Headlines", {
             description: response.text.substring(0, 100) + "...",
           });
         }
@@ -138,8 +133,7 @@ const JarvisVoiceCommands: React.FC<JarvisVoiceCommandsProps> = ({
         } else {
           // Fallback if context not available
           const response = await getNewsResponse("tech news");
-          toast({
-            title: "Technology News",
+          toast("Technology News", {
             description: response.text.substring(0, 100) + "...",
           });
         }
@@ -156,8 +150,7 @@ const JarvisVoiceCommands: React.FC<JarvisVoiceCommandsProps> = ({
         } else {
           // Fallback if context not available
           const response = await getNewsResponse("news in India");
-          toast({
-            title: "India News",
+          toast("India News", {
             description: response.text.substring(0, 100) + "...",
           });
         }
@@ -177,8 +170,7 @@ const JarvisVoiceCommands: React.FC<JarvisVoiceCommandsProps> = ({
           } else {
             // Fallback if context not available
             const response = await getNewsResponse(`news on ${topic}`);
-            toast({
-              title: `${topic.charAt(0).toUpperCase() + topic.slice(1)} News`,
+            toast(`${topic.charAt(0).toUpperCase() + topic.slice(1)} News`, {
               description: response.text.substring(0, 100) + "...",
             });
           }
@@ -196,8 +188,7 @@ const JarvisVoiceCommands: React.FC<JarvisVoiceCommandsProps> = ({
           if (sendMessage) {
             await sendMessage(transcript);
           } else {
-            toast({
-              title: "File Manager",
+            toast("File Manager", {
               description: response.message,
             });
           }
@@ -214,8 +205,7 @@ const JarvisVoiceCommands: React.FC<JarvisVoiceCommandsProps> = ({
         if (sendMessage) {
           await sendMessage(transcript);
         } else {
-          toast({
-            title: "Calculator",
+          toast("Calculator", {
             description: result.error || `${result.expression} = ${result.result}`,
           });
         }
@@ -233,8 +223,7 @@ const JarvisVoiceCommands: React.FC<JarvisVoiceCommandsProps> = ({
           if (sendMessage) {
             await sendMessage(transcript);
           } else if (worldClockResult) {
-            toast({
-              title: `Time in ${worldClockResult.location}`,
+            toast(`Time in ${worldClockResult.location}`, {
               description: `${worldClockResult.time} (${worldClockResult.date})`,
             });
           }
@@ -250,8 +239,7 @@ const JarvisVoiceCommands: React.FC<JarvisVoiceCommandsProps> = ({
         if (sendMessage) {
           await sendMessage("Show my chat history");
         } else {
-          toast({
-            title: "Chat History",
+          toast("Chat History", {
             description: "Retrieving your chat history...",
           });
         }
