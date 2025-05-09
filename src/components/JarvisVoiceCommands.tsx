@@ -1,4 +1,3 @@
-
 import React, { useEffect, useContext } from 'react';
 import { useVoiceCommands } from '@/hooks/useVoiceCommands';
 import { toast } from '@/components/ui/use-toast';
@@ -54,7 +53,7 @@ const JarvisVoiceCommands: React.FC<JarvisVoiceCommandsProps> = ({
         toast({
           title: "EMERGENCY MODE",
           description: "Emergency protocols activated!",
-          variant: "destructive",
+          type: "error",
         });
       },
       feedback: "Emergency mode activated. All systems on high alert."
@@ -71,7 +70,7 @@ const JarvisVoiceCommands: React.FC<JarvisVoiceCommandsProps> = ({
         toast({
           title: "HACKER MODE",
           description: "Initializing hacker mode...",
-          variant: "default",
+          type: "default",
         });
       },
       feedback: "Hacker mode initialized. Security systems engaged."
@@ -201,7 +200,7 @@ const JarvisVoiceCommands: React.FC<JarvisVoiceCommandsProps> = ({
             toast({
               title: "File Manager",
               description: response.message,
-              variant: response.success ? "default" : "destructive"
+              type: response.success ? "default" : "error"
             });
           }
         }
@@ -220,7 +219,7 @@ const JarvisVoiceCommands: React.FC<JarvisVoiceCommandsProps> = ({
           toast({
             title: "Calculator",
             description: result.error || `${result.expression} = ${result.result}`,
-            variant: result.error ? "destructive" : "default"
+            type: result.error ? "error" : "default"
           });
         }
       },

@@ -1,4 +1,3 @@
-
 import { getTimeCalendarResponse } from './timeCalendarService';
 import { getWeatherResponse } from './weatherService';
 import { getNewsResponse } from './newsService';
@@ -233,10 +232,9 @@ export const processSkillCommand = async (message: string): Promise<SkillRespons
     };
   } catch (error) {
     console.error('Error processing skill command:', error);
-    toast({
-      title: "Error",
+    toast("Error", {
       description: "Failed to process your command.",
-      variant: "destructive",
+      type: "error",
     });
     
     return {
