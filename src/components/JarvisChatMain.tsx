@@ -51,36 +51,9 @@ const JarvisChatMain: React.FC<JarvisChatMainProps> = ({ hackerMode = false }) =
     }
   }, [transcript, inputMode, isProcessing, sendMessage, clearTranscript]);
 
-  // Enhanced suggestions with threat detection commands
+  // Return empty array for suggestions
   const getSuggestions = (): string[] => {
-    if (hackerMode) {
-      return [
-        "Analyze network vulnerabilities",
-        "Decrypt secure communications",
-        "Access mainframe security protocols",
-        "Trace IP location",
-        "Run system diagnostics",
-        "Detect threat",  // Added threat detection command
-        "Scan for threats",  // Added threat scanning command
-        "Deploy countermeasures",
-        "Activate stealth protocols",
-        "Scan for surveillance",
-        "Deploy network firewall",
-        "Deactivate hacker mode"
-      ];
-    }
-    
-    return [
-      "What's the weather like today?",
-      "Tell me the latest news",
-      "What time is it?",
-      "What's on my schedule today?",
-      "Generate an image of a sunset over mountains",
-      "Create an image of a futuristic robot",
-      "Draw a magical forest with glowing mushrooms",
-      "Show me an image of a disco-dancing fish in neon colors",
-      "Generate a cyberpunk city at night"
-    ];
+    return [];
   };
 
   const handleSendMessage = () => {

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Brain, Mic, Sparkles, Cpu, Tv, Satellite } from 'lucide-react';
+import { Brain, Mic, Tv } from 'lucide-react';
 import { ControlOption } from '@/components/ControlPanel';
 
 interface ControlOptionsProps {
@@ -27,18 +27,6 @@ export const useControlOptions = ({ activeMode, hackerModeActive }: ControlOptio
       label: 'Face Mode',
       icon: <Tv />,
       active: activeMode === 'face' && !hackerModeActive
-    },
-    {
-      id: 'satellite',
-      label: 'Satellite Mode',
-      icon: <Satellite />,
-      active: activeMode === 'satellite' && !hackerModeActive
-    },
-    {
-      id: 'hacker',
-      label: 'Hacker Mode',
-      icon: <Cpu />,
-      active: hackerModeActive
     }
   ];
   

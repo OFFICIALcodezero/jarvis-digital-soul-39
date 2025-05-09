@@ -23,18 +23,20 @@ const JarvisCentralCore: React.FC<JarvisCentralCoreProps> = ({
   return (
     <div className="flex-1 flex flex-col items-center justify-center relative">
       <div 
-        className={`jarvis-core-container 
+        className={`jarvis-core-container w-72 h-72 flex items-center justify-center
           ${isSpeaking ? 'animate-pulse' : ''} 
           ${isProcessing ? 'animate-spin-slow' : ''}
           ${isGeneratingImage ? 'animate-glow-strong' : ''}
         `}
       >
         {activeMode !== 'face' && activeMode !== 'satellite' && (
-          <JarvisCore 
-            isSpeaking={isSpeaking} 
-            isListening={isListening} 
-            isProcessing={isProcessing || isGeneratingImage}
-          />
+          <div className="scale-125 transform transition-all duration-300">
+            <JarvisCore 
+              isSpeaking={isSpeaking} 
+              isListening={isListening} 
+              isProcessing={isProcessing || isGeneratingImage}
+            />
+          </div>
         )}
         
         {(activeMode === 'face' || activeMode === 'satellite') && (
@@ -71,6 +73,13 @@ const JarvisCentralCore: React.FC<JarvisCentralCoreProps> = ({
           Generating Image
         </div>
       )}
+      
+      {/* Add pulsating rings around the core */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <div className="w-96 h-96 rounded-full border border-jarvis/20 animate-ping-slow opacity-30"></div>
+        <div className="w-80 h-80 rounded-full border border-jarvis/30 animate-ping-slow opacity-30" style={{animationDelay: '0.5s'}}></div>
+        <div className="w-64 h-64 rounded-full border border-jarvis/40 animate-ping-slow opacity-30" style={{animationDelay: '1s'}}></div>
+      </div>
     </div>
   );
 };
