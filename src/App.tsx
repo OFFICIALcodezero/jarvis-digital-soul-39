@@ -1,21 +1,43 @@
 
-import React from 'react';
-import { Toaster } from "@/components/ui/sonner";
-import { Routes, Route } from 'react-router-dom';
+import React from "react";
+import { Route, Routes } from "react-router-dom";
+import "./App.css";
 import Index from "./pages/Index";
-import ThreatDetection from "./pages/ThreatDetection";
 import NotFound from "./pages/NotFound";
+import Startup from "./pages/Startup";
+import JarvisInterface from "./pages/JarvisInterface";
+import ImageGeneration from "./pages/ImageGeneration";
+import JarvisSettings from "./components/JarvisSettings";
+import JarvisModeEnhancer from './components/JarvisModeEnhancer';
+import { JarvisChatProvider } from "./contexts/JarvisChatProvider";
+import ErrorBoundary from './components/ErrorBoundary';
+import FeaturesOverview from "./pages/FeaturesOverview";
+import SatelliteSurveillancePage from "./pages/SatelliteSurveillance";
+import OSINTSearch from "./pages/OSINTSearch";
 
 function App() {
   return (
-    <>
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/threat-detection" element={<ThreatDetection />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-      <Toaster />
-    </>
+    <ErrorBoundary>
+      <JarvisChatProvider>
+        <div className="app-container">
+          <JarvisModeEnhancer>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/startup" element={<Startup />} />
+              <Route path="/interface" element={<JarvisInterface />} />
+              <Route path="/jarvis" element={<JarvisInterface />} /> 
+              <Route path="/image-generation" element={<ImageGeneration />} />
+              <Route path="/images" element={<ImageGeneration />} />
+              <Route path="/settings" element={<JarvisSettings />} />
+              <Route path="/features" element={<FeaturesOverview />} />
+              <Route path="/satellite" element={<SatelliteSurveillancePage />} />
+              <Route path="/osint" element={<OSINTSearch />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </JarvisModeEnhancer>
+        </div>
+      </JarvisChatProvider>
+    </ErrorBoundary>
   );
 }
 

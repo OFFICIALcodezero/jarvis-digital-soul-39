@@ -1,125 +1,39 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Shield, AlertTriangle, ExternalLink, Code } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ChevronRight } from 'lucide-react';
+import ArcReactor from '@/components/background/ArcReactor';
 
 const Index = () => {
   return (
-    <div className="flex min-h-screen bg-gradient-to-b from-blue-50 to-white">
-      <div className="container max-w-6xl mx-auto px-4 py-12">
-        <div className="text-center mb-12">
-          <div className="flex items-center justify-center mb-4">
-            <Shield className="h-12 w-12 text-blue-500 mr-3" />
-            <h1 className="text-4xl font-bold tracking-tight">Jarvis Threat Detection System</h1>
-          </div>
-          <p className="text-xl text-muted-foreground mt-2 max-w-2xl mx-auto">
-            Monitor global news for potential security threats and receive real-time WhatsApp alerts
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-[#0f1019] to-[#121624] text-white p-4">
+      <ArcReactor />
+      <div className="max-w-4xl w-full text-center space-y-8">
+        <h1 className="text-5xl md:text-7xl font-bold mb-6 text-gradient-primary">
+          J.A.R.V.I.S
+        </h1>
+        <div className="glow-blue-sm text-xl md:text-2xl font-light mb-8 text-[#d6d6ff]">
+          Just A Rather Very Intelligent System
+        </div>
+        
+        <div className="max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl mb-8 text-[#c7d3ff]">
+            Welcome to your personal AI assistant with advanced intelligence, voice control, and futuristic interface. Inspired by Tony Stark's companion.
           </p>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-          <Card>
-            <CardHeader className="space-y-1">
-              <div className="bg-blue-100 w-12 h-12 rounded-lg flex items-center justify-center mb-2">
-                <AlertTriangle className="h-6 w-6 text-blue-700" />
-              </div>
-              <CardTitle className="text-xl">Real-time Monitoring</CardTitle>
-              <CardDescription>
-                Scans news sources continuously to detect potential security incidents
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Connects to NewsAPI to fetch and analyze the latest articles, looking for security-related keywords.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="space-y-1">
-              <div className="bg-blue-100 w-12 h-12 rounded-lg flex items-center justify-center mb-2">
-                <Shield className="h-6 w-6 text-blue-700" />
-              </div>
-              <CardTitle className="text-xl">Threat Detection</CardTitle>
-              <CardDescription>
-                Advanced keyword analysis identifies potential security concerns
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Identifies articles containing terms like "explosion," "attack," "military," and sends alerts when threats are detected.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="space-y-1">
-              <div className="bg-blue-100 w-12 h-12 rounded-lg flex items-center justify-center mb-2">
-                <ExternalLink className="h-6 w-6 text-blue-700" />
-              </div>
-              <CardTitle className="text-xl">WhatsApp Alerts</CardTitle>
-              <CardDescription>
-                Instantly receive notifications on your phone via WhatsApp
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Uses Twilio's WhatsApp API to send detailed security alerts directly to your phone when potential threats are identified.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="flex justify-center mb-16">
-          <Link to="/threat-detection">
-            <Button size="lg" className="text-lg px-8 py-6">
-              Launch Threat Detection System
+        
+        <div className="flex flex-col md:flex-row justify-center gap-6">
+          <Link to="/startup">
+            <Button className="px-8 py-6 text-lg bg-gradient-to-r from-[#1eaedb] to-[#33c3f0] hover:from-[#33c3f0] hover:to-[#1eaedb] border-none rounded-lg transition-all duration-300 transform hover:scale-105 text-white shadow-neon">
+              <span>Initialize JARVIS</span>
+              <ChevronRight className="ml-2 h-5 w-5" />
             </Button>
           </Link>
         </div>
-
-        <div className="bg-blue-50 rounded-xl p-6 border border-blue-100">
-          <h2 className="text-2xl font-semibold mb-4 flex items-center">
-            <Code className="h-6 w-6 mr-2" />
-            Implementation Details
-          </h2>
-          
-          <div className="space-y-4">
-            <p>
-              This system includes both a React frontend dashboard and a Python backend script that handles the actual threat detection and WhatsApp messaging.
-            </p>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h3 className="font-medium text-lg mb-2">Frontend Features</h3>
-                <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
-                  <li>Configuration management for API keys and settings</li>
-                  <li>Real-time threat visualization dashboard</li>
-                  <li>System logs and monitoring status</li>
-                  <li>Test functionality for WhatsApp alerts</li>
-                </ul>
-              </div>
-              
-              <div>
-                <h3 className="font-medium text-lg mb-2">Backend Features</h3>
-                <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
-                  <li>NewsAPI integration for article fetching</li>
-                  <li>Keyword-based threat detection algorithm</li>
-                  <li>Twilio WhatsApp messaging integration</li>
-                  <li>Comprehensive logging and error handling</li>
-                </ul>
-              </div>
-            </div>
-            
-            <div className="mt-4">
-              <p className="text-sm text-muted-foreground">
-                <strong>Note:</strong> To use this system, you need to configure your NewsAPI and Twilio credentials, and run 
-                the Python backend script separately. Check the documentation for detailed setup instructions.
-              </p>
-            </div>
-          </div>
+        
+        <div className="mt-16 text-[#8a8a9b] text-sm">
+          <p>© {new Date().getFullYear()} • JARVIS Digital Soul v1.0</p>
+          <p className="mt-2">Access all capabilities through voice commands or chat interface</p>
         </div>
       </div>
     </div>
