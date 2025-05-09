@@ -87,6 +87,14 @@ export const useJarvisSystem = () => {
     if (id === 'voice' || id === 'face') {
       setInputMode('voice');
       
+      // Show toast for face mode
+      if (id === 'face') {
+        toast({
+          title: "Face Mode Activated",
+          description: "Jarvis AI Avatar is now active and will animate when speaking or listening.",
+        });
+      }
+      
       if (!elevenLabsKey) {
         toast({
           title: "ElevenLabs API Key Required",

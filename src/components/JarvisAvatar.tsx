@@ -1,6 +1,8 @@
-import React from 'react';
+
+import React, { useEffect, useRef } from 'react';
 import { JarvisMode } from './JarvisCore';
 import JarvisFaceAI from './JarvisFaceAI';
+import JarvisLipSync from './JarvisLipSync';
 import JarvisCore from './core/JarvisCore';
 
 interface JarvisAvatarProps {
@@ -40,7 +42,10 @@ const JarvisAvatar: React.FC<JarvisAvatarProps> = ({
       
       {/* JarvisFaceAI Component - only show in face mode */}
       {activeMode === 'face' && (
-        <JarvisFaceAI isSpeaking={isSpeaking} className="z-[1]" />
+        <>
+          <JarvisFaceAI isSpeaking={isSpeaking} className="z-[1]" />
+          {isSpeaking && <JarvisLipSync className="z-[2]" />}
+        </>
       )}
       
       {/* Status Indicator */}

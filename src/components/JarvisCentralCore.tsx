@@ -29,27 +29,28 @@ const JarvisCentralCore: React.FC<JarvisCentralCoreProps> = ({
           ${isGeneratingImage ? 'animate-glow-strong' : ''}
         `}
       >
-        <JarvisCore 
-          isSpeaking={isSpeaking} 
-          isListening={isListening} 
-          isProcessing={isProcessing || isGeneratingImage}
-        />
+        {activeMode !== 'face' && (
+          <JarvisCore 
+            isSpeaking={isSpeaking} 
+            isListening={isListening} 
+            isProcessing={isProcessing || isGeneratingImage}
+          />
+        )}
+        
+        {activeMode === 'face' && (
+          <JarvisAvatar 
+            activeMode={activeMode}
+            isSpeaking={isSpeaking} 
+            isListening={isListening}
+            isProcessing={isProcessing}
+          />
+        )}
       </div>
       
       {isGeneratingImage && (
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40">
           <Progress value={generationProgress} className="h-2 bg-black/40" />
           <p className="text-xs text-jarvis mt-1 text-center">Generating Image: {Math.round(generationProgress)}%</p>
-        </div>
-      )}
-      
-      {activeMode === 'face' && (
-        <div className="mt-4 mb-2">
-          <JarvisAvatar 
-            activeMode={activeMode}
-            isSpeaking={isSpeaking} 
-            isListening={isListening}
-          />
         </div>
       )}
       

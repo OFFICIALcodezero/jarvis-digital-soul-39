@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { Brain, Mic, Sparkles, Cpu } from 'lucide-react';
+import { Brain, Mic, Sparkles, Cpu, Tv } from 'lucide-react';
 
 export interface ControlOption {
   id: string;
