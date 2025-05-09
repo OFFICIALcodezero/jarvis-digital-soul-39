@@ -18,7 +18,7 @@ export interface MessageSuggestion {
 }
 
 export interface JarvisChatProps {
-  activeMode: 'normal' | 'voice' | 'face' | 'hacker';
+  activeMode: 'normal' | 'voice' | 'face' | 'hacker' | 'satellite';
   setIsSpeaking: React.Dispatch<React.SetStateAction<boolean>>;
   isListening: boolean;
   activeAssistant: string;

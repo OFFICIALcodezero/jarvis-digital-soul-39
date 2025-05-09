@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react';
 import { getApiKey } from '../utils/apiKeyManager';
 import { toast } from '@/components/ui/use-toast';
 
-// Define and export the JarvisMode type
-export type JarvisMode = 'normal' | 'voice' | 'face' | 'hacker';
+// Define and export the JarvisMode type - adding "satellite" as a valid mode
+export type JarvisMode = 'normal' | 'voice' | 'face' | 'hacker' | 'satellite';
 
 // System security states
 export type SecurityLevel = 'normal' | 'heightened' | 'emergency';

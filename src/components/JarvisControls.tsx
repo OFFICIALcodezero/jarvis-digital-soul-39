@@ -9,7 +9,8 @@ import {
   Terminal, 
   Settings,
   Volume2,
-  VolumeX
+  VolumeX,
+  Satellite
 } from 'lucide-react';
 import { Slider } from './ui/slider';
 import { Switch } from './ui/switch';
@@ -91,6 +92,18 @@ const JarvisControls: React.FC<JarvisControlsProps> = ({
           >
             <Headphones className="mr-2 h-4 w-4" />
             Face
+          </Button>
+          <Button
+            variant={activeMode === 'satellite' ? 'default' : 'outline'}
+            className={`flex items-center ${
+              activeMode === 'satellite' 
+                ? 'bg-jarvis text-white' 
+                : 'bg-transparent border-jarvis/30 text-jarvis hover:bg-jarvis/20'
+            }`}
+            onClick={() => handleModeChange('satellite')}
+          >
+            <Satellite className="mr-2 h-4 w-4" />
+            Satellite
           </Button>
           <Button
             variant={activeMode === 'hacker' ? 'default' : 'outline'}

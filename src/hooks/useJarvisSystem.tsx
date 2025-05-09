@@ -7,7 +7,7 @@ import { AssistantType } from '@/pages/JarvisInterface';
 
 export const useJarvisSystem = () => {
   const [mode, setMode] = useState<'chat' | 'hacker'>('chat');
-  const [activeMode, setActiveMode] = useState<'normal' | 'voice' | 'face'>('normal');
+  const [activeMode, setActiveMode] = useState<'normal' | 'voice' | 'face' | 'satellite'>('normal');
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -80,7 +80,7 @@ export const useJarvisSystem = () => {
       return;
     }
     
-    setActiveMode(id as 'normal' | 'voice' | 'face');
+    setActiveMode(id as 'normal' | 'voice' | 'face' | 'satellite');
     setMode('chat');
     setHackerModeActive(false);
     
@@ -102,6 +102,11 @@ export const useJarvisSystem = () => {
           variant: "destructive"
         });
       }
+    } else if (id === 'satellite') {
+      toast({
+        title: "Satellite Mode Activated",
+        description: "Satellite Vision is now active. You can query locations by voice or text.",
+      });
     } else {
       setInputMode('text');
     }
