@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { Send } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Send, Mic } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 
@@ -23,6 +23,30 @@ const MessageInput: React.FC<MessageInputProps> = ({
   isListening = false,
   isDisabled = false,
 }) => {
+  const [visualFeedback, setVisualFeedback] = useState<'idle' | 'listening' | 'speaking'>('idle');
+  const [dotCount, setDotCount] = useState(1);
+  
+  // Create visual feedback for voice recognition
+  useEffect(() => {
+    let interval: number;
+    
+    if (isListening) {
+      setVisualFeedback('listening');
+      // Animate the dots when listening
+      interval = window.setInterval(() => {
+        setDotCount(prev => prev >= 3 ? 1 : prev + 1);
+      }, 500);
+    } else {
+      setVisualFeedback('idle');
+    }
+    
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isListening]);
+  
+  const listeningText = `Listening${'.'.repeat(dotCount)}`;
+  
   const handleSubmit = () => {
     if (handleSendMessage) {
       handleSendMessage();
@@ -38,15 +62,26 @@ const MessageInput: React.FC<MessageInputProps> = ({
         <Input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          className="flex-1 bg-black/40 border-jarvis/30 text-white focus-visible:ring-jarvis/50"
-          placeholder={isListening ? "Listening..." : "Type your message..."}
+          className={`flex-1 bg-black/40 border-jarvis/30 text-white focus-visible:ring-jarvis/50 ${
+            isListening ? 'border-jarvis/50 bg-jarvis/5' : ''
+          }`}
+          placeholder={isListening ? listeningText : "Type your message..."}
           disabled={isProcessing || isListening || isDisabled}
           onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
         />
+        
+        {isListening && (
+          <div className="absolute right-16 flex items-center justify-center">
+            <Mic className="h-4 w-4 text-jarvis animate-pulse" />
+          </div>
+        )}
+        
         <Button 
           variant="ghost" 
           size="icon" 
-          className="ml-2 text-jarvis hover:bg-jarvis/20" 
+          className={`ml-2 ${
+            input.trim() ? 'text-jarvis hover:bg-jarvis/20' : 'text-gray-500'
+          }`}
           onClick={handleSubmit}
           disabled={isProcessing || isListening || isDisabled || !input.trim()}
         >

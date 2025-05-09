@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ChatLayout from "./chat/ChatLayout";
 import { useJarvisChat } from "./JarvisChatContext";
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
@@ -29,6 +29,9 @@ const JarvisChatMain: React.FC<JarvisChatMainProps> = ({ hackerMode = false }) =
   const stopSpeaking = () => {};
   const toggleMute = () => {};
   
+  // Track whether we should listen after processing
+  const shouldResumeListeningRef = useRef(false);
+  
   const {
     isListening,
     transcript,
@@ -50,28 +53,69 @@ const JarvisChatMain: React.FC<JarvisChatMainProps> = ({ hackerMode = false }) =
         
         if (hasWakeWord) {
           console.log("Wake word detected, sending message:", processedTranscript);
+          
+          // Stop listening while processing
+          shouldResumeListeningRef.current = true;
+          stopListening();
+          
+          // Send the message
           sendMessage(processedTranscript);
           clearTranscript();
-          
-          // Brief pause in listening while processing to avoid feedback loops
-          stopListening();
-          setTimeout(() => {
-            if (inputMode === 'voice') {
-              startListening();
-            }
-          }, 1000);
         } else {
           console.log("No wake word detected in:", processedTranscript);
         }
       }
     }
-  }, [transcript, inputMode, isProcessing, isSpeaking, sendMessage, clearTranscript, startListening, stopListening]);
+  }, [transcript, inputMode, isProcessing, isSpeaking, sendMessage, clearTranscript, stopListening]);
+  
+  // When processing ends, resume listening if in voice mode
+  useEffect(() => {
+    if (!isProcessing && inputMode === 'voice' && shouldResumeListeningRef.current && !isListening) {
+      console.log("Processing ended, resuming voice listening");
+      shouldResumeListeningRef.current = false;
+      
+      // Short delay to prevent rapid restart
+      const resumeTimer = setTimeout(() => {
+        if (inputMode === 'voice' && !isListening) {
+          console.log("Resuming listening after processing");
+          startListening();
+        }
+      }, 1000);
+      
+      return () => clearTimeout(resumeTimer);
+    }
+  }, [isProcessing, inputMode, isListening, startListening]);
+
+  // Handle Jarvis speaking - pause listening while speaking
+  useEffect(() => {
+    if (isSpeaking && isListening) {
+      console.log("Jarvis is speaking, pausing listening");
+      shouldResumeListeningRef.current = true;
+      stopListening();
+    } else if (!isSpeaking && !isListening && inputMode === 'voice' && shouldResumeListeningRef.current) {
+      console.log("Jarvis stopped speaking, resuming listening");
+      shouldResumeListeningRef.current = false;
+      
+      // Short delay before resuming
+      const resumeTimer = setTimeout(() => {
+        if (inputMode === 'voice' && !isListening) {
+          console.log("Resuming listening after speaking");
+          startListening();
+        }
+      }, 1000);
+      
+      return () => clearTimeout(resumeTimer);
+    }
+  }, [isSpeaking, isListening, inputMode, startListening, stopListening]);
 
   // Start listening automatically when in voice mode
   useEffect(() => {
-    if (inputMode === 'voice' && !isListening && !isProcessing) {
+    if (inputMode === 'voice' && !isListening && !isProcessing && !isSpeaking) {
       console.log("Starting voice listening automatically");
       startListening();
+    } else if (inputMode === 'text' && isListening) {
+      console.log("Switching to text mode, stopping voice recognition");
+      stopListening();
     }
     
     // Clean up when component unmounts or mode changes
@@ -81,11 +125,16 @@ const JarvisChatMain: React.FC<JarvisChatMainProps> = ({ hackerMode = false }) =
         stopListening();
       }
     };
-  }, [inputMode, isListening, isProcessing, startListening, stopListening]);
+  }, [inputMode, isListening, isProcessing, isSpeaking, startListening, stopListening]);
 
-  // Return empty array for suggestions
+  // Return suggestions based on context
   const getSuggestions = (): string[] => {
-    return [];
+    // Simple suggestions - can be expanded based on context
+    return [
+      "Hey Jarvis, what's the weather today?",
+      "Jarvis, tell me a joke",
+      "Hey Jarvis, what can you help me with?"
+    ];
   };
 
   const handleSendMessage = () => {
@@ -99,10 +148,16 @@ const JarvisChatMain: React.FC<JarvisChatMainProps> = ({ hackerMode = false }) =
     if (isListening) {
       console.log("Manually stopping voice recognition");
       stopListening();
+      shouldResumeListeningRef.current = false;
     } else {
       console.log("Manually starting voice recognition");
       clearTranscript();
       startListening();
+      
+      // If in text mode, switch to voice mode
+      if (inputMode === 'text') {
+        setInputMode('voice');
+      }
     }
   };
 
