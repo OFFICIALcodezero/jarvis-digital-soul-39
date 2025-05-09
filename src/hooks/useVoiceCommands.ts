@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback, useContext } from 'react';
 import { toast } from '@/components/ui/use-toast';
 import { JarvisChatContext } from '@/contexts/JarvisChatProvider';

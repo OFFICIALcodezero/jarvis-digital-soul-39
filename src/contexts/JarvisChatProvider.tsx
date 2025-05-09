@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { AssistantType } from '@/pages/JarvisInterface';
 
@@ -24,7 +23,8 @@ export interface JarvisChatContextType {
   setInputMode: (mode: 'voice' | 'text') => void;
 }
 
-const JarvisContext = createContext<JarvisChatContextType | undefined>(undefined);
+// Create and export the JarvisContext
+export const JarvisChatContext = createContext<JarvisChatContextType | undefined>(undefined);
 
 export const JarvisChatProvider = ({ children, ...props }: { 
   children: ReactNode,
@@ -165,7 +165,7 @@ export const JarvisChatProvider = ({ children, ...props }: {
   };
   
   return (
-    <JarvisContext.Provider 
+    <JarvisChatContext.Provider 
       value={{
         messages,
         sendMessage,
@@ -183,12 +183,12 @@ export const JarvisChatProvider = ({ children, ...props }: {
       }}
     >
       {children}
-    </JarvisContext.Provider>
+    </JarvisChatContext.Provider>
   );
 };
 
 export const useJarvisChat = () => {
-  const context = useContext(JarvisContext);
+  const context = useContext(JarvisChatContext);
   if (context === undefined) {
     throw new Error('useJarvisChat must be used within a JarvisChatProvider');
   }

@@ -11,7 +11,7 @@ const JarvisImageOverlayHandler: React.FC = () => {
   const handleRefinementSubmit = async (refinement: string) => {
     try {
       if (activeImage) {
-        await handleRefineImage(activeImage.prompt, refinement);
+        await handleRefineImage(refinement);
       }
     } catch (error) {
       console.error("Error refining image:", error);
@@ -21,7 +21,7 @@ const JarvisImageOverlayHandler: React.FC = () => {
   const handleRegenerate = async () => {
     try {
       if (activeImage) {
-        await handleRefineImage(activeImage.prompt, "same but better quality");
+        await handleRefineImage("same but better quality");
       }
     } catch (error) {
       console.error("Error regenerating image:", error);
@@ -30,7 +30,7 @@ const JarvisImageOverlayHandler: React.FC = () => {
 
   return (
     <ImageOverlay
-      image={activeImage}
+      image={activeImage as any}
       onClose={() => setActiveImage(null)}
       onRefine={handleRefinementSubmit}
       onRegenerate={handleRegenerate}
