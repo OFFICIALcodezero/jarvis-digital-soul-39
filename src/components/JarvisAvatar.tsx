@@ -4,6 +4,7 @@ import { JarvisMode } from './JarvisCore';
 import JarvisFaceAI from './JarvisFaceAI';
 import JarvisLipSync from './JarvisLipSync';
 import JarvisCore from './core/JarvisCore';
+import SatelliteVision from './SatelliteVision';
 
 interface JarvisAvatarProps {
   activeMode: JarvisMode;
@@ -46,6 +47,13 @@ const JarvisAvatar: React.FC<JarvisAvatarProps> = ({
           <JarvisFaceAI isSpeaking={isSpeaking} className="z-[1]" />
           {isSpeaking && <JarvisLipSync className="z-[2]" />}
         </>
+      )}
+      
+      {/* SatelliteVision Component - only show in satellite mode */}
+      {activeMode === 'satellite' && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <SatelliteVision />
+        </div>
       )}
       
       {/* Status Indicator */}

@@ -9,7 +9,7 @@ interface JarvisCentralCoreProps {
   isSpeaking: boolean;
   isListening: boolean;
   isProcessing: boolean;
-  activeMode: 'normal' | 'voice' | 'face' | 'hacker';
+  activeMode: 'normal' | 'voice' | 'face' | 'hacker' | 'satellite';
 }
 
 const JarvisCentralCore: React.FC<JarvisCentralCoreProps> = ({
@@ -29,7 +29,7 @@ const JarvisCentralCore: React.FC<JarvisCentralCoreProps> = ({
           ${isGeneratingImage ? 'animate-glow-strong' : ''}
         `}
       >
-        {activeMode !== 'face' && (
+        {activeMode !== 'face' && activeMode !== 'satellite' && (
           <JarvisCore 
             isSpeaking={isSpeaking} 
             isListening={isListening} 
@@ -37,7 +37,7 @@ const JarvisCentralCore: React.FC<JarvisCentralCoreProps> = ({
           />
         )}
         
-        {activeMode === 'face' && (
+        {(activeMode === 'face' || activeMode === 'satellite') && (
           <JarvisAvatar 
             activeMode={activeMode}
             isSpeaking={isSpeaking} 

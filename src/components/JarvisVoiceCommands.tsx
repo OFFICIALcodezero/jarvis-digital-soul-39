@@ -247,6 +247,26 @@ const JarvisVoiceCommands: React.FC<JarvisVoiceCommandsProps> = ({
       feedback: "Retrieving your chat history."
     });
     
+    // Satellite view command
+    registerCommand('satelliteView', {
+      pattern: /(satellite view|satellite image|satellite imagery|show satellite|satellite surveillance) (of|for) ([a-zA-Z\s]+)/i,
+      handler: async (transcript) => {
+        const match = transcript.match(/(satellite view|satellite image|satellite imagery|show satellite|satellite surveillance) (of|for) ([a-zA-Z\s]+)/i);
+        if (match && match[3]) {
+          const location = match[3].trim();
+          if (sendMessage) {
+            await sendMessage(`Show satellite view of ${location}`);
+          } else {
+            toast("Satellite View", {
+              description: `Accessing satellite imagery for ${location}...`,
+            });
+            window.location.href = `/satellite?location=${encodeURIComponent(location)}`;
+          }
+        }
+      },
+      feedback: "Accessing satellite surveillance systems."
+    });
+    
     return () => {
       // Cleanup
       unregisterCommand('securityScan');
@@ -262,6 +282,7 @@ const JarvisVoiceCommands: React.FC<JarvisVoiceCommandsProps> = ({
       unregisterCommand('calculator');
       unregisterCommand('worldClock');
       unregisterCommand('chatHistory');
+      unregisterCommand('satelliteView');
     };
   }, [registerCommand, unregisterCommand, hackerModeActive, onActivateHacker, sendMessage]);
   
