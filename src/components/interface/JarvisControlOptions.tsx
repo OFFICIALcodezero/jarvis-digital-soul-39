@@ -1,4 +1,5 @@
 
+import React from 'react';
 import { Brain, Mic, Sparkles, Cpu, Tv, Satellite } from 'lucide-react';
 import { ControlOption } from '@/components/ControlPanel';
 
