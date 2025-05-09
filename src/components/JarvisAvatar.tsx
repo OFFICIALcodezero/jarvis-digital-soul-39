@@ -58,9 +58,15 @@ const JarvisAvatar: React.FC<JarvisAvatarProps> = ({
       
       {/* Status Indicator */}
       <div className={`absolute bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-1 rounded-full text-xs ${
-        isSpeaking ? 'bg-jarvis/20 text-jarvis animate-flicker' : 'bg-gray-800/50 text-gray-400'
+        isSpeaking ? 'bg-jarvis/20 text-jarvis animate-flicker' : 
+        isListening ? 'bg-green-500/20 text-green-400 animate-pulse' :
+        isProcessing ? 'bg-blue-500/20 text-blue-400 animate-pulse' :
+        'bg-gray-800/50 text-gray-400'
       }`}>
-        {isSpeaking ? 'SPEAKING' : 'IDLE'}
+        {isSpeaking ? 'SPEAKING' : 
+         isListening ? 'LISTENING' : 
+         isProcessing ? 'PROCESSING' : 
+         'IDLE'}
       </div>
       
       {/* Mode Badge */}

@@ -1,134 +1,196 @@
 
-import React, { createContext, useContext, useState, useEffect } from "react";
-import { parseImageRequest } from '@/services/imagePromptParser';
-import { generateImage, GeneratedImage } from '@/services/imageGenerationService';
-import { parseImagePrompt, generateStabilityImage, StabilityImageParams, StabilityGeneratedImage } from '@/services/stabilityAIService';
-import { toast } from '@/components/ui/use-toast';
-import { Message, MessageSuggestion } from '@/types/chat';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { AssistantType } from '@/pages/JarvisInterface';
 
-// Define the context type
-export interface JarvisChatContextType {
-  activeImage: GeneratedImage | StabilityGeneratedImage | null;
-  setActiveImage: React.Dispatch<React.SetStateAction<GeneratedImage | StabilityGeneratedImage | null>>;
-  handleImageGenerationFromPrompt: (prompt: string, isRefine?: boolean) => Promise<GeneratedImage | StabilityGeneratedImage>;
-  handleRefineImage: (prevPrompt: string, refinement: string) => Promise<GeneratedImage | StabilityGeneratedImage>;
-  messages?: Message[];
-  sendMessage?: (content: string, suggestions?: MessageSuggestion[]) => Promise<void>;
-  isGeneratingImage: boolean;
-  generationProgress: number;
+interface ImageGenerationResult {
+  url: string;
+  prompt: string;
+  id: string;
 }
 
-// Create the context
-export const JarvisChatContext = createContext<JarvisChatContextType | undefined>(undefined);
+export interface JarvisChatContextType {
+  messages: any[];
+  sendMessage: (message: string) => Promise<void>;
+  activeImage: ImageGenerationResult | null;
+  setActiveImage: (image: ImageGenerationResult | null) => void;
+  isGeneratingImage: boolean;
+  handleImageGenerationFromPrompt: (prompt: string) => Promise<ImageGenerationResult | null>;
+  handleRefineImage: (feedback: string) => Promise<ImageGenerationResult | null>;
+  generationProgress: number;
+  isSpeaking: boolean;
+  isListening: boolean;
+  activeAssistant: AssistantType;
+  inputMode: 'voice' | 'text';
+  setInputMode: (mode: 'voice' | 'text') => void;
+}
 
-// Create a hook to use the context
-export const useJarvisChat = (): JarvisChatContextType => {
-  const context = useContext(JarvisChatContext);
+const JarvisContext = createContext<JarvisChatContextType | undefined>(undefined);
+
+export const JarvisChatProvider = ({ children, ...props }: { 
+  children: ReactNode,
+  activeMode?: string,
+  setIsSpeaking?: (value: boolean) => void,
+  isListening?: boolean,
+  activeAssistant?: string,
+  setActiveAssistant?: (assistant: string) => void,
+  inputMode?: 'voice' | 'text',
+  setInputMode?: (mode: 'voice' | 'text') => void,
+  onMessageCheck?: (message: string) => boolean,
+  hackerModeActive?: boolean,
+  hackerOutput?: string,
+  setHackerOutput?: (output: string) => void,
+  onDeactivateHacker?: () => void
+}) => {
+  const [messages, setMessages] = useState<any[]>([]);
+  const [activeImage, setActiveImage] = useState<ImageGenerationResult | null>(null);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [generationProgress, setGenerationProgress] = useState(0);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  
+  // Use provided props or defaults
+  const inputModeState = useState<'voice' | 'text'>(props.inputMode || 'text');
+  const activeAssistantState = useState<AssistantType>(props.activeAssistant as AssistantType || 'jarvis');
+  
+  // Initialize with a welcome message
+  useEffect(() => {
+    const initialMessage = {
+      id: '1',
+      role: 'assistant',
+      content: 'Hello! I am JARVIS, your personal assistant. How can I help you today?',
+      timestamp: new Date()
+    };
+    setMessages([initialMessage]);
+  }, []);
+  
+  // Function to send a message
+  const sendMessage = async (message: string) => {
+    // Check if this is a special message that should be handled by parent (e.g. hacker mode)
+    if (props.onMessageCheck && props.onMessageCheck(message)) {
+      return;
+    }
+    
+    const userMessage = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: message,
+      timestamp: new Date()
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    
+    // Simulate a response
+    setTimeout(() => {
+      const assistantMessage = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: `I received your message: "${message}"`,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, assistantMessage]);
+      
+      // If we have a setIsSpeaking function from props, use it
+      if (props.setIsSpeaking) {
+        props.setIsSpeaking(true);
+        setTimeout(() => props.setIsSpeaking!(false), 3000);
+      }
+    }, 1000);
+  };
+  
+  // Mock image generation for demo purposes
+  const handleImageGenerationFromPrompt = async (prompt: string): Promise<ImageGenerationResult | null> => {
+    setIsGeneratingImage(true);
+    setGenerationProgress(0);
+    
+    // Simulate progressive generation
+    const interval = setInterval(() => {
+      setGenerationProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          return 100;
+        }
+        return prev + 10;
+      });
+    }, 300);
+    
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    
+    clearInterval(interval);
+    setGenerationProgress(100);
+    setIsGeneratingImage(false);
+    
+    const result = {
+      url: 'https://via.placeholder.com/512x512?text=AI+Generated+Image',
+      prompt,
+      id: Date.now().toString()
+    };
+    
+    setActiveImage(result);
+    return result;
+  };
+  
+  // Mock image refinement
+  const handleRefineImage = async (feedback: string): Promise<ImageGenerationResult | null> => {
+    if (!activeImage) return null;
+    
+    setIsGeneratingImage(true);
+    setGenerationProgress(0);
+    
+    // Simulate progressive generation
+    const interval = setInterval(() => {
+      setGenerationProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          return 100;
+        }
+        return prev + 10;
+      });
+    }, 300);
+    
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    
+    clearInterval(interval);
+    setGenerationProgress(100);
+    setIsGeneratingImage(false);
+    
+    const result = {
+      url: `https://via.placeholder.com/512x512?text=Refined:+${feedback.substring(0, 20)}`,
+      prompt: `${activeImage.prompt} ${feedback}`,
+      id: Date.now().toString()
+    };
+    
+    setActiveImage(result);
+    return result;
+  };
+  
+  return (
+    <JarvisContext.Provider 
+      value={{
+        messages,
+        sendMessage,
+        activeImage,
+        setActiveImage,
+        isGeneratingImage,
+        handleImageGenerationFromPrompt,
+        handleRefineImage,
+        generationProgress,
+        isSpeaking: props.setIsSpeaking ? Boolean(isSpeaking) : false,
+        isListening: Boolean(props.isListening),
+        activeAssistant: activeAssistantState[0],
+        inputMode: inputModeState[0],
+        setInputMode: props.setInputMode || inputModeState[1]
+      }}
+    >
+      {children}
+    </JarvisContext.Provider>
+  );
+};
+
+export const useJarvisChat = () => {
+  const context = useContext(JarvisContext);
   if (context === undefined) {
     throw new Error('useJarvisChat must be used within a JarvisChatProvider');
   }
   return context;
 };
-
-// Create the provider component
-export const JarvisChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [activeImage, setActiveImage] = useState<GeneratedImage | StabilityGeneratedImage | null>(null);
-  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
-  const [generationProgress, setGenerationProgress] = useState(0);
-  const [preferStabilityAI, setPreferStabilityAI] = useState(true);
-  const [stabilityAIFailed, setStabilityAIFailed] = useState(false);
-
-  useEffect(() => {
-    // Reset stability failed state when component mounts or when switching preferences
-    setStabilityAIFailed(false);
-  }, [preferStabilityAI]);
-
-  const handleImageGenerationFromPrompt = async (prompt: string, isRefine = false): Promise<GeneratedImage | StabilityGeneratedImage> => {
-    try {
-      setIsGeneratingImage(true);
-      setGenerationProgress(0);
-
-      // Simulate progress steps
-      const progressInterval = setInterval(() => {
-        setGenerationProgress(prev => {
-          const newProgress = prev + Math.random() * 15;
-          return newProgress > 95 ? 95 : newProgress;
-        });
-      }, 500);
-
-      let generatedImage;
-      
-      if (preferStabilityAI && !stabilityAIFailed) {
-        try {
-          // Use Stability AI for higher quality
-          const imageParams = parseImagePrompt(prompt);
-          generatedImage = await generateStabilityImage(imageParams);
-          
-          // Check if we got a fallback image (indicates Stability AI failed)
-          if (generatedImage.style === "fallback") {
-            setStabilityAIFailed(true);
-            throw new Error("Stability AI returned a fallback image, trying alternative generator");
-          }
-        } catch (error) {
-          console.error('Stability AI generation error:', error);
-          setStabilityAIFailed(true);
-          throw error; // Re-throw to trigger fallback
-        }
-      } else {
-        // Use original image generator (either by preference or as fallback)
-        const params = parseImageRequest(prompt);
-        generatedImage = await generateImage(params);
-        
-        if (stabilityAIFailed && !isRefine) {
-          // Show notification about fallback only on first attempt, not on refinements
-          toast({
-            title: "Using Fallback Image Generator",
-            description: "Stability AI service is unavailable. Using alternative image generation.",
-            variant: "default"
-          });
-        }
-      }
-      
-      clearInterval(progressInterval);
-      setGenerationProgress(100);
-      setActiveImage(generatedImage);
-      setIsGeneratingImage(false);
-
-      return generatedImage;
-    } catch (error) {
-      console.error('Error generating image:', error);
-      
-      // If Stability AI fails, try the fallback
-      if (preferStabilityAI && !stabilityAIFailed) {
-        console.log('Stability AI failed, trying fallback image generator');
-        setStabilityAIFailed(true);
-        return handleImageGenerationFromPrompt(prompt, isRefine);
-      }
-      
-      setIsGeneratingImage(false);
-      throw error;
-    }
-  };
-
-  const handleRefineImage = async (prevPrompt: string, refinement: string): Promise<GeneratedImage | StabilityGeneratedImage> => {
-    const newPrompt = `${prevPrompt}. ${refinement}`;
-    return await handleImageGenerationFromPrompt(newPrompt, true);
-  };
-
-  return (
-    <JarvisChatContext.Provider
-      value={{
-        activeImage,
-        setActiveImage,
-        handleImageGenerationFromPrompt,
-        handleRefineImage,
-        isGeneratingImage,
-        generationProgress
-      }}
-    >
-      {children}
-    </JarvisChatContext.Provider>
-  );
-};
-
-export default JarvisChatProvider;

@@ -1,142 +1,140 @@
 
 import React from 'react';
-import { Heart, Gauge } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Activity, Heart } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 
-interface EmotionDisplay {
-  emotion: string;
-  score: number;
-  color: string;
-}
-
 interface EmotionalIntelligenceProps {
-  emotions: any;
-  sentiment: any;
+  emotions?: any;
+  sentiment?: any;
   isProcessing?: boolean;
 }
 
 export const EmotionalIntelligence: React.FC<EmotionalIntelligenceProps> = ({ 
   emotions, 
-  sentiment,
+  sentiment, 
   isProcessing = false
 }) => {
-  if (!emotions && !sentiment) {
-    return (
-      <Alert className="bg-jarvis/5 border-jarvis/20">
-        <AlertDescription>
-          No emotional data detected yet. Interact with JARVIS to analyze emotions and sentiment.
-        </AlertDescription>
-      </Alert>
-    );
-  }
-
-  // Transform emotions data for display
-  const emotionData: EmotionDisplay[] = emotions ? [
-    { emotion: 'Joy', score: emotions.emotions.joy * 100 || 0, color: 'bg-yellow-400' },
-    { emotion: 'Sadness', score: emotions.emotions.sadness * 100 || 0, color: 'bg-blue-400' },
-    { emotion: 'Anger', score: emotions.emotions.anger * 100 || 0, color: 'bg-red-400' },
-    { emotion: 'Fear', score: emotions.emotions.fear * 100 || 0, color: 'bg-purple-400' },
-    { emotion: 'Surprise', score: emotions.emotions.surprise * 100 || 0, color: 'bg-pink-400' },
-    { emotion: 'Trust', score: emotions.emotions.trust * 100 || 0, color: 'bg-green-400' }
-  ] : [];
-
-  // Get the sentiment color based on the score
-  const getSentimentColor = () => {
-    if (!sentiment) return 'bg-gray-400';
-    
-    const score = sentiment.score;
-    if (score > 0.5) return 'bg-green-400';
-    if (score > 0.1) return 'bg-green-300';
-    if (score > -0.1) return 'bg-gray-400';
-    if (score > -0.5) return 'bg-red-300';
-    return 'bg-red-400';
+  const getEmotionColor = (emotion: string) => {
+    switch(emotion) {
+      case 'joy': return 'text-green-400';
+      case 'sadness': return 'text-blue-400';
+      case 'anger': return 'text-red-400';
+      case 'fear': return 'text-purple-400';
+      case 'surprise': return 'text-yellow-400';
+      case 'disgust': return 'text-orange-400';
+      case 'trust': return 'text-cyan-400';
+      case 'anticipation': return 'text-amber-400';
+      default: return 'text-gray-400';
+    }
   };
-
+  
+  const getSentimentColor = (label: string) => {
+    switch(label) {
+      case 'positive': return 'bg-green-500';
+      case 'negative': return 'bg-red-500';
+      default: return 'bg-gray-500';
+    }
+  };
+  
   return (
-    <div className="space-y-3">
-      {isProcessing && (
-        <div className="flex items-center space-x-2">
-          <div className="h-2 w-2 bg-jarvis rounded-full animate-pulse"></div>
-          <div className="h-2 w-2 bg-jarvis rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-          <div className="h-2 w-2 bg-jarvis rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
-          <span className="text-sm text-jarvis">Analyzing emotions...</span>
-        </div>
-      )}
-      
-      {emotions && (
-        <div className="space-y-3">
-          <div>
-            <div className="flex justify-between items-center mb-1">
-              <div className="flex items-center">
-                <Heart className="w-4 h-4 mr-1 text-jarvis" />
-                <span className="text-sm font-medium">Emotional Analysis</span>
+    <Card className="border-jarvis/30 bg-black/20">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-lg flex items-center">
+          <Heart className="mr-2 h-4 w-4" /> Emotional Intelligence
+        </CardTitle>
+        <CardDescription>Sentiment analysis and emotion recognition</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {!emotions && !sentiment && !isProcessing ? (
+          <Alert className="bg-jarvis/5 border-jarvis/20">
+            <AlertDescription>
+              No emotional data analyzed yet. Speak or type a message to analyze emotional content.
+            </AlertDescription>
+          </Alert>
+        ) : (
+          <>
+            {isProcessing && (
+              <div className="flex items-center space-x-2">
+                <div className="h-2 w-2 bg-jarvis rounded-full animate-pulse"></div>
+                <div className="h-2 w-2 bg-jarvis rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                <div className="h-2 w-2 bg-jarvis rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+                <span className="text-sm text-jarvis">Analyzing emotional content...</span>
               </div>
-              <div className="bg-jarvis/20 text-jarvis text-xs px-2 py-0.5 rounded-full">
-                {emotions.intensity ? `${Math.round(emotions.intensity * 100)}%` : 'N/A'} intensity
-              </div>
-            </div>
+            )}
             
-            <div className="grid grid-cols-2 gap-1 mt-2">
-              {emotionData.filter(e => e.score > 0).sort((a, b) => b.score - a.score).map((emotion, index) => (
-                <div key={emotion.emotion} className="space-y-1">
-                  <div className="flex justify-between text-xs">
-                    <span>{emotion.emotion}</span>
-                    <span>{Math.round(emotion.score)}%</span>
+            {emotions && (
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium text-gray-400 mb-1">Dominant Emotion:</h4>
+                <div className="flex items-center">
+                  <span className={`text-xl font-semibold capitalize ${getEmotionColor(emotions.dominant)}`}>
+                    {emotions.dominant}
+                  </span>
+                  <span className="text-sm text-gray-400 ml-2">
+                    (Intensity: {Math.round(emotions.intensity * 100)}%)
+                  </span>
+                </div>
+                
+                <h4 className="text-sm font-medium text-gray-400 mt-3 mb-1">Emotion Distribution:</h4>
+                <div className="space-y-2">
+                  {Object.entries(emotions.emotions)
+                    .filter(([emotion, _]) => emotion !== 'neutral')
+                    .sort((a, b) => (b[1] as number) - (a[1] as number))
+                    .slice(0, 3)
+                    .map(([emotion, value]) => (
+                      <div key={emotion} className="grid grid-cols-6 gap-2 items-center">
+                        <span className={`text-sm capitalize col-span-2 ${getEmotionColor(emotion)}`}>
+                          {emotion}
+                        </span>
+                        <Progress 
+                          value={(value as number) * 100} 
+                          className="col-span-3 bg-gray-800 h-2" 
+                          indicatorClassName={`${getEmotionColor(emotion).replace('text-', 'bg-')}`} 
+                        />
+                        <span className="text-xs text-gray-400 text-right">
+                          {Math.round((value as number) * 100)}%
+                        </span>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
+            
+            {sentiment && (
+              <div className="space-y-2 pt-2 border-t border-gray-800">
+                <h4 className="text-sm font-medium text-gray-400 mb-1">Overall Sentiment:</h4>
+                <div className="flex items-center">
+                  <div 
+                    className={`w-3 h-3 rounded-full mr-2 ${getSentimentColor(sentiment.label)}`}
+                  ></div>
+                  <span className="text-white capitalize">{sentiment.label}</span>
+                  <span className="text-sm text-gray-400 ml-2">
+                    (Score: {sentiment.score.toFixed(2)})
+                  </span>
+                </div>
+                
+                <div className="mt-2 pt-2 border-t border-gray-800">
+                  <div className="flex justify-between items-center text-xs text-gray-500 mb-1">
+                    <span>Negative</span>
+                    <span>Neutral</span>
+                    <span>Positive</span>
                   </div>
-                  <div className="w-full bg-black/30 rounded-full h-1.5">
+                  <div className="h-2 rounded-full bg-gray-800 relative">
                     <div 
-                      className={`${emotion.color} h-1.5 rounded-full`} 
-                      style={{ width: `${Math.max(5, emotion.score)}%` }}
+                      className="absolute top-0 bottom-0 w-2 rounded-full bg-white"
+                      style={{ 
+                        left: `calc(${(sentiment.score + 1) / 2 * 100}% - 4px)`,
+                        transform: 'translateX(-50%)'
+                      }}
                     ></div>
                   </div>
                 </div>
-              ))}
-            </div>
-            
-            {emotions.dominant && (
-              <div className="mt-2 text-sm">
-                <span className="text-gray-400">Primary emotion: </span>
-                <span className="capitalize text-jarvis">{emotions.dominant}</span>
               </div>
             )}
-          </div>
-          
-          {sentiment && (
-            <div className="mt-3">
-              <div className="flex justify-between items-center mb-1">
-                <div className="flex items-center">
-                  <Gauge className="w-4 h-4 mr-1 text-jarvis" />
-                  <span className="text-sm font-medium">Sentiment Analysis</span>
-                </div>
-                <div className={`text-xs px-2 py-0.5 rounded-full ${
-                  sentiment.label === 'positive' ? 'bg-green-900/20 text-green-400' : 
-                  sentiment.label === 'negative' ? 'bg-red-900/20 text-red-400' : 
-                  'bg-gray-800 text-gray-400'
-                }`}>
-                  {sentiment.label}
-                </div>
-              </div>
-              
-              <div className="w-full bg-black/30 rounded-full h-2 mt-2">
-                <div 
-                  className={`${getSentimentColor()} h-2 rounded-full transition-all duration-500`} 
-                  style={{ 
-                    width: `${Math.min(100, Math.max(0, (sentiment.score + 1) * 50))}%` 
-                  }}
-                ></div>
-              </div>
-              
-              <div className="flex justify-between text-xs text-gray-400 mt-1">
-                <span>Negative</span>
-                <span>Neutral</span>
-                <span>Positive</span>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
+          </>
+        )}
+      </CardContent>
+    </Card>
   );
 };

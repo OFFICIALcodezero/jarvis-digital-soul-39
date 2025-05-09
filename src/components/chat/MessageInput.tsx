@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Send, Mic } from 'lucide-react';
+import { Send, Mic, MicOff } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 
@@ -12,6 +12,7 @@ interface MessageInputProps {
   isProcessing?: boolean;
   isListening?: boolean;
   isDisabled?: boolean;
+  onToggleListen?: () => void;
 }
 
 const MessageInput: React.FC<MessageInputProps> = ({
@@ -22,6 +23,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
   isProcessing = false,
   isListening = false,
   isDisabled = false,
+  onToggleListen,
 }) => {
   const [visualFeedback, setVisualFeedback] = useState<'idle' | 'listening' | 'speaking'>('idle');
   const [dotCount, setDotCount] = useState(1);
@@ -59,6 +61,18 @@ const MessageInput: React.FC<MessageInputProps> = ({
   return (
     <div className="p-3 bg-black/30 border-t border-jarvis/20">
       <div className="flex items-center">
+        {onToggleListen && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className={`mr-2 ${isListening ? 'text-jarvis bg-jarvis/20 hover:bg-jarvis/30' : 'text-gray-500 hover:text-jarvis'}`}
+            onClick={onToggleListen}
+            disabled={isProcessing || isDisabled}
+          >
+            {isListening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+          </Button>
+        )}
+      
         <Input
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -66,7 +80,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
             isListening ? 'border-jarvis/50 bg-jarvis/5' : ''
           }`}
           placeholder={isListening ? listeningText : "Type your message..."}
-          disabled={isProcessing || isListening || isDisabled}
+          disabled={isProcessing || (isListening && !input) || isDisabled}
           onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
         />
         
@@ -83,7 +97,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
             input.trim() ? 'text-jarvis hover:bg-jarvis/20' : 'text-gray-500'
           }`}
           onClick={handleSubmit}
-          disabled={isProcessing || isListening || isDisabled || !input.trim()}
+          disabled={isProcessing || isDisabled || (!input.trim() && !isListening)}
         >
           <Send className="h-5 w-5" />
         </Button>
