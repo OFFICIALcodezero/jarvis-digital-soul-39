@@ -4,6 +4,20 @@
  * Detects the language of the input text and returns the language code
  */
 
+// Support for multiple languages with their codes and names
+export const supportedLanguages = [
+  { code: 'en', name: 'English' },
+  { code: 'es', name: 'Spanish' },
+  { code: 'fr', name: 'French' },
+  { code: 'de', name: 'German' },
+  { code: 'it', name: 'Italian' },
+  { code: 'ja', name: 'Japanese' },
+  { code: 'zh', name: 'Chinese' },
+  { code: 'ru', name: 'Russian' },
+  { code: 'ar', name: 'Arabic' },
+  { code: 'hi', name: 'Hindi' }
+];
+
 // Simple language detection patterns (for demo purposes)
 const languagePatterns: Record<string, string[]> = {
   en: ['the', 'is', 'are', 'what', 'when', 'how', 'why', 'you', 'hello', 'thanks'],

@@ -20,14 +20,22 @@ export const TaskList: React.FC<TaskListProps> = ({ isHackerMode = false }) => {
   const handleAddTask = () => {
     if (!newTaskText.trim()) return;
     
-    const newTask = addTask(newTaskText);
-    setTasks([...tasks, newTask]);
+    // Create a new task directly instead of using addTask(string)
+    const newTask: Task = {
+      id: Date.now().toString(),
+      title: newTaskText,
+      completed: false,
+      priority: 'medium'
+    };
+    
+    const updatedTasks = addTask(newTask);
+    setTasks(updatedTasks);
     setNewTaskText('');
   };
 
   const handleUpdateTask = (taskId: string, completed: boolean) => {
-    const updatedTask = updateTask(taskId, { completed });
-    setTasks(tasks.map(task => task.id === taskId ? updatedTask : task));
+    const updatedTasks = updateTask(taskId, { completed });
+    setTasks(updatedTasks);
   };
 
   const handleEditTask = (taskId: string) => {
@@ -35,14 +43,14 @@ export const TaskList: React.FC<TaskListProps> = ({ isHackerMode = false }) => {
     if (!task) return;
     
     setEditingTaskId(taskId);
-    setEditText(task.text);
+    setEditText(task.title); // Changed from task.text to task.title
   };
 
   const handleSaveEdit = (taskId: string) => {
     if (!editText.trim()) return;
     
-    const updatedTask = updateTask(taskId, { text: editText });
-    setTasks(tasks.map(task => task.id === taskId ? updatedTask : task));
+    const updatedTasks = updateTask(taskId, { title: editText }); // Changed from text to title
+    setTasks(updatedTasks);
     setEditingTaskId(null);
     setEditText('');
   };
@@ -119,7 +127,7 @@ export const TaskList: React.FC<TaskListProps> = ({ isHackerMode = false }) => {
                       >
                         {task.completed ? <Check size={14} /> : <Clock size={14} />}
                       </Button>
-                      <span className={task.completed ? 'line-through text-gray-500' : ''}>{task.text}</span>
+                      <span className={task.completed ? 'line-through text-gray-500' : ''}>{task.title}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Badge variant="outline" className={isHackerMode ? 'text-red-400 border-red-500/30' : 'text-jarvis border-jarvis/30'}>

@@ -1,4 +1,3 @@
-
 /**
  * Task Management Service
  * Extracts tasks from natural language and manages them
@@ -177,4 +176,27 @@ export const deleteTask = (taskId: string): Task[] => {
   tasks = tasks.filter(t => t.id !== taskId);
   saveTasks(tasks);
   return tasks;
+};
+
+// Get all tasks (needed for TaskList.tsx)
+export const getTasks = (): Task[] => {
+  return loadTasks();
+};
+
+// Add a task from text
+export const addTask2 = (taskTitle: string): Task => {
+  const newTask: Task = {
+    id: Date.now().toString(),
+    title: taskTitle,
+    completed: false,
+    priority: 'medium'
+  };
+  
+  addTask(newTask);
+  return newTask;
+};
+
+// Remove a task (needed for TaskList.tsx)
+export const removeTask = (taskId: string): void => {
+  deleteTask(taskId);
 };
