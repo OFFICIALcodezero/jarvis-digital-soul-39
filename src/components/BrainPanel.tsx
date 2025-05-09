@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -26,24 +25,18 @@ const BrainPanel: React.FC<BrainPanelProps> = ({ isHackerMode = false }) => {
   const [ramUsage, setRamUsage] = React.useState(35);
   const [networkUsage, setNetworkUsage] = React.useState(28);
   
-  // Sample emotional data for the component
+  // Sample emotional data adapted to match the expected types
   const [emotionalData] = React.useState({
     emotions: {
-      dominant: "neutral",
-      emotions: {
-        joy: 0.2,
-        sadness: 0.1,
-        anger: 0.05,
-        fear: 0.05,
-        surprise: 0.1,
-        trust: 0.5
-      },
-      intensity: 0.5
+      joy: 0.2,
+      surprise: 0.1,
+      anger: 0.05,
+      sadness: 0.05
     },
     sentiment: {
       score: 0.3,
-      magnitude: 0.4,
-      label: "positive" as const
+      comparative: 0.4,
+      type: "positive"
     }
   });
   
