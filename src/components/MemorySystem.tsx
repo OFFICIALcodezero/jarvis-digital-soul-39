@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, Tag, Calendar, Link as LinkIcon, FileText, X, Edit } from 'lucide-react';
+import { Search, Plus, Tag, Calendar, Link as LinkIcon, FileText, X, Edit, Zap } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -20,11 +19,26 @@ interface MemoryItem {
   url?: string;
   createdAt: number;
   updatedAt: number;
+  entities?: {
+    type: string;
+    text: string;
+    confidence: number;
+  }[];
+  sentiment?: {
+    score: number;
+    type: string;
+  };
 }
 
-const MemorySystem: React.FC<{
+interface MemorySystemProps {
   isHackerMode?: boolean;
-}> = ({ isHackerMode = false }) => {
+  onAnalyzeText?: (text: string) => void;
+}
+
+const MemorySystem: React.FC<MemorySystemProps> = ({ 
+  isHackerMode = false,
+  onAnalyzeText
+}) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState('all');
@@ -244,6 +258,16 @@ const MemorySystem: React.FC<{
     return new Date(timestamp).toLocaleString();
   };
   
+  // New function to analyze text content with NLP
+  const analyzeItemContent = (item: MemoryItem) => {
+    if (onAnalyzeText && item.content) {
+      onAnalyzeText(item.content);
+      toast.success("Analyzing content with NLP...");
+    } else if (!item.content) {
+      toast.error("This item has no content to analyze");
+    }
+  };
+  
   return (
     <div className="space-y-4">
       {/* Search and Filter Bar */}
@@ -324,6 +348,17 @@ const MemorySystem: React.FC<{
                     </div>
                   </div>
                   <div className="flex space-x-1">
+                    {onAnalyzeText && item.content && (
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-7 w-7 p-0" 
+                        onClick={() => analyzeItemContent(item)}
+                        title="Analyze with NLP"
+                      >
+                        <Zap className="h-3 w-3" />
+                      </Button>
+                    )}
                     <Button 
                       variant="ghost" 
                       size="sm" 
@@ -357,6 +392,34 @@ const MemorySystem: React.FC<{
                 {item.content && (
                   <p className="text-sm whitespace-pre-line">{item.content}</p>
                 )}
+                
+                {/* Display entity information if available */}
+                {item.entities && item.entities.length > 0 && (
+                  <div className="mt-2">
+                    <p className="text-xs text-gray-400">Detected Entities:</p>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {item.entities.map((entity, idx) => (
+                        <Badge key={idx} variant="secondary" className="text-xs">
+                          {entity.type}: {entity.text}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Display sentiment if available */}
+                {item.sentiment && (
+                  <div className="mt-2">
+                    <p className="text-xs text-gray-400">
+                      Sentiment: 
+                      <span className={
+                        item.sentiment.type === 'positive' ? 'text-green-400' : 
+                        item.sentiment.type === 'negative' ? 'text-red-400' : 'text-gray-400'
+                      }> {item.sentiment.type} ({Math.round(item.sentiment.score * 100)}%)</span>
+                    </p>
+                  </div>
+                )}
+                
                 {item.tags.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-3">
                     {item.tags.map(tag => (

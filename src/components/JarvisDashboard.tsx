@@ -6,9 +6,10 @@ import NewsWidget from './widgets/NewsWidget';
 import BrainPanel from './BrainPanel';
 import CalendarWidget from './widgets/CalendarWidget';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Brain, Calendar, CloudSun, Database, Globe, Newspaper } from 'lucide-react';
+import { Brain, Calendar, CloudSun, Database, Globe, Newspaper, Zap } from 'lucide-react';
 import { getNewsUpdates, NewsArticle } from '@/services/newsService';
 import MemorySystem from './MemorySystem';
+import { NLP } from '@/features/NLP';
 
 export interface WeatherData {
   location: string;
@@ -29,6 +30,12 @@ interface JarvisDashboardProps {
 
 const JarvisDashboard: React.FC<JarvisDashboardProps> = ({ compact = false }) => {
   const [activeTab, setActiveTab] = useState('brain');
+  const [analyzedText, setAnalyzedText] = useState<string | undefined>(undefined);
+  const [entities, setEntities] = useState<any[]>([]);
+  const [intents, setIntents] = useState<any[]>([]);
+  const [sentiment, setSentiment] = useState<any>(null);
+  const [emotions, setEmotions] = useState<any>(null);
+  const [isProcessingNLP, setIsProcessingNLP] = useState(false);
   
   // Use optional chaining and provide a default value to handle missing context
   let jarvisChatContext;
@@ -92,6 +99,52 @@ const JarvisDashboard: React.FC<JarvisDashboardProps> = ({ compact = false }) =>
     fetchNews();
   }, []);
 
+  // Function to process text with NLP
+  const processWithNLP = async (text: string) => {
+    if (!text.trim()) return;
+    
+    setIsProcessingNLP(true);
+    setAnalyzedText(text);
+    
+    try {
+      // Mock NLP processing for now - we'll replace this with actual transformers.js processing
+      setTimeout(() => {
+        // Mock entities
+        setEntities([
+          { type: 'Person', text: 'Tony Stark', confidence: 0.92 },
+          { type: 'Organization', text: 'Stark Industries', confidence: 0.89 },
+          { type: 'Location', text: 'New York', confidence: 0.78 },
+        ]);
+        
+        // Mock intents
+        setIntents([
+          { name: 'information_query', confidence: 0.85 },
+          { name: 'greeting', confidence: 0.35 },
+        ]);
+        
+        // Mock sentiment
+        setSentiment({
+          score: 0.65,
+          comparative: 0.35,
+          type: 'positive',
+        });
+        
+        // Mock emotions
+        setEmotions({
+          joy: 0.7,
+          surprise: 0.2,
+          anger: 0.05,
+          sadness: 0.05,
+        });
+        
+        setIsProcessingNLP(false);
+      }, 1500);
+    } catch (error) {
+      console.error('Error processing NLP:', error);
+      setIsProcessingNLP(false);
+    }
+  };
+
   if (compact) {
     // Compact dashboard for sidebar or small spaces
     return (
@@ -120,7 +173,7 @@ const JarvisDashboard: React.FC<JarvisDashboardProps> = ({ compact = false }) =>
     <div className={`rounded-lg border ${hackerModeActive ? 'border-red-500/20' : 'border-jarvis/20'} overflow-hidden`}>
       <Tabs defaultValue="brain" onValueChange={setActiveTab} className="w-full">
         <div className={`px-4 py-2 ${hackerModeActive ? 'bg-black/60' : 'bg-black/40'}`}>
-          <TabsList className={`grid grid-cols-5 ${hackerModeActive ? 'bg-black/60' : 'bg-black/40'}`}>
+          <TabsList className={`grid grid-cols-6 ${hackerModeActive ? 'bg-black/60' : 'bg-black/40'}`}>
             <TabsTrigger 
               value="brain" 
               className={
@@ -143,6 +196,18 @@ const JarvisDashboard: React.FC<JarvisDashboardProps> = ({ compact = false }) =>
             >
               <Database className="h-4 w-4 mr-2" />
               <span className="hidden sm:inline">Memory</span>
+            </TabsTrigger>
+            
+            <TabsTrigger 
+              value="nlp" 
+              className={
+                activeTab === "nlp" 
+                  ? (hackerModeActive ? 'text-red-400 bg-red-900/20' : 'text-jarvis bg-jarvis/20') 
+                  : ''
+              }
+            >
+              <Zap className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">NLP</span>
             </TabsTrigger>
             
             <TabsTrigger 
@@ -189,7 +254,23 @@ const JarvisDashboard: React.FC<JarvisDashboardProps> = ({ compact = false }) =>
         
         <TabsContent value="memory" className="max-h-[600px] overflow-auto">
           <div className="p-4">
-            <MemorySystem isHackerMode={hackerModeActive} />
+            <MemorySystem 
+              isHackerMode={hackerModeActive} 
+              onAnalyzeText={processWithNLP} 
+            />
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="nlp" className="max-h-[600px] overflow-auto">
+          <div className="p-4">
+            <NLP
+              analyzedText={analyzedText}
+              entities={entities}
+              intents={intents}
+              sentiment={sentiment}
+              emotions={emotions}
+              isProcessing={isProcessingNLP}
+            />
           </div>
         </TabsContent>
         
