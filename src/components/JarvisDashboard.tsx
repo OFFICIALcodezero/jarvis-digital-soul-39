@@ -6,8 +6,9 @@ import NewsWidget from './widgets/NewsWidget';
 import BrainPanel from './BrainPanel';
 import CalendarWidget from './widgets/CalendarWidget';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Brain, Calendar, CloudSun, Globe, Newspaper } from 'lucide-react';
+import { Brain, Calendar, CloudSun, Database, Globe, Newspaper } from 'lucide-react';
 import { getNewsUpdates, NewsArticle } from '@/services/newsService';
+import MemorySystem from './MemorySystem';
 
 export interface WeatherData {
   location: string;
@@ -119,7 +120,7 @@ const JarvisDashboard: React.FC<JarvisDashboardProps> = ({ compact = false }) =>
     <div className={`rounded-lg border ${hackerModeActive ? 'border-red-500/20' : 'border-jarvis/20'} overflow-hidden`}>
       <Tabs defaultValue="brain" onValueChange={setActiveTab} className="w-full">
         <div className={`px-4 py-2 ${hackerModeActive ? 'bg-black/60' : 'bg-black/40'}`}>
-          <TabsList className={`grid grid-cols-4 ${hackerModeActive ? 'bg-black/60' : 'bg-black/40'}`}>
+          <TabsList className={`grid grid-cols-5 ${hackerModeActive ? 'bg-black/60' : 'bg-black/40'}`}>
             <TabsTrigger 
               value="brain" 
               className={
@@ -130,6 +131,18 @@ const JarvisDashboard: React.FC<JarvisDashboardProps> = ({ compact = false }) =>
             >
               <Brain className="h-4 w-4 mr-2" />
               <span className="hidden sm:inline">Brain</span>
+            </TabsTrigger>
+            
+            <TabsTrigger 
+              value="memory" 
+              className={
+                activeTab === "memory" 
+                  ? (hackerModeActive ? 'text-red-400 bg-red-900/20' : 'text-jarvis bg-jarvis/20') 
+                  : ''
+              }
+            >
+              <Database className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Memory</span>
             </TabsTrigger>
             
             <TabsTrigger 
@@ -172,6 +185,12 @@ const JarvisDashboard: React.FC<JarvisDashboardProps> = ({ compact = false }) =>
         
         <TabsContent value="brain" className="max-h-[600px] overflow-auto">
           <BrainPanel isHackerMode={hackerModeActive} />
+        </TabsContent>
+        
+        <TabsContent value="memory" className="max-h-[600px] overflow-auto">
+          <div className="p-4">
+            <MemorySystem isHackerMode={hackerModeActive} />
+          </div>
         </TabsContent>
         
         <TabsContent value="weather">
