@@ -7,6 +7,7 @@ import { processCalculation, isCalculationRequest } from './calculatorService';
 import { processWorldClockQuery, isWorldClockQuery } from './worldClockService';
 import { processHistoryQuery } from './chatHistoryService';
 import { toast } from '@/components/ui/use-toast';
+import { detectThreats } from './threatDetectionService';
 
 export interface SkillResponse {
   text: string;
@@ -63,7 +64,13 @@ export const isSkillCommand = (message: string): boolean => {
     lowerMessage.includes('chat history') ||
     lowerMessage.includes('past questions') ||
     lowerMessage.includes('asked earlier') ||
-    lowerMessage.includes('previous conversations')
+    lowerMessage.includes('previous conversations') ||
+    
+    // Threat detection related
+    lowerMessage.includes('detect threat') ||
+    lowerMessage.includes('scan for threats') ||
+    lowerMessage.includes('threat detection') ||
+    lowerMessage.includes('security scan')
   );
 };
 
@@ -72,6 +79,41 @@ export const processSkillCommand = async (message: string): Promise<SkillRespons
   const lowerMessage = message.toLowerCase();
   
   try {
+    // Threat detection commands
+    if (
+      lowerMessage.includes('detect threat') ||
+      lowerMessage.includes('scan for threats') ||
+      lowerMessage.includes('threat detection') ||
+      lowerMessage.includes('security scan')
+    ) {
+      // Extract phone number if provided, otherwise use default
+      const phoneNumberMatch = message.match(/([+]?[\d]{10,15})/);
+      const phoneNumber = phoneNumberMatch 
+        ? `whatsapp:${phoneNumberMatch[1]}` 
+        : "whatsapp:+13205300568"; // Default to the Twilio number if no phone is provided
+      
+      const threatResult = await detectThreats(phoneNumber);
+      
+      let responseText = "";
+      if (threatResult.status === "threats_detected") {
+        responseText = `I've detected ${threatResult.threatCount} high-level security threats. `;
+        responseText += `I am sending WhatsApp alerts to your registered number. `;
+        responseText += `The most critical threat is related to "${threatResult.threats[0].title}" `;
+        responseText += `detected at ${threatResult.threats[0].location}.`;
+      } else if (threatResult.status === "no_threats") {
+        responseText = "I've completed a security scan and found no immediate threats. All systems are secure.";
+      } else {
+        responseText = "I encountered an error while running the threat detection scan. Please check system logs.";
+      }
+      
+      return {
+        text: responseText,
+        shouldSpeak: true,
+        data: threatResult,
+        skillType: 'threatDetection'
+      };
+    }
+    
     // Time and Calendar Commands
     if (
       lowerMessage.includes('time') || 

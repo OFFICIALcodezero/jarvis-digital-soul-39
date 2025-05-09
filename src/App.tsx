@@ -14,6 +14,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import FeaturesOverview from "./pages/FeaturesOverview";
 import SatelliteSurveillancePage from "./pages/SatelliteSurveillance";
 import OSINTSearch from "./pages/OSINTSearch";
+import { Toaster } from "./components/ui/sonner";
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
               <Route path="/osint" element={<OSINTSearch />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
+            <Toaster />
           </JarvisModeEnhancer>
         </div>
       </JarvisChatProvider>

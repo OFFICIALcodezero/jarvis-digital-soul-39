@@ -6,6 +6,8 @@ import MessageInput from './chat/MessageInput';
 import MessageSuggestions from './chat/MessageSuggestions';
 import HackerModeEnhanced from './chat/HackerModeEnhanced';
 import useHackerMode from '../hooks/useHackerMode';
+import { toast } from './ui/sonner';
+import { detectThreats } from '@/services/threatDetectionService';
 
 const JarvisChatMainEnhanced: React.FC = () => {
   const [input, setInput] = useState('');
@@ -35,9 +37,43 @@ const JarvisChatMainEnhanced: React.FC = () => {
   const { isHackerModeActive, checkForHackerMode, deactivateHackerMode } = useHackerMode();
 
   // Create a local send message function since the JarvisChatContext doesn't have sendMessage
-  const handleSendMessage = (text: string) => {
+  const handleSendMessage = async (text: string) => {
     // Check if hacker mode should be activated
     const isHackerCommand = checkForHackerMode(text);
+    
+    // Handle threat detection command
+    if (text.toLowerCase().includes("detect threat") || text.toLowerCase().includes("scan for threats")) {
+      setIsProcessing(true);
+      // Add the message to our local state
+      setMessages(prev => [...prev, { role: 'user', content: text, id: Date.now().toString() }]);
+      
+      // Process threat detection
+      try {
+        const phoneNumber = "whatsapp:+13205300568"; // Default Twilio number
+        const result = await detectThreats(phoneNumber);
+        
+        let responseText = "";
+        if (result.status === "threats_detected") {
+          responseText = `I've detected ${result.threatCount} high-level security threats. Alerts have been sent to your WhatsApp.`;
+        } else {
+          responseText = "Threat scan complete. No immediate threats detected.";
+        }
+        
+        // Add response message
+        setMessages(prev => [...prev, { role: 'assistant', content: responseText, id: Date.now().toString() }]);
+      } catch (error) {
+        console.error("Error in threat detection:", error);
+        toast("Error", {
+          description: "Failed to complete threat detection.",
+        });
+      } finally {
+        setIsProcessing(false);
+      }
+      
+      // Clear input
+      setInput('');
+      return;
+    }
     
     // If not a hacker command and we have image generation handling available
     if (!isHackerCommand && jarvisChat.handleImageGenerationFromPrompt) {
@@ -67,8 +103,10 @@ const JarvisChatMainEnhanced: React.FC = () => {
   const displayMessages = jarvisChat.messages || messages;
   const isCurrentlyProcessing = jarvisChat.isGeneratingImage || isProcessing;
   
-  // Create dummy suggestions
-  const defaultSuggestions = [
+  // Create suggestions with threat detection
+  const suggestions = [
+    { id: 'threat-1', text: 'Detect threat' },
+    { id: 'threat-2', text: 'Scan for threats' },
     { id: 'default-1', text: 'Generate an image for me' },
     { id: 'default-2', text: 'What can you help me with?' }
   ];
@@ -90,7 +128,7 @@ const JarvisChatMainEnhanced: React.FC = () => {
       {/* Message suggestions */}
       <div className="p-2 border-t border-gray-700">
         <MessageSuggestions 
-          suggestions={defaultSuggestions} 
+          suggestions={suggestions} 
           onSuggestionClick={(suggestion) => handleSendMessage(suggestion)}
         />
       </div>
@@ -102,6 +140,7 @@ const JarvisChatMainEnhanced: React.FC = () => {
           setInput={setInput}
           onSendMessage={handleSendMessage}
           isDisabled={isHackerModeActive}
+          isProcessing={isCurrentlyProcessing}
         />
       </div>
     </div>

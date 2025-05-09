@@ -51,7 +51,7 @@ const JarvisChatMain: React.FC<JarvisChatMainProps> = ({ hackerMode = false }) =
     }
   }, [transcript, inputMode, isProcessing, sendMessage, clearTranscript]);
 
-  // Enhanced suggestions with more image generation examples
+  // Enhanced suggestions with threat detection commands
   const getSuggestions = (): string[] => {
     if (hackerMode) {
       return [
@@ -60,6 +60,8 @@ const JarvisChatMain: React.FC<JarvisChatMainProps> = ({ hackerMode = false }) =
         "Access mainframe security protocols",
         "Trace IP location",
         "Run system diagnostics",
+        "Detect threat",  // Added threat detection command
+        "Scan for threats",  // Added threat scanning command
         "Deploy countermeasures",
         "Activate stealth protocols",
         "Scan for surveillance",

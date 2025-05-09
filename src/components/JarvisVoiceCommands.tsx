@@ -7,6 +7,7 @@ import { getNewsResponse } from '@/services/newsService';
 import { processFileManagerCommand } from '@/services/fileManagerService';
 import { processCalculation } from '@/services/calculatorService';
 import { processWorldClockQuery, isWorldClockQuery } from '@/services/worldClockService';
+import { detectThreats } from '@/services/threatDetectionService';
 
 interface JarvisVoiceCommandsProps {
   isListening: boolean;
@@ -74,6 +75,21 @@ const JarvisVoiceCommands: React.FC<JarvisVoiceCommandsProps> = ({
         });
       },
       feedback: "Hacker mode initialized. Security systems engaged."
+    });
+
+    // Threat detection
+    registerCommand('threatDetection', {
+      pattern: /(detect threat|scan for threats|threat detection|security threat)/i,
+      handler: async () => {
+        if (sendMessage) {
+          await sendMessage("detect threat");
+        } else {
+          // Fallback if context not available
+          const phoneNumber = "whatsapp:+13205300568"; // Default Twilio number
+          await detectThreats(phoneNumber);
+        }
+      },
+      feedback: "Initiating threat detection. Scanning for potential security threats."
     });
     
     // System updates
@@ -252,6 +268,7 @@ const JarvisVoiceCommands: React.FC<JarvisVoiceCommandsProps> = ({
       unregisterCommand('securityScan');
       unregisterCommand('emergencyMode');
       unregisterCommand('hackerMode');
+      unregisterCommand('threatDetection');
       unregisterCommand('checkUpdates');
       unregisterCommand('worldNews');
       unregisterCommand('techNews');
