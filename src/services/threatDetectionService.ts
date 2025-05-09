@@ -144,8 +144,6 @@ export const detectThreats = async (phoneNumber: string) => {
     console.error("Error in threat detection:", error);
     toast("Threat Detection Error", {
       description: "Failed to complete threat analysis",
-      // Changed from variant: "destructive" to type: "error" for sonner compatibility
-      type: "error",
     });
     
     return {

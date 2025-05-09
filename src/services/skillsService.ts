@@ -1,3 +1,4 @@
+
 import { getTimeCalendarResponse } from './timeCalendarService';
 import { getWeatherResponse } from './weatherService';
 import { getNewsResponse } from './newsService';
@@ -5,7 +6,7 @@ import { getDailyBriefing } from './dailyBriefingService';
 import { processCalculation, isCalculationRequest } from './calculatorService';
 import { processWorldClockQuery, isWorldClockQuery } from './worldClockService';
 import { processHistoryQuery } from './chatHistoryService';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/components/ui/sonner';
 import { detectThreats } from './threatDetectionService';
 
 export interface SkillResponse {
@@ -232,9 +233,8 @@ export const processSkillCommand = async (message: string): Promise<SkillRespons
     };
   } catch (error) {
     console.error('Error processing skill command:', error);
-    toast("Error", {
-      description: "Failed to process your command.",
-      type: "error",
+    toast({
+      description: "Failed to process your command."
     });
     
     return {
