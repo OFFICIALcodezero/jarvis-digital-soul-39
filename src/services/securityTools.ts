@@ -9,8 +9,8 @@ interface NetworkDevice {
   services?: string[];
 }
 
-// Simulated network security assessment
-export const scanNetwork = async (subnet: string): Promise<NetworkDevice[]> => {
+// Security tools functions
+const scanNetwork = async (subnet: string): Promise<NetworkDevice[]> => {
   await new Promise(resolve => setTimeout(resolve, 1500));
   return [
     {
@@ -33,7 +33,7 @@ export const scanNetwork = async (subnet: string): Promise<NetworkDevice[]> => {
 };
 
 // Port availability checker
-export const portScan = async (ip: string, portRange: string): Promise<number[]> => {
+const portScan = async (ip: string, portRange: string): Promise<number[]> => {
   await new Promise(resolve => setTimeout(resolve, 1000));
   const commonPorts = {
     80: 'HTTP',
@@ -47,7 +47,7 @@ export const portScan = async (ip: string, portRange: string): Promise<number[]>
 };
 
 // Security audit simulation
-export const serviceDetection = async (ip: string, port: number): Promise<string> => {
+const serviceDetection = async (ip: string, port: number): Promise<string> => {
   await new Promise(resolve => setTimeout(resolve, 800));
   const services = {
     80: 'Apache/2.4.41',
@@ -58,7 +58,7 @@ export const serviceDetection = async (ip: string, port: number): Promise<string
 };
 
 // SSL/TLS security checker
-export const checkSSLSecurity = async (domain: string): Promise<{
+const checkSSLSecurity = async (domain: string): Promise<{
   grade: string;
   issues: string[];
 }> => {
@@ -73,7 +73,7 @@ export const checkSSLSecurity = async (domain: string): Promise<{
 };
 
 // DNS security analyzer
-export const analyzeDNSSecurity = async (domain: string): Promise<{
+const analyzeDNSSecurity = async (domain: string): Promise<{
   records: string[];
   recommendations: string[];
 }> => {
@@ -92,7 +92,7 @@ export const analyzeDNSSecurity = async (domain: string): Promise<{
 };
 
 // Password strength analyzer
-export const analyzePasswordStrength = (password: string): {
+const analyzePasswordStrength = (password: string): {
   score: number;
   feedback: string[];
 } => {
@@ -112,4 +112,24 @@ export const analyzePasswordStrength = (password: string): {
       'Use a unique password for each service'
     ]
   };
+};
+
+// Export all functions as a single object named securityTools
+export const securityTools = {
+  scanNetwork,
+  portScan,
+  serviceDetection,
+  checkSSLSecurity,
+  analyzeDNSSecurity,
+  analyzePasswordStrength
+};
+
+// Also export individual functions for direct import
+export {
+  scanNetwork,
+  portScan,
+  serviceDetection,
+  checkSSLSecurity,
+  analyzeDNSSecurity,
+  analyzePasswordStrength
 };

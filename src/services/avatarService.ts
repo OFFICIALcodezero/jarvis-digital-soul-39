@@ -1,4 +1,3 @@
-
 import { toast } from '@/components/ui/sonner';
 
 export type AvatarExpression = 'neutral' | 'happy' | 'sad' | 'angry' | 'surprised' | 'thinking' | 'suspicious';
@@ -73,7 +72,6 @@ class AvatarService {
       console.error('Audio playback error:', error);
       toast("Voice Error", {
         description: "Failed to play audio response.",
-        variant: 'destructive',
       });
     });
   }
@@ -166,7 +164,6 @@ class AvatarService {
       
       toast("Speech Generation Error", {
         description: "Failed to generate speech with ElevenLabs API.",
-        variant: 'destructive',
       });
       
       // Fall back to browser's speech synthesis
@@ -184,7 +181,6 @@ class AvatarService {
       
       toast("Speech Error", {
         description: "Speech synthesis is not supported in this browser.",
-        variant: 'destructive',
       });
       
       return false;
@@ -243,7 +239,6 @@ class AvatarService {
       
       toast("Speech Error", {
         description: "Failed to use speech synthesis.",
-        variant: 'destructive',
       });
       
       return false;
