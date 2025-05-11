@@ -6,6 +6,12 @@ interface ThreatDetectionResult {
   threatCount?: number;
   threatTypes?: string[];
   message?: string;
+  threats?: Array<{
+    title: string;
+    location: string;
+    severity: string;
+    timestamp?: string;
+  }>;
 }
 
 // Simulate sending alerts via WhatsApp
@@ -41,13 +47,20 @@ export const detectThreats = async (phoneNumber?: string): Promise<ThreatDetecti
         'Brute Force Attack'
       ];
       
-      const detectedThreats = Array(threatCount).fill(0).map(() => 
+      const detectedThreatTypes = Array(threatCount).fill(0).map(() => 
         threatTypes[Math.floor(Math.random() * threatTypes.length)]
       );
       
+      // Generate detailed threats information
+      const detailedThreats = detectedThreatTypes.map(threatType => ({
+        title: threatType,
+        location: ['192.168.1.1', 'network-drive', 'external-api', 'web-server'][Math.floor(Math.random() * 4)],
+        severity: ['high', 'critical', 'medium'][Math.floor(Math.random() * 3)]
+      }));
+      
       // Send WhatsApp alert if phone number provided
       if (phoneNumber) {
-        const alertMessage = `SECURITY ALERT: ${threatCount} threat(s) detected in your system. Types: ${detectedThreats.join(', ')}`;
+        const alertMessage = `SECURITY ALERT: ${threatCount} threat(s) detected in your system. Types: ${detectedThreatTypes.join(', ')}`;
         await sendWhatsAppAlert(phoneNumber, alertMessage);
         
         toast("Alert Sent", {
@@ -58,7 +71,8 @@ export const detectThreats = async (phoneNumber?: string): Promise<ThreatDetecti
       return {
         status: 'threats_detected',
         threatCount,
-        threatTypes: detectedThreats,
+        threatTypes: detectedThreatTypes,
+        threats: detailedThreats,
         message: `Detected ${threatCount} potential security threats`
       };
     } else {

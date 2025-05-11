@@ -62,7 +62,7 @@ const HackerLegion: React.FC = () => {
             
             // If completed, mark as returning
             if (newProgress >= 100) {
-              return { ...agent, progress: 100, status: 'returning' };
+              return { ...agent, progress: 100, status: 'returning' as const };
             }
             
             return { ...agent, progress: newProgress };
@@ -74,7 +74,7 @@ const HackerLegion: React.FC = () => {
             
             if (newProgress <= 0) {
               // Agent has returned and will be removed
-              return { ...agent, progress: 0, status: 'idle' };
+              return { ...agent, progress: 0, status: 'idle' as const };
             }
             
             return { ...agent, progress: newProgress };

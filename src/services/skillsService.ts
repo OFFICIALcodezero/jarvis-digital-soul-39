@@ -1,4 +1,3 @@
-
 import { getTimeCalendarResponse } from './timeCalendarService';
 import { getWeatherResponse } from './weatherService';
 import { getNewsResponse } from './newsService';
@@ -154,7 +153,7 @@ export const processSkillCommand = async (message: string): Promise<SkillRespons
       const threatResult = await detectThreats(phoneNumber);
       
       let responseText = "";
-      if (threatResult.status === "threats_detected") {
+      if (threatResult.status === "threats_detected" && threatResult.threats && threatResult.threats.length > 0) {
         responseText = `I've detected ${threatResult.threatCount} high-level security threats. `;
         responseText += `I am sending WhatsApp alerts to your registered number. `;
         responseText += `The most critical threat is related to "${threatResult.threats[0].title}" `;
