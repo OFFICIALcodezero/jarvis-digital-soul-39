@@ -1,9 +1,9 @@
-
 import { generateImage } from './imageGenerationService';
 import { toast } from '@/components/ui/sonner';
 import { neuralNetworkService } from './neuralNetworkService';
+import { philosophicalAIService } from './philosophicalAIService';
 
-export type IntelligenceType = 'personal' | 'professional' | 'creative' | 'recon' | 'ghost' | 'environmental' | 'neural';
+export type IntelligenceType = 'personal' | 'professional' | 'creative' | 'recon' | 'ghost' | 'environmental' | 'neural' | 'philosophical';
 
 export interface IntelligenceRequest {
   type: IntelligenceType;
@@ -40,6 +40,8 @@ class IntelligenceCoreService {
           return this.handleEnvironmentalQuery(request.prompt);
         case 'neural':
           return this.handleNeuralQuery(request);
+        case 'philosophical':
+          return this.handlePhilosophicalQuery(request);
         default:
           return {
             type: 'personal',
@@ -210,6 +212,48 @@ class IntelligenceCoreService {
       return {
         type: 'neural',
         content: 'The neural network encountered an error processing your request.',
+        metadata: { error: true }
+      };
+    }
+  }
+  
+  private async handlePhilosophicalQuery(request: IntelligenceRequest): Promise<IntelligenceResponse> {
+    try {
+      const prompt = request.prompt.toLowerCase();
+      
+      // Check if this is a life guidance query
+      if (prompt.includes('guidance') || 
+          prompt.includes('advice') || 
+          prompt.includes('help me') ||
+          prompt.includes('should i') ||
+          prompt.includes('how should')) {
+        
+        const analysis = await philosophicalAIService.getLifeGuidance(request.prompt);
+        
+        let responseContent = `From a philosophical perspective: ${analysis.analysis.ethicalFrameworks.utilitarian} `;
+        responseContent += `Additionally, ${analysis.analysis.psychologicalPerspectives.existential} `;
+        responseContent += `I would recommend: ${analysis.analysis.recommendations[0]}`;
+        
+        return {
+          type: 'philosophical',
+          content: responseContent,
+          metadata: analysis
+        };
+      }
+      
+      // Otherwise, treat as a philosophical question
+      const response = await philosophicalAIService.analyzeQuestion(request.prompt);
+      
+      return {
+        type: 'philosophical',
+        content: response.content,
+        metadata: response
+      };
+    } catch (error) {
+      console.error("Error in philosophical processing:", error);
+      return {
+        type: 'philosophical',
+        content: 'I encountered an error processing your philosophical query.',
         metadata: { error: true }
       };
     }

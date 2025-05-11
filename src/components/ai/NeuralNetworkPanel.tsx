@@ -10,10 +10,11 @@ import AutonomousCreativity from './AutonomousCreativity';
 import DigitalIntelligenceMarket from './DigitalIntelligenceMarket';
 import AutonomousLifeform from './AutonomousLifeform';
 import TimeTravel from './TimeTravel';
+import PhilosophicalAI from './PhilosophicalAI';
 import { useNeuralNetwork } from '@/hooks/useNeuralNetwork';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/sonner';
-import { Brain, Atom, Zap, Network, WandSparkles, Store, Infinity, Clock } from 'lucide-react';
+import { Brain, Atom, Zap, Network, WandSparkles, Store, Infinity, Clock, BookOpen } from 'lucide-react';
 
 interface NeuralNetworkPanelProps {
   className?: string;
@@ -134,6 +135,10 @@ const NeuralNetworkPanel: React.FC<NeuralNetworkPanelProps> = ({ className }) =>
               <Network className="w-4 h-4" />
               <span>Hacker Legion</span>
             </TabsTrigger>
+            <TabsTrigger value="philosophy" className="flex items-center gap-1">
+              <BookOpen className="w-4 h-4" />
+              <span>Philosophy AI</span>
+            </TabsTrigger>
             <TabsTrigger value="creative" className="flex items-center gap-1">
               <WandSparkles className="w-4 h-4" />
               <span>Creativity AI</span>
@@ -162,6 +167,10 @@ const NeuralNetworkPanel: React.FC<NeuralNetworkPanelProps> = ({ className }) =>
           
           <TabsContent value="legion" className="space-y-4 mt-2">
             <HackerLegion />
+          </TabsContent>
+          
+          <TabsContent value="philosophy" className="space-y-4 mt-2">
+            <PhilosophicalAI />
           </TabsContent>
           
           <TabsContent value="creative" className="space-y-4 mt-2">
