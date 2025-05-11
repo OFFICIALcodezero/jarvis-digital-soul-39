@@ -1,4 +1,3 @@
-
 import { toast } from '@/components/ui/sonner';
 
 interface NetworkDevice {
@@ -20,6 +19,7 @@ interface ServiceInfo {
   vulnerable?: boolean;
 }
 
+// Export all functions individually and also as a securityTools object
 // Simulate network scanning function
 export const scanNetwork = async (range: string): Promise<NetworkDevice[]> => {
   // Simulate network scan delay
@@ -162,6 +162,104 @@ export const vulnerabilityScan = async (ip: string, ports: number[]): Promise<an
   return vulnerabilities;
 };
 
+// Add the missing functions that are used in SecurityCheck.tsx
+export const analyzePasswordStrength = (password: string) => {
+  // Basic password strength check
+  let strength = 0;
+  const feedback = [];
+  
+  if (password.length < 8) {
+    feedback.push('Password is too short');
+  } else {
+    strength += 1;
+  }
+  
+  if (password.match(/[A-Z]/)) {
+    strength += 1;
+  } else {
+    feedback.push('Add uppercase letters');
+  }
+  
+  if (password.match(/[a-z]/)) {
+    strength += 1;
+  } else {
+    feedback.push('Add lowercase letters');
+  }
+  
+  if (password.match(/[0-9]/)) {
+    strength += 1;
+  } else {
+    feedback.push('Add numbers');
+  }
+  
+  if (password.match(/[^A-Za-z0-9]/)) {
+    strength += 1;
+  } else {
+    feedback.push('Add special characters');
+  }
+  
+  let rating = 'weak';
+  if (strength >= 4) {
+    rating = 'strong';
+  } else if (strength >= 3) {
+    rating = 'medium';
+  }
+  
+  return {
+    score: strength,
+    rating,
+    feedback
+  };
+};
+
+export const checkSSLSecurity = async (domain: string) => {
+  // Simulate SSL security check
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  
+  const isSecure = Math.random() > 0.3;
+  const expiryDate = new Date();
+  expiryDate.setDate(expiryDate.getDate() + Math.floor(Math.random() * 365));
+  
+  const protocols = ['TLS 1.2', 'TLS 1.3'];
+  const ciphers = ['ECDHE-RSA-AES256-GCM-SHA384', 'ECDHE-RSA-AES128-GCM-SHA256'];
+  
+  // Sometimes add weak protocols
+  if (Math.random() > 0.7) {
+    protocols.push('TLS 1.0');
+    ciphers.push('RC4-SHA');
+  }
+  
+  return {
+    domain,
+    isSecure,
+    certificateValid: isSecure,
+    certificateExpiry: expiryDate.toISOString(),
+    protocols,
+    ciphers,
+    vulnerabilities: isSecure ? [] : [
+      { name: 'POODLE', severity: 'high' },
+      { name: 'ROBOT', severity: 'medium' }
+    ]
+  };
+};
+
+export const analyzeDNSSecurity = async (domain: string) => {
+  // Simulate DNS security analysis
+  await new Promise(resolve => setTimeout(resolve, 800));
+  
+  return {
+    domain,
+    hasDNSSEC: Math.random() > 0.5,
+    hasCAA: Math.random() > 0.6,
+    records: {
+      A: [`192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`],
+      MX: [`mail.${domain}`, `alt-mail.${domain}`],
+      TXT: Math.random() > 0.5 ? [`v=spf1 include:_spf.${domain} ~all`] : []
+    },
+    security_score: Math.floor(Math.random() * 100)
+  };
+};
+
 // Helper function to generate a random MAC address
 function generateRandomMAC(): string {
   const hexDigits = '0123456789ABCDEF';
@@ -198,3 +296,14 @@ function generateOperatingSystem(deviceType: string): string {
       return 'Unknown OS';
   }
 }
+
+// Export all functions as a single object for compatibility with existing code
+export const securityTools = {
+  scanNetwork,
+  portScan,
+  serviceDetection,
+  vulnerabilityScan,
+  analyzePasswordStrength,
+  checkSSLSecurity,
+  analyzeDNSSecurity
+};

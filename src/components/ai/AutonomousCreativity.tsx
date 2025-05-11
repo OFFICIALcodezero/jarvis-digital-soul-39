@@ -1,179 +1,134 @@
 
 import React, { useState, useEffect } from 'react';
-import { WandSparkles, Palette, FileText, Code, Smile, Frown } from 'lucide-react';
-import { enhancedAIService } from '@/services/enhancedAIService';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
+import { SparklesIcon, Code, Palette, BookOpen, Film } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { enhancedAIService } from '@/services/enhancedAIService';
 
 const AutonomousCreativity: React.FC = () => {
-  const [isActive, setIsActive] = useState(false);
-  const [prompt, setPrompt] = useState('');
-  const [generatedContent, setGeneratedContent] = useState<string | null>(null);
+  const [entityState, setEntityState] = useState(enhancedAIService.getEntityState('creativity'));
+  const [creativePrompt, setCreativePrompt] = useState('');
+  const [contentType, setContentType] = useState<string>('story');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [creativeMode, setCreativeMode] = useState<'story' | 'design' | 'code'>('story');
-  const [emotionalTone, setEmotionalTone] = useState<'neutral' | 'positive' | 'negative'>('neutral');
+  const [generatedContent, setGeneratedContent] = useState<string | null>(null);
   
   useEffect(() => {
-    const entityState = enhancedAIService.getEntityState('creativity');
-    if (entityState) {
-      setIsActive(entityState.active);
-    }
+    // Update entity state when component mounts
+    setEntityState(enhancedAIService.getEntityState('creativity'));
+    
+    // Simulate entity state updates
+    const interval = setInterval(() => {
+      setEntityState(enhancedAIService.getEntityState('creativity'));
+    }, 5000);
+    
+    return () => clearInterval(interval);
   }, []);
   
-  const activateCreativity = () => {
-    const success = enhancedAIService.activateEntity('creativity');
-    if (success) {
-      setIsActive(true);
-    }
-  };
-  
   const generateContent = async () => {
-    if (!prompt.trim() || isGenerating) return;
+    if (!creativePrompt.trim() || isGenerating) return;
     
     setIsGenerating(true);
     setGeneratedContent(null);
     
     try {
-      const result = await enhancedAIService.generateCreativeContent(
-        creativeMode, 
-        prompt
-      );
+      const result = await enhancedAIService.generateCreativeContent(contentType, creativePrompt);
       
       setGeneratedContent(result.content);
       
-      toast("Content Generated", {
-        description: `Created ${creativeMode} with ${result.emotionalTone} emotional tone`
+      toast(`Content Generated`, {
+        description: `Created ${contentType} with ${result.emotionalTone} emotional tone`
       });
+      
     } catch (error) {
-      toast("Generation Failed", {
-        description: "Failed to create content",
-        variant: "destructive"
+      toast(`Generation Failed`, {
+        description: `Unable to generate content at this time`
       });
     } finally {
       setIsGenerating(false);
     }
   };
   
-  const entityState = enhancedAIService.getEntityState('creativity');
+  if (!entityState || !entityState.active) {
+    return null;
+  }
   
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-jarvis">
-          <WandSparkles className="h-5 w-5" />
-          <span className="font-semibold">Autonomous Creativity</span>
+    <Card className="border-jarvis/30 bg-black/20 overflow-hidden">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-lg flex items-center">
+          <SparklesIcon className="mr-2 h-4 w-4" /> Autonomous Creativity
+        </CardTitle>
+        <CardDescription>
+          AI-powered creative output generation
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3">
+          <Button 
+            variant={contentType === 'story' ? 'default' : 'outline'} 
+            size="sm"
+            onClick={() => setContentType('story')}
+            className={contentType === 'story' ? 'bg-jarvis hover:bg-jarvis/90' : 'border-jarvis/30 hover:bg-jarvis/20'}
+          >
+            <BookOpen className="h-3.5 w-3.5 mr-1.5" /> Story
+          </Button>
+          
+          <Button 
+            variant={contentType === 'code' ? 'default' : 'outline'} 
+            size="sm"
+            onClick={() => setContentType('code')}
+            className={contentType === 'code' ? 'bg-jarvis hover:bg-jarvis/90' : 'border-jarvis/30 hover:bg-jarvis/20'}
+          >
+            <Code className="h-3.5 w-3.5 mr-1.5" /> Code
+          </Button>
+          
+          <Button 
+            variant={contentType === 'design' ? 'default' : 'outline'} 
+            size="sm"
+            onClick={() => setContentType('design')}
+            className={contentType === 'design' ? 'bg-jarvis hover:bg-jarvis/90' : 'border-jarvis/30 hover:bg-jarvis/20'}
+          >
+            <Palette className="h-3.5 w-3.5 mr-1.5" /> Design
+          </Button>
+          
+          <Button 
+            variant={contentType === 'script' ? 'default' : 'outline'} 
+            size="sm"
+            onClick={() => setContentType('script')}
+            className={contentType === 'script' ? 'bg-jarvis hover:bg-jarvis/90' : 'border-jarvis/30 hover:bg-jarvis/20'}
+          >
+            <Film className="h-3.5 w-3.5 mr-1.5" /> Script
+          </Button>
         </div>
         
-        <div>
-          {!isActive ? (
-            <Button 
-              size="sm" 
-              onClick={activateCreativity}
-              className="bg-jarvis/20 hover:bg-jarvis/30 text-jarvis border-jarvis/30"
-            >
-              Activate
-            </Button>
-          ) : (
-            <div className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full">
-              Active
-            </div>
-          )}
+        <div className="flex items-center space-x-2">
+          <Input
+            placeholder={`Enter a prompt for ${contentType}...`}
+            value={creativePrompt}
+            onChange={(e) => setCreativePrompt(e.target.value)}
+            className="bg-black/40 border-jarvis/30 text-white"
+          />
+          <Button 
+            onClick={generateContent} 
+            disabled={isGenerating || !creativePrompt.trim()}
+            className="bg-jarvis hover:bg-jarvis/90 whitespace-nowrap"
+          >
+            {isGenerating ? 'Creating...' : 'Generate'}
+          </Button>
         </div>
-      </div>
-      
-      {isActive && (
-        <>
-          <Tabs defaultValue="story" onValueChange={(v) => setCreativeMode(v as any)}>
-            <TabsList className="w-full bg-black/30 border-jarvis/20">
-              <TabsTrigger value="story" className="flex items-center gap-1">
-                <FileText className="w-4 h-4" />
-                <span>Story</span>
-              </TabsTrigger>
-              <TabsTrigger value="design" className="flex items-center gap-1">
-                <Palette className="w-4 h-4" />
-                <span>Design</span>
-              </TabsTrigger>
-              <TabsTrigger value="code" className="flex items-center gap-1">
-                <Code className="w-4 h-4" />
-                <span>Hacking Blueprint</span>
-              </TabsTrigger>
-            </TabsList>
-            
-            <div className="p-3 bg-black/20 rounded-md border border-jarvis/10 mt-3">
-              <div className="flex items-center gap-2 mb-2 text-sm">
-                <WandSparkles className="h-4 w-4 text-jarvis" />
-                <span>Create {creativeMode.charAt(0).toUpperCase() + creativeMode.slice(1)}</span>
-              </div>
-              
-              <Textarea
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                placeholder={`Enter a prompt for your ${creativeMode}...`}
-                className="bg-black/30 border-jarvis/20 mb-3 min-h-[100px]"
-              />
-              
-              <div className="flex justify-between items-center mb-3">
-                <div className="flex items-center gap-3">
-                  <span className="text-xs text-gray-400">Emotional Tone:</span>
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant={emotionalTone === 'neutral' ? 'default' : 'outline'}
-                      className={emotionalTone === 'neutral' ? 'bg-jarvis/30 text-white' : 'bg-black/20 text-gray-400'}
-                      onClick={() => setEmotionalTone('neutral')}
-                    >
-                      Neutral
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant={emotionalTone === 'positive' ? 'default' : 'outline'}
-                      className={emotionalTone === 'positive' ? 'bg-green-600/30 text-green-400' : 'bg-black/20 text-gray-400'}
-                      onClick={() => setEmotionalTone('positive')}
-                    >
-                      <Smile className="h-4 w-4 mr-1" />
-                      Positive
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant={emotionalTone === 'negative' ? 'default' : 'outline'}
-                      className={emotionalTone === 'negative' ? 'bg-red-600/30 text-red-400' : 'bg-black/20 text-gray-400'}
-                      onClick={() => setEmotionalTone('negative')}
-                    >
-                      <Frown className="h-4 w-4 mr-1" />
-                      Negative
-                    </Button>
-                  </div>
-                </div>
-                
-                <Button
-                  onClick={generateContent}
-                  disabled={!prompt.trim() || isGenerating}
-                  className="bg-jarvis/20 hover:bg-jarvis/30 text-jarvis border-jarvis/30"
-                >
-                  {isGenerating ? 'Generating...' : 'Generate'}
-                </Button>
-              </div>
-              
-              {generatedContent && (
-                <div className="bg-black/30 p-3 rounded-md border border-jarvis/10 mt-3 font-mono text-xs overflow-auto max-h-[200px]">
-                  <div className="whitespace-pre-wrap">{generatedContent}</div>
-                </div>
-              )}
+        
+        {generatedContent && (
+          <div className="bg-black/40 rounded-lg p-3 border border-jarvis/30 max-h-48 overflow-y-auto">
+            <h3 className="text-sm font-medium mb-2">Generated {contentType}</h3>
+            <div className="text-xs whitespace-pre-wrap">
+              {generatedContent}
             </div>
-          </Tabs>
-          
-          <div className="mt-3 flex items-center text-xs text-gray-400">
-            <div>Version {entityState?.version}</div>
-            <div className="mx-2">•</div>
-            <div>Development Progress: {entityState?.progress}%</div>
-            <div className="mx-2">•</div>
-            <div>Capabilities: {entityState?.capabilities.join(', ')}</div>
           </div>
-        </>
-      )}
-    </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 
