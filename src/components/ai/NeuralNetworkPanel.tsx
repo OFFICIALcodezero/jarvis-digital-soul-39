@@ -35,7 +35,7 @@ const NeuralNetworkPanel: React.FC<NeuralNetworkPanelProps> = ({ className }) =>
     try {
       const result = await trainNetwork();
       toast(result.message, {
-        description: `Neural network trained with ${result.iterations} iterations and ${result.improvements} improvements.`
+        description: `Neural network trained with ${result.improvement.toFixed(2)} improvement and ${result.newStrategies.length} new strategies.`
       });
     } catch (error) {
       console.error('Failed to train network:', error);
@@ -44,6 +44,13 @@ const NeuralNetworkPanel: React.FC<NeuralNetworkPanelProps> = ({ className }) =>
       });
     }
   };
+
+  // Calculate network status and intelligence level
+  const isNetworkActive = Object.values(networkState.knowledgeBase).some(value => value > 0.1);
+  const intelligenceLevel = Math.round(
+    Object.values(networkState.knowledgeBase).reduce((sum, val) => sum + val, 0) / 
+    Object.keys(networkState.knowledgeBase).length * 100
+  );
 
   return (
     <Card className={`${className} bg-black/40 border-jarvis/30`}>
@@ -62,12 +69,12 @@ const NeuralNetworkPanel: React.FC<NeuralNetworkPanelProps> = ({ className }) =>
         <div className="mb-4 flex justify-between items-center">
           <div>
             <div className="text-xs text-gray-400 mb-1">Network Status: 
-              <span className={`ml-2 ${networkState.isActive ? 'text-green-400' : 'text-red-400'}`}>
-                {networkState.isActive ? 'Active' : 'Inactive'}
+              <span className={`ml-2 ${isNetworkActive ? 'text-green-400' : 'text-red-400'}`}>
+                {isNetworkActive ? 'Active' : 'Inactive'}
               </span>
             </div>
             <div className="text-xs text-gray-400">
-              Intelligence Level: {networkState.intelligence}/100
+              Intelligence Level: {intelligenceLevel}/100
             </div>
           </div>
           <div className="space-x-2">
