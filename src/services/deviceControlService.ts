@@ -1,6 +1,9 @@
+
 // Replace navigator.bluetooth calls with feature detection
 // Replace navigator.getNetworkInformation with alternative approaches
 // Remove 'variant' from toast calls
+
+import { toast } from '@/components/ui/sonner';
 
 // Example implementation with proper type guards:
 const connectToDevice = async (deviceName: string) => {

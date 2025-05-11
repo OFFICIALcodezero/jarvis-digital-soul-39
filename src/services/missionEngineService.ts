@@ -1,4 +1,3 @@
-
 import { securityTools } from './securityTools';
 import { toast } from '@/components/ui/sonner';
 
@@ -204,7 +203,6 @@ class MissionEngineService implements MissionEngine {
     if (log.level === 'error' || log.level === 'warning') {
       toast(`Mission ${mission.name}`, {
         description: log.message,
-        variant: log.level === 'error' ? 'destructive' : 'default',
       });
     }
     
@@ -255,7 +253,6 @@ class MissionEngineService implements MissionEngine {
         
         toast(`Mission ${mission.name}`, {
           description: `Mission failed: ${step.error}`,
-          variant: 'destructive',
         });
         
         return;

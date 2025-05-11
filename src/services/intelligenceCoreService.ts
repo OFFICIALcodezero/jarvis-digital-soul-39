@@ -1,3 +1,4 @@
+
 import { generateImage } from './imageGenerationService';
 import { toast } from '@/components/ui/sonner';
 
@@ -65,7 +66,10 @@ class IntelligenceCoreService {
     try {
       if (request.prompt.toLowerCase().startsWith('image:')) {
         const imageDescription = request.prompt.substring(6).trim();
-        const imageUrl = await generateImage(imageDescription);
+        // Fix: Pass an object with prompt property instead of a string
+        const imageUrl = await generateImage({
+          prompt: imageDescription
+        });
         
         return {
           type: 'creative',
