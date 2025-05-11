@@ -10,6 +10,7 @@ export interface WeatherData {
   windSpeed?: number;
   icon?: string;
   location?: string;
+  coordinates?: { latitude: number; longitude: number };
   forecast?: Array<{
     day: string;
     temperature: number;
@@ -44,8 +45,10 @@ export const WeatherContextProvider: React.FC<{ children: ReactNode }> = ({ chil
     setError(null);
     
     try {
-      // For now using mock data with the coordinates
+      // Log coordinates for debugging
       console.log(`Fetching weather for coordinates: ${latitude}, ${longitude}`);
+      
+      // For now using mock data with the coordinates
       const weatherResponse = await getWeatherForecast({ location: "New York" });
       
       // Convert from the existing format to our new format
@@ -55,7 +58,8 @@ export const WeatherContextProvider: React.FC<{ children: ReactNode }> = ({ chil
         humidity: weatherResponse.current.humidity,
         windSpeed: weatherResponse.current.windSpeed,
         icon: weatherResponse.current.icon,
-        location: `${latitude.toFixed(2)}, ${longitude.toFixed(2)}`,
+        location: "New York", // Use the location name from the API response
+        coordinates: { latitude, longitude }, // Store actual coordinates separately
         forecast: weatherResponse.forecast?.map((day: any) => ({
           day: day.day,
           temperature: day.temp,
