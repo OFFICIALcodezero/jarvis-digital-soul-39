@@ -7,6 +7,7 @@ import JarvisChat from '@/components/JarvisChat';
 import HackerMode from '@/components/chat/HackerMode';
 import { LocationAwareness } from '@/features/LocationAwareness';
 import FaceDetection from '@/features/FaceDetection';
+import WeatherDisplay from '@/features/WeatherDisplay';
 
 interface JarvisMainLayoutProps {
   isSpeaking: boolean;
@@ -94,6 +95,8 @@ const JarvisMainLayout: React.FC<JarvisMainLayoutProps> = ({
               error={locationError} 
               isHackerMode={hackerModeActive}
             />
+            
+            <WeatherDisplay isHackerMode={hackerModeActive} />
             
             {activeMode === 'face' && (
               <FaceDetection isHackerMode={hackerModeActive} />

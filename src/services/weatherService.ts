@@ -1,139 +1,135 @@
 
-import { toast } from '@/components/ui/use-toast';
-
-export interface WeatherData {
+// Weather service to fetch weather data from API
+interface WeatherRequestOptions {
   location: string;
+  units?: 'metric' | 'imperial';
+}
+
+interface WeatherForecastDay {
+  day: string;
+  temp: number;
+  condition: string;
+  icon?: string;
+}
+
+interface WeatherResponse {
   current: {
     temp: number;
     condition: string;
-    icon: string;
     humidity: number;
     windSpeed: number;
-  };
-  forecast: Array<{
-    date: string;
-    maxTemp: number;
-    minTemp: number;
-    condition: string;
     icon: string;
-  }>;
+  };
+  location: {
+    name: string;
+    country: string;
+    region?: string;
+  };
+  forecast?: WeatherForecastDay[];
 }
 
-export interface WeatherQuery {
-  location?: string;
-  days?: number;
-}
-
-// Mock weather data for demonstration
-const mockWeatherData: WeatherData = {
-  location: "New York, NY",
-  current: {
-    temp: 22,
-    condition: "Partly cloudy",
-    icon: "cloud-sun",
-    humidity: 65,
-    windSpeed: 8
-  },
-  forecast: [
-    {
-      date: "Today",
-      maxTemp: 24,
-      minTemp: 17,
-      condition: "Partly cloudy",
-      icon: "cloud-sun"
-    },
-    {
-      date: "Tomorrow",
-      maxTemp: 28,
-      minTemp: 18,
-      condition: "Sunny",
-      icon: "sun"
-    },
-    {
-      date: "Wednesday",
-      maxTemp: 26,
-      minTemp: 20,
-      condition: "Rain",
-      icon: "cloud-rain"
-    },
-    {
-      date: "Thursday",
-      maxTemp: 22,
-      minTemp: 16,
-      condition: "Cloudy",
-      icon: "cloud"
-    },
-    {
-      date: "Friday",
-      maxTemp: 20,
-      minTemp: 14,
-      condition: "Rain",
-      icon: "cloud-rain"
-    }
-  ]
-};
-
-export const getWeatherForecast = async (query: WeatherQuery = {}): Promise<WeatherData> => {
-  // In a real implementation, you would call a weather API here using coordinates.
-  // For demo, return the mock data and echo back the "location" if provided.
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      if (query.location) {
-        const data = { ...mockWeatherData, location: query.location };
-        resolve(data);
-      } else {
-        resolve(mockWeatherData);
-      }
-    }, 1000);
-  });
-};
-
-export const parseWeatherQuery = (query: string): WeatherQuery => {
-  const result: WeatherQuery = {};
-  
-  // Check for location in the query
-  const locationMatches = query.match(/(?:in|for|at)\s+([a-zA-Z\s,]+)(?:\?|$)/i);
-  if (locationMatches && locationMatches[1]) {
-    result.location = locationMatches[1].trim();
-  }
-  
-  // Check for forecast days
-  if (query.includes("week") || query.includes("forecast")) {
-    result.days = 5;
-  } else if (query.includes("tomorrow")) {
-    result.days = 2; // Today and tomorrow
-  } else {
-    result.days = 1; // Just today
-  }
-  
-  return result;
-};
-
-export const getWeatherResponse = async (query: string): Promise<{text: string, data: WeatherData}> => {
+// Function to get weather forecast based on location
+export const getWeatherForecast = async (options: WeatherRequestOptions): Promise<WeatherResponse> => {
   try {
-    const parsedQuery = parseWeatherQuery(query);
-    const weatherData = await getWeatherForecast(parsedQuery);
+    // For now we'll use mock data as we don't have a real weather API key
+    // In a real implementation, you would make a fetch request to a weather API
     
-    let responseText = "";
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 500));
     
-    // Generate response based on query
-    if (query.toLowerCase().includes("tomorrow")) {
-      responseText = `Tomorrow's forecast for ${weatherData.location}: ${weatherData.forecast[1].condition} with a high of ${weatherData.forecast[1].maxTemp}°C and a low of ${weatherData.forecast[1].minTemp}°C.`;
-    } else if (query.toLowerCase().includes("week") || query.toLowerCase().includes("forecast")) {
-      responseText = `Here's your ${weatherData.location} 5-day forecast: Today: ${weatherData.current.condition}, ${weatherData.current.temp}°C. `;
-      weatherData.forecast.slice(1).forEach(day => {
-        responseText += `${day.date}: ${day.condition}, high of ${day.maxTemp}°C. `;
-      });
-    } else {
-      responseText = `Current weather in ${weatherData.location}: ${weatherData.current.condition}, ${weatherData.current.temp}°C with ${weatherData.current.humidity}% humidity and wind at ${weatherData.current.windSpeed} mph.`;
-    }
-    
-    return { text: responseText, data: weatherData };
+    // Mock response
+    return {
+      current: {
+        temp: 22,
+        condition: "Partly Cloudy",
+        humidity: 65,
+        windSpeed: 12,
+        icon: "partly-cloudy"
+      },
+      location: {
+        name: options.location,
+        country: "United States",
+        region: "New York"
+      },
+      forecast: [
+        { day: "Today", temp: 22, condition: "Partly Cloudy", icon: "partly-cloudy" },
+        { day: "Tomorrow", temp: 24, condition: "Sunny", icon: "sunny" },
+        { day: "Wed", temp: 20, condition: "Rain", icon: "rain" },
+        { day: "Thu", temp: 19, condition: "Cloudy", icon: "cloudy" },
+        { day: "Fri", temp: 21, condition: "Partly Cloudy", icon: "partly-cloudy" }
+      ]
+    };
   } catch (error) {
-    console.error('Error getting weather response:', error);
-    return { 
-      text: "I'm sorry, I couldn't retrieve the weather information at this time.", 
-      data: mockWeatherData 
+    console.error("Error fetching weather:", error);
+    throw new Error("Failed to fetch weather data");
+  }
+};
+
+// Function to get weather by coordinates (latitude and longitude)
+export const getWeatherByCoordinates = async (lat: number, lon: number): Promise<WeatherResponse> => {
+  try {
+    // In a real implementation you would make a fetch request to a weather API with coordinates
+    // For now we'll use mock data
+    
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 700));
+    
+    // Random weather conditions based on coordinates to simulate different locations
+    const conditions = ["Sunny", "Partly Cloudy", "Cloudy", "Rain", "Thunderstorm"];
+    const randomCondition = conditions[Math.floor(Math.random() * conditions.length)];
+    
+    // Temperature varies based on latitude to simulate climate differences (roughly)
+    const baseTemp = Math.abs(lat) > 45 ? 10 : Math.abs(lat) > 30 ? 18 : 25;
+    const temperature = baseTemp + Math.floor(Math.random() * 10) - 5;
+    
+    return {
+      current: {
+        temp: temperature,
+        condition: randomCondition,
+        humidity: 40 + Math.floor(Math.random() * 40),
+        windSpeed: 5 + Math.floor(Math.random() * 20),
+        icon: randomCondition.toLowerCase().replace(' ', '-')
+      },
+      location: {
+        name: `${lat.toFixed(2)}, ${lon.toFixed(2)}`,
+        country: "Unknown Location"
+      },
+      forecast: [
+        { day: "Today", temp: temperature, condition: randomCondition },
+        { day: "Tomorrow", temp: temperature + Math.floor(Math.random() * 6) - 3, condition: conditions[Math.floor(Math.random() * conditions.length)] },
+        { day: "Wed", temp: temperature + Math.floor(Math.random() * 6) - 3, condition: conditions[Math.floor(Math.random() * conditions.length)] }
+      ]
+    };
+  } catch (error) {
+    console.error("Error fetching weather by coordinates:", error);
+    throw new Error("Failed to fetch weather data for your location");
+  }
+};
+
+// Get weather response for Jarvis chat
+export const getWeatherResponse = async (message: string): Promise<{
+  text: string;
+  data: any;
+}> => {
+  try {
+    // Extract location from message or use default
+    const locationMatch = message.match(/weather (?:in|at|for) (.+?)(?:\?|$|\.)/i);
+    const location = locationMatch ? locationMatch[1] : "New York";
+    
+    const weatherData = await getWeatherForecast({ location });
+    
+    // Format response text
+    const responseText = `Current weather in ${weatherData.location.name}: ${weatherData.current.condition} with a temperature of ${Math.round(weatherData.current.temp)}°C. Humidity is at ${weatherData.current.humidity}% and wind speed is ${weatherData.current.windSpeed} km/h.`;
+    
+    return {
+      text: responseText,
+      data: weatherData
+    };
+  } catch (error) {
+    console.error("Error generating weather response:", error);
+    return {
+      text: "I'm sorry, but I couldn't retrieve the weather information at this time.",
+      data: null
     };
   }
 };

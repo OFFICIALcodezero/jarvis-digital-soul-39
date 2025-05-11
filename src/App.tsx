@@ -17,6 +17,7 @@ import OSINTSearch from "./pages/OSINTSearch";
 import { Toaster } from "./components/ui/sonner";
 import { AuthProvider } from "./contexts/AuthContext";
 import { WeatherContextProvider } from "./features/WeatherContext";
+import JarvisModeSwitcher from "./components/JarvisModeSwitcher";
 
 function App() {
   return (
@@ -42,6 +43,7 @@ function App() {
                 <Toaster />
               </JarvisModeEnhancer>
             </div>
+            <JarvisModeSwitcher />
           </WeatherContextProvider>
         </JarvisChatProvider>
       </AuthProvider>
