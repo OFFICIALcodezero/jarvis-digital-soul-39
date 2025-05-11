@@ -14,15 +14,25 @@ import PhilosophicalAI from './PhilosophicalAI';
 import { useNeuralNetwork } from '@/hooks/useNeuralNetwork';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/sonner';
-import { Brain, Atom, Zap, Network, WandSparkles, Store, Infinity, Clock, BookOpen } from 'lucide-react';
+import { Brain, Atom, Zap, Network, WandSparkles, Store, Infinity, Clock, BookOpen, LoaderCircle } from 'lucide-react';
 
 interface NeuralNetworkPanelProps {
   className?: string;
 }
 
+// Define Agent type to fix the TypeScript error in HackerLegion.tsx
+export interface Agent {
+  id: string;
+  type: string;
+  status: "idle" | "deployed" | "returning";
+  progress: number;
+  target?: string;
+}
+
 const NeuralNetworkPanel: React.FC<NeuralNetworkPanelProps> = ({ className }) => {
   const [activeTab, setActiveTab] = useState('neural');
   const [evolution, setEvolution] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { 
     networkState, 
     trainNetwork,
@@ -39,18 +49,61 @@ const NeuralNetworkPanel: React.FC<NeuralNetworkPanelProps> = ({ className }) =>
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
+    // Add feedback when switching tabs
+    toast(`Accessing ${getTabName(value)} module`, {
+      description: "Loading neural interface..."
+    });
+  };
+
+  const getTabName = (tabValue: string): string => {
+    const tabNames: {[key: string]: string} = {
+      'neural': 'Neural Core',
+      'quantum': 'Quantum AI',
+      'conscious': 'Consciousness',
+      'legion': 'Hacker Legion',
+      'philosophy': 'Philosophy AI',
+      'creative': 'Creativity AI',
+      'market': 'Digital Market',
+      'advanced': 'Advanced Systems',
+      'timetravel': 'Time Travel'
+    };
+    return tabNames[tabValue] || tabValue;
   };
 
   const handleTrainNetwork = async () => {
+    setIsLoading(true);
     try {
       const result = await trainNetwork();
       toast(result.message, {
         description: `Neural network trained with ${result.improvement.toFixed(2)} improvement and ${result.newStrategies.length} new strategies.`
       });
+      
+      // Log user interaction in console (could be extended to Firebase)
+      console.log("User action: Trained neural network", {
+        timestamp: new Date().toISOString(),
+        result: result
+      });
     } catch (error) {
       console.error('Failed to train network:', error);
       toast('Training Failed', {
         description: 'There was an error training the neural network.'
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResetNetwork = () => {
+    // Show confirmation before reset
+    if (window.confirm("Are you sure you want to reset the neural network? This will erase all training progress.")) {
+      resetNetwork();
+      toast("Network Reset", {
+        description: "The neural network has been reset to its initial state."
+      });
+      
+      // Log user interaction
+      console.log("User action: Reset neural network", {
+        timestamp: new Date().toISOString()
       });
     }
   };
@@ -101,15 +154,20 @@ const NeuralNetworkPanel: React.FC<NeuralNetworkPanelProps> = ({ className }) =>
               variant="outline" 
               size="sm" 
               onClick={handleTrainNetwork}
-              disabled={isTraining}
+              disabled={isTraining || isLoading}
               className="text-jarvis border-jarvis/30 hover:bg-jarvis/10"
             >
-              {isTraining ? 'Training...' : 'Train Network'}
+              {isTraining || isLoading ? (
+                <>
+                  <LoaderCircle className="w-4 h-4 mr-2 animate-spin" />
+                  Training...
+                </>
+              ) : 'Train Network'}
             </Button>
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={resetNetwork}
+              onClick={handleResetNetwork}
               className="text-red-400 border-red-400/30 hover:bg-red-400/10"
             >
               Reset

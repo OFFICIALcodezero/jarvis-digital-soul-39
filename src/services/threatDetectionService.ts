@@ -1,144 +1,360 @@
 
 import { toast } from '@/components/ui/sonner';
 
-interface ThreatDetectionResult {
-  status: 'threats_detected' | 'no_threats' | 'error';
-  threatCount?: number;
-  threatTypes?: string[];
-  message?: string;
-  threats?: Array<{
-    title: string;
-    location: string;
-    severity: string;
-    timestamp?: string;
-  }>;
+// Define the shape of a threat
+export interface Threat {
+  id: string;
+  title: string;
+  description: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  location: string;
+  timestamp: string;
+  source?: string;
 }
 
-// Simulate sending alerts via WhatsApp
-const sendWhatsAppAlert = async (phoneNumber: string, message: string): Promise<boolean> => {
-  console.log(`Sending WhatsApp alert to ${phoneNumber}: ${message}`);
-  
-  // In a real implementation, this would use Twilio or another messaging service
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  return true;
-};
+// Define the result of threat detection
+export interface ThreatDetectionResult {
+  status: 'threats_detected' | 'no_threats' | 'error';
+  threatCount: number;
+  message: string;
+  threats?: Threat[]; // Add the threats array to fix the TypeScript error
+  alertSent?: boolean;
+  timestamp: string;
+}
 
-// Function to detect threats in the system
-export const detectThreats = async (phoneNumber?: string): Promise<ThreatDetectionResult> => {
-  toast("Security Scan Initiated", {
-    description: "Scanning system for potential threats..."
-  });
-  
+// Simulated threat detection function
+export const detectThreats = async (phoneNumber: string): Promise<ThreatDetectionResult> => {
   try {
-    // Simulate threat detection process
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
     
-    // 40% chance of detecting threats
-    const threatsDetected = Math.random() < 0.4;
+    // Random determination if threats are found (70% chance)
+    const threatsDetected = Math.random() > 0.3;
     
     if (threatsDetected) {
-      const threatCount = Math.floor(Math.random() * 3) + 1;
-      const threatTypes = [
-        'Unauthorized Access Attempt',
-        'Suspicious Network Activity',
-        'Malware Detected',
-        'Data Exfiltration',
-        'Brute Force Attack'
-      ];
+      // Generate random number of threats (1-5)
+      const threatCount = Math.floor(Math.random() * 5) + 1;
       
-      const detectedThreatTypes = Array(threatCount).fill(0).map(() => 
-        threatTypes[Math.floor(Math.random() * threatTypes.length)]
-      );
-      
-      // Generate detailed threats information
-      const detailedThreats = detectedThreatTypes.map(threatType => ({
-        title: threatType,
-        location: ['192.168.1.1', 'network-drive', 'external-api', 'web-server'][Math.floor(Math.random() * 4)],
-        severity: ['high', 'critical', 'medium'][Math.floor(Math.random() * 3)]
-      }));
-      
-      // Send WhatsApp alert if phone number provided
-      if (phoneNumber) {
-        const alertMessage = `SECURITY ALERT: ${threatCount} threat(s) detected in your system. Types: ${detectedThreatTypes.join(', ')}`;
-        await sendWhatsAppAlert(phoneNumber, alertMessage);
-        
-        toast("Alert Sent", {
-          description: `Security alert sent to your WhatsApp`
+      // Generate threat details
+      const threats: Threat[] = [];
+      for (let i = 0; i < threatCount; i++) {
+        threats.push({
+          id: `threat-${Date.now()}-${i}`,
+          title: getRandomThreatTitle(),
+          description: getRandomThreatDescription(),
+          severity: getRandomSeverity(),
+          location: getRandomLocation(),
+          timestamp: new Date().toISOString(),
+          source: getRandomSource()
         });
       }
       
+      // Display toast notification
+      toast('Security Alert', {
+        description: `Detected ${threatCount} potential security ${threatCount === 1 ? 'threat' : 'threats'}. Alert sent to ${phoneNumber}.`,
+      });
+      
+      // Return threat information
       return {
         status: 'threats_detected',
         threatCount,
-        threatTypes: detectedThreatTypes,
-        threats: detailedThreats,
-        message: `Detected ${threatCount} potential security threats`
+        message: `${threatCount} security ${threatCount === 1 ? 'threat has' : 'threats have'} been detected and sent to ${phoneNumber}`,
+        threats, // Include threats in the result
+        alertSent: true,
+        timestamp: new Date().toISOString()
       };
     } else {
+      // No threats detected
+      toast('Security Scan Complete', {
+        description: 'No security threats were detected at this time.',
+      });
+      
       return {
         status: 'no_threats',
-        message: 'No security threats detected'
+        threatCount: 0,
+        message: 'No security threats detected',
+        threats: [], // Include empty threats array
+        timestamp: new Date().toISOString()
       };
     }
   } catch (error) {
-    console.error("Error detecting threats:", error);
+    console.error('Error in threat detection:', error);
+    
+    toast('Threat Detection Error', {
+      description: 'Failed to complete security scan. Please try again later.',
+    });
+    
     return {
       status: 'error',
-      message: 'Error occurred during threat detection'
+      threatCount: 0,
+      message: 'Error occurred during threat detection',
+      threats: [], // Include empty threats array
+      timestamp: new Date().toISOString()
     };
   }
 };
 
-// More advanced threat detection that can be used by the system
-export const performAdvancedThreatDetection = async (): Promise<{
-  threats: Array<{
-    type: string;
-    severity: 'low' | 'medium' | 'high' | 'critical';
-    source: string;
-    timestamp: string;
-    description: string;
-  }>;
-}> => {
-  // Simulate advanced scanning
-  await new Promise(resolve => setTimeout(resolve, 5000));
-  
-  const threatTypes = [
-    { type: 'Ransomware Attempt', severity: 'critical' },
-    { type: 'Data Breach', severity: 'critical' },
-    { type: 'Zero-day Exploit', severity: 'high' },
-    { type: 'Brute Force Attack', severity: 'high' },
-    { type: 'Phishing Campaign', severity: 'medium' },
-    { type: 'Unusual Login Activity', severity: 'medium' },
-    { type: 'Suspicious File Download', severity: 'medium' },
-    { type: 'Port Scanning', severity: 'low' },
-    { type: 'Failed Login Attempts', severity: 'low' }
+// Helper functions for generating random threat data
+function getRandomThreatTitle(): string {
+  const titles = [
+    'Unauthorized Access Attempt',
+    'Malware Detection',
+    'Data Exfiltration',
+    'Suspicious Login Activity',
+    'Potential Phishing Attack',
+    'Ransomware Signature Detected',
+    'SQL Injection Attempt',
+    'Cross-site Scripting Attack',
+    'DDOS Attack Indicators',
+    'Privilege Escalation Attempt'
   ];
-  
-  const threatSources = [
-    '192.168.1.254',
-    '10.0.0.123',
-    'external.server.com',
-    'unknown-source.net',
-    'suspicious-domain.org'
+  return titles[Math.floor(Math.random() * titles.length)];
+}
+
+function getRandomThreatDescription(): string {
+  const descriptions = [
+    'Multiple failed login attempts detected from unknown IP address.',
+    'Malicious code signature detected in downloaded file.',
+    'Unusual data transfer activity to external server.',
+    'Login from new location and device not previously associated with this account.',
+    'Email containing suspicious links and requesting credentials.',
+    'File encryption activities detected across multiple directories.',
+    'Malformed SQL queries detected in web application logs.',
+    'JavaScript injection detected in user input fields.',
+    'Abnormal traffic spike suggesting coordinated attack.',
+    'User attempting to access restricted system areas.'
   ];
+  return descriptions[Math.floor(Math.random() * descriptions.length)];
+}
+
+function getRandomSeverity(): 'low' | 'medium' | 'high' | 'critical' {
+  const severities: ('low' | 'medium' | 'high' | 'critical')[] = ['low', 'medium', 'high', 'critical'];
+  return severities[Math.floor(Math.random() * severities.length)];
+}
+
+function getRandomLocation(): string {
+  const locations = [
+    'Network Perimeter',
+    'User Endpoint',
+    'Email Server',
+    'Web Application',
+    'Database Server',
+    'Authentication System',
+    'Cloud Storage',
+    'API Gateway',
+    'File Server',
+    'Internal Network'
+  ];
+  return locations[Math.floor(Math.random() * locations.length)];
+}
+
+function getRandomSource(): string {
+  const sources = [
+    'Firewall Logs',
+    'Intrusion Detection System',
+    'Antivirus Alert',
+    'User Report',
+    'SIEM Analysis',
+    'Threat Intelligence Feed',
+    'Honeypot Trigger',
+    'Network Traffic Analysis',
+    'Automated Scan',
+    'Security Audit'
+  ];
+  return sources[Math.floor(Math.random() * sources.length)];
+}
+
+// Create a generic OSINT tool for various lookups
+export const osintLookup = async (
+  query: string, 
+  type: 'email' | 'domain' | 'ip' | 'username' | 'phone'
+): Promise<any> => {
+  // Simulate processing time
+  await new Promise(resolve => setTimeout(resolve, 1200));
   
-  // Random number of threats (0-3)
-  const threatCount = Math.floor(Math.random() * 4);
-  const threats = [];
+  // Log the request (would be sent to Firebase in production)
+  console.log(`OSINT lookup - Type: ${type}, Query: ${query}`);
   
-  for (let i = 0; i < threatCount; i++) {
-    const threatTypeIndex = Math.floor(Math.random() * threatTypes.length);
-    const sourceIndex = Math.floor(Math.random() * threatSources.length);
+  // Show loading notification
+  toast(`Running OSINT lookup`, {
+    description: `Searching for information on ${query}...`,
+  });
+  
+  try {
+    // Generate mock results based on lookup type
+    let result = {};
     
-    threats.push({
-      type: threatTypes[threatTypeIndex].type,
-      severity: threatTypes[threatTypeIndex].severity as 'low' | 'medium' | 'high' | 'critical',
-      source: threatSources[sourceIndex],
-      timestamp: new Date().toISOString(),
-      description: `Detected ${threatTypes[threatTypeIndex].type.toLowerCase()} from ${threatSources[sourceIndex]}`
+    switch(type) {
+      case 'email':
+        result = mockEmailLookup(query);
+        break;
+      case 'domain':
+        result = mockDomainLookup(query);
+        break;
+      case 'ip':
+        result = mockIpLookup(query);
+        break;
+      case 'username':
+        result = mockUsernameLookup(query);
+        break;
+      case 'phone':
+        result = mockPhoneLookup(query);
+        break;
+    }
+    
+    // Success notification
+    toast(`OSINT Lookup Complete`, {
+      description: `Found information related to ${query}`,
     });
+    
+    return {
+      success: true,
+      timestamp: new Date().toISOString(),
+      query,
+      type,
+      result
+    };
+  } catch (error) {
+    console.error('OSINT lookup error:', error);
+    
+    toast(`OSINT Lookup Failed`, {
+      description: `Error processing ${type} lookup for ${query}`,
+    });
+    
+    return {
+      success: false,
+      timestamp: new Date().toISOString(),
+      query,
+      type,
+      error: 'Failed to complete OSINT lookup'
+    };
   }
-  
-  return { threats };
 };
+
+// Mock OSINT data generators
+function mockEmailLookup(email: string) {
+  const domain = email.split('@')[1];
+  
+  // Generate breached status randomly
+  const breached = Math.random() > 0.5;
+  const breachData = breached ? [
+    {
+      site: 'Example Company',
+      date: '2022-06-15',
+      dataTypes: ['email', 'username', 'password hash']
+    },
+    {
+      site: 'Shopping Platform',
+      date: '2021-03-22',
+      dataTypes: ['email', 'name', 'phone']
+    }
+  ] : [];
+  
+  return {
+    emailInfo: {
+      address: email,
+      domain,
+      valid: true,
+      mxRecords: [`mx1.${domain}`, `mx2.${domain}`],
+      spfRecord: `v=spf1 include:_spf.${domain} ~all`,
+      disposable: Math.random() > 0.8
+    },
+    breachData: {
+      breached,
+      breachCount: breachData.length,
+      lastBreached: breached ? breachData[0].date : null,
+      breaches: breachData
+    }
+  };
+}
+
+function mockDomainLookup(domain: string) {
+  return {
+    registrar: 'Example Registrar, LLC',
+    registeredDate: '2015-07-29',
+    expiryDate: '2025-07-29',
+    nameservers: [
+      `ns1.${domain}`,
+      `ns2.${domain}`
+    ],
+    ips: [`192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`],
+    subdomains: [
+      `www.${domain}`,
+      `mail.${domain}`,
+      `blog.${domain}`,
+      `shop.${domain}`,
+      `api.${domain}`
+    ],
+    securityHeaders: {
+      'Content-Security-Policy': 'present',
+      'X-XSS-Protection': 'present',
+      'X-Content-Type-Options': 'present',
+      'Strict-Transport-Security': Math.random() > 0.5 ? 'present' : 'missing'
+    }
+  };
+}
+
+function mockIpLookup(ip: string) {
+  return {
+    ip: ip,
+    type: Math.random() > 0.5 ? 'IPv4' : 'IPv6',
+    country: 'United States',
+    region: 'California',
+    city: 'San Francisco',
+    isp: 'Example Internet Provider',
+    org: 'Example Organization',
+    asn: 'AS12345',
+    location: {
+      lat: 37.7749 + (Math.random() - 0.5) * 5,
+      lon: -122.4194 + (Math.random() - 0.5) * 5
+    },
+    timezone: 'America/Los_Angeles',
+    openPorts: [
+      80,
+      443,
+      22,
+      21
+    ].filter(() => Math.random() > 0.3)
+  };
+}
+
+function mockUsernameLookup(username: string) {
+  const platforms = [
+    'Twitter', 'Instagram', 'Facebook', 'TikTok', 
+    'LinkedIn', 'GitHub', 'YouTube', 'Reddit'
+  ];
+  
+  // Randomly determine which platforms have this username
+  const results = platforms.map(platform => ({
+    platform,
+    exists: Math.random() > 0.4,
+    url: `https://${platform.toLowerCase()}.com/${username}`,
+    lastActivity: Math.random() > 0.5 ? 
+      new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString() : 
+      null
+  }));
+  
+  return {
+    username,
+    platformsChecked: platforms.length,
+    found: results.filter(r => r.exists).length,
+    results
+  };
+}
+
+function mockPhoneLookup(phone: string) {
+  return {
+    phone,
+    valid: true,
+    countryCode: '+1',
+    localFormat: '(555) 123-4567',
+    carrier: 'Example Mobile',
+    lineType: Math.random() > 0.5 ? 'mobile' : 'landline',
+    location: {
+      country: 'United States',
+      region: 'New York',
+      city: 'New York City'
+    },
+    timeZone: 'America/New_York'
+  };
+}
