@@ -71,7 +71,7 @@ class IntelligenceCoreService {
     try {
       if (request.prompt.toLowerCase().startsWith('image:')) {
         const imageDescription = request.prompt.substring(6).trim();
-        // Pass an object with prompt property instead of a string
+        // Pass a proper ImageGenerationParams object
         const imageUrl = await generateImage({
           prompt: imageDescription
         });
