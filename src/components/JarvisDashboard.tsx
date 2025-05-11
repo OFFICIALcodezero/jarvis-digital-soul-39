@@ -1,295 +1,42 @@
 
-import React, { useEffect, useState } from 'react';
-import { useJarvisChat } from './JarvisChatContext';
-import WeatherWidget from './widgets/WeatherWidget';
-import NewsWidget from './widgets/NewsWidget';
-import BrainPanel from './BrainPanel';
-import CalendarWidget from './widgets/CalendarWidget';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Brain, Calendar, CloudSun, Database, Globe, Newspaper, Zap } from 'lucide-react';
-import { getNewsUpdates, NewsArticle } from '@/services/newsService';
-import MemorySystem from './MemorySystem';
-import { NLP } from '@/features/NLP';
+import React, { useEffect } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { Card } from "./ui/card";
+import NeuralNetworkPanel from "./ai/NeuralNetworkPanel";
+import { toast } from '@/components/ui/sonner';
 
-export interface WeatherData {
-  location: string;
-  temperature: number;
-  condition: string;
-  icon: string;
-  forecast: {
-    day: string;
-    temperature: number;
-    condition: string;
-    icon: string;
-  }[];
-}
-
-interface JarvisDashboardProps {
-  compact?: boolean;
-}
-
-const JarvisDashboard: React.FC<JarvisDashboardProps> = ({ compact = false }) => {
-  const [activeTab, setActiveTab] = useState('brain');
-  const [analyzedText, setAnalyzedText] = useState<string | undefined>(undefined);
-  const [entities, setEntities] = useState<any[]>([]);
-  const [intents, setIntents] = useState<any[]>([]);
-  const [sentiment, setSentiment] = useState<any>(null);
-  const [emotions, setEmotions] = useState<any>(null);
-  const [isProcessingNLP, setIsProcessingNLP] = useState(false);
-  
-  // Use optional chaining and provide a default value to handle missing context
-  let jarvisChatContext;
-  try {
-    jarvisChatContext = useJarvisChat();
-  } catch (error) {
-    console.warn("JarvisChat context not available in Dashboard, using default values");
-    jarvisChatContext = { hackerModeActive: false };
-  }
-  
-  const { hackerModeActive = false } = jarvisChatContext || {};
-  
-  const [weather, setWeather] = useState<WeatherData | null>(null);
-  const [news, setNews] = useState<NewsArticle[] | null>(null);
-  const [calendarEvents] = useState([
-    { 
-      title: "Team Meeting", 
-      time: "09:30 AM", 
-      location: "Conference Room B" 
-    },
-    { 
-      title: "Client Call", 
-      time: "11:00 AM", 
-      location: "Zoom" 
-    },
-    { 
-      title: "Lunch with Jane", 
-      time: "12:30 PM", 
-      location: "Cafe Bistro" 
-    }
-  ]);
-
+const JarvisDashboard: React.FC = () => {
   useEffect(() => {
-    // Mock weather data
-    const mockWeatherData: WeatherData = {
-      location: "New York, NY",
-      temperature: 72,
-      condition: "Partly Cloudy",
-      icon: "partly-cloudy",
-      forecast: [
-        { day: "Mon", temperature: 72, condition: "Partly Cloudy", icon: "partly-cloudy" },
-        { day: "Tue", temperature: 75, condition: "Sunny", icon: "sunny" },
-        { day: "Wed", temperature: 68, condition: "Rain", icon: "rain" },
-        { day: "Thu", temperature: 70, condition: "Cloudy", icon: "cloudy" },
-        { day: "Fri", temperature: 73, condition: "Sunny", icon: "sunny" }
-      ]
-    };
-    
-    setWeather(mockWeatherData);
-    
-    // Fetch real news data
-    const fetchNews = async () => {
-      try {
-        const newsData = await getNewsUpdates({ count: 5 });
-        setNews(newsData);
-      } catch (error) {
-        console.error('Error fetching news in dashboard:', error);
-      }
-    };
-    
-    fetchNews();
+    // Initial dashboard loaded notification
+    toast("Neural Network Activated", {
+      description: "Advanced AI learning systems are now online",
+    });
   }, []);
 
-  // Function to process text with NLP
-  const processWithNLP = async (text: string) => {
-    if (!text.trim()) return;
-    
-    setIsProcessingNLP(true);
-    setAnalyzedText(text);
-    
-    try {
-      // Mock NLP processing for now - we'll replace this with actual transformers.js processing
-      setTimeout(() => {
-        // Mock entities
-        setEntities([
-          { type: 'Person', text: 'Tony Stark', confidence: 0.92 },
-          { type: 'Organization', text: 'Stark Industries', confidence: 0.89 },
-          { type: 'Location', text: 'New York', confidence: 0.78 },
-        ]);
-        
-        // Mock intents
-        setIntents([
-          { name: 'information_query', confidence: 0.85 },
-          { name: 'greeting', confidence: 0.35 },
-        ]);
-        
-        // Mock sentiment
-        setSentiment({
-          score: 0.65,
-          comparative: 0.35,
-          type: 'positive',
-        });
-        
-        // Mock emotions
-        setEmotions({
-          joy: 0.7,
-          surprise: 0.2,
-          anger: 0.05,
-          sadness: 0.05,
-        });
-        
-        setIsProcessingNLP(false);
-      }, 1500);
-    } catch (error) {
-      console.error('Error processing NLP:', error);
-      setIsProcessingNLP(false);
-    }
-  };
-
-  if (compact) {
-    // Compact dashboard for sidebar or small spaces
-    return (
-      <div className="space-y-4">
-        <div className="p-2">
-          <h3 className={`text-sm font-semibold ${hackerModeActive ? 'text-red-400' : 'text-jarvis'}`}>
-            JARVIS Dashboard
-          </h3>
-        </div>
-        
-        {weather && (
-          <WeatherWidget isCompact={true} />
-        )}
-        
-        {news && news.length > 0 && (
-          <div className="space-y-2">
-            <h4 className="text-xs font-semibold text-gray-400">Latest News</h4>
-            <p className="text-xs truncate">{news[0].title}</p>
-          </div>
-        )}
-      </div>
-    );
-  }
-
   return (
-    <div className={`rounded-lg border ${hackerModeActive ? 'border-red-500/20' : 'border-jarvis/20'} overflow-hidden`}>
-      <Tabs defaultValue="brain" onValueChange={setActiveTab} className="w-full">
-        <div className={`px-4 py-2 ${hackerModeActive ? 'bg-black/60' : 'bg-black/40'}`}>
-          <TabsList className={`grid grid-cols-6 ${hackerModeActive ? 'bg-black/60' : 'bg-black/40'}`}>
-            <TabsTrigger 
-              value="brain" 
-              className={
-                activeTab === "brain" 
-                  ? (hackerModeActive ? 'text-red-400 bg-red-900/20' : 'text-jarvis bg-jarvis/20') 
-                  : ''
-              }
-            >
-              <Brain className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Brain</span>
-            </TabsTrigger>
-            
-            <TabsTrigger 
-              value="memory" 
-              className={
-                activeTab === "memory" 
-                  ? (hackerModeActive ? 'text-red-400 bg-red-900/20' : 'text-jarvis bg-jarvis/20') 
-                  : ''
-              }
-            >
-              <Database className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Memory</span>
-            </TabsTrigger>
-            
-            <TabsTrigger 
-              value="nlp" 
-              className={
-                activeTab === "nlp" 
-                  ? (hackerModeActive ? 'text-red-400 bg-red-900/20' : 'text-jarvis bg-jarvis/20') 
-                  : ''
-              }
-            >
-              <Zap className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">NLP</span>
-            </TabsTrigger>
-            
-            <TabsTrigger 
-              value="weather"
-              className={
-                activeTab === "weather" 
-                  ? (hackerModeActive ? 'text-red-400 bg-red-900/20' : 'text-jarvis bg-jarvis/20') 
-                  : ''
-              }
-            >
-              <CloudSun className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Weather</span>
-            </TabsTrigger>
-            
-            <TabsTrigger 
-              value="news"
-              className={
-                activeTab === "news" 
-                  ? (hackerModeActive ? 'text-red-400 bg-red-900/20' : 'text-jarvis bg-jarvis/20') 
-                  : ''
-              }
-            >
-              <Globe className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">News</span>
-            </TabsTrigger>
-            
-            <TabsTrigger 
-              value="calendar"
-              className={
-                activeTab === "calendar" 
-                  ? (hackerModeActive ? 'text-red-400 bg-red-900/20' : 'text-jarvis bg-jarvis/20') 
-                  : ''
-              }
-            >
-              <Calendar className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Calendar</span>
-            </TabsTrigger>
-          </TabsList>
-        </div>
-        
-        <TabsContent value="brain" className="max-h-[600px] overflow-auto">
-          <BrainPanel isHackerMode={hackerModeActive} />
+    <div className="w-full space-y-4">
+      <Tabs defaultValue="neural" className="w-full">
+        <TabsList className="bg-black/30 border-jarvis/20">
+          <TabsTrigger value="neural">Neural Network</TabsTrigger>
+          <TabsTrigger value="tasks">Active Tasks</TabsTrigger>
+          <TabsTrigger value="system">System Status</TabsTrigger>
+        </TabsList>
+        <TabsContent value="neural" className="space-y-4 mt-2">
+          <NeuralNetworkPanel />
         </TabsContent>
-        
-        <TabsContent value="memory" className="max-h-[600px] overflow-auto">
-          <div className="p-4">
-            <MemorySystem 
-              isHackerMode={hackerModeActive} 
-              onAnalyzeText={processWithNLP} 
-            />
-          </div>
+        <TabsContent value="tasks" className="space-y-4 mt-2">
+          <Card className="p-4 bg-black/40 border-jarvis/30">
+            <div className="text-center text-gray-400">
+              Active tasks will appear here
+            </div>
+          </Card>
         </TabsContent>
-        
-        <TabsContent value="nlp" className="max-h-[600px] overflow-auto">
-          <div className="p-4">
-            <NLP
-              analyzedText={analyzedText}
-              entities={entities}
-              intents={intents}
-              sentiment={sentiment}
-              emotions={emotions}
-              isProcessing={isProcessingNLP}
-            />
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="weather">
-          <div className="p-4">
-            <WeatherWidget />
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="news">
-          <div className="p-4">
-            <NewsWidget articles={news || []} />
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="calendar">
-          <div className="p-4">
-            <CalendarWidget events={calendarEvents} />
-          </div>
+        <TabsContent value="system" className="space-y-4 mt-2">
+          <Card className="p-4 bg-black/40 border-jarvis/30">
+            <div className="text-center text-gray-400">
+              System diagnostics will appear here
+            </div>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>

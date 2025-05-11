@@ -1,8 +1,9 @@
 
 import { generateImage } from './imageGenerationService';
 import { toast } from '@/components/ui/sonner';
+import { neuralNetworkService } from './neuralNetworkService';
 
-export type IntelligenceType = 'personal' | 'professional' | 'creative' | 'recon' | 'ghost' | 'environmental';
+export type IntelligenceType = 'personal' | 'professional' | 'creative' | 'recon' | 'ghost' | 'environmental' | 'neural';
 
 export interface IntelligenceRequest {
   type: IntelligenceType;
@@ -37,6 +38,8 @@ class IntelligenceCoreService {
           return this.handleGhostQuery(request);
         case 'environmental':
           return this.handleEnvironmentalQuery(request.prompt);
+        case 'neural':
+          return this.handleNeuralQuery(request);
         default:
           return {
             type: 'personal',
@@ -139,6 +142,74 @@ class IntelligenceCoreService {
       return {
         type: 'environmental',
         content: 'I encountered an issue retrieving environmental data. Please try again later.',
+        metadata: { error: true }
+      };
+    }
+  }
+  
+  private async handleNeuralQuery(request: IntelligenceRequest): Promise<IntelligenceResponse> {
+    try {
+      const prompt = request.prompt.toLowerCase();
+      
+      // Check if we need to train the network
+      if (prompt.includes('train') || prompt.includes('learn') || prompt.includes('evolve')) {
+        const result = await neuralNetworkService.trainNetwork();
+        
+        return {
+          type: 'neural',
+          content: `Neural network training completed. ${result.message}`,
+          metadata: { 
+            trainingResult: result,
+            networkState: neuralNetworkService.getNetworkState()
+          }
+        };
+      }
+      
+      // Check if we need to execute a task
+      if (prompt.includes('hack') || prompt.includes('attack') || prompt.includes('breach') || 
+          prompt.includes('scan') || prompt.includes('exploit')) {
+        
+        // Parse target from prompt (very basic parsing)
+        const targetMatches = prompt.match(/(hack|attack|scan|breach|exploit)\s+([a-zA-Z0-9.-]+)/i);
+        const target = targetMatches && targetMatches[2] ? targetMatches[2] : 'unknown-target';
+        
+        // Create task
+        const task = {
+          id: `task-${Date.now()}`,
+          target,
+          objective: request.prompt,
+          difficulty: 5, // Medium difficulty by default
+          status: 'pending' as const
+        };
+        
+        // Execute task
+        const result = await neuralNetworkService.executeHackingTask(task);
+        
+        return {
+          type: 'neural',
+          content: result.result || `Neural network executed task on target: ${target}`,
+          metadata: {
+            task: result,
+            strategy: result.strategyUsed
+          }
+        };
+      }
+      
+      // Get network state
+      const networkState = neuralNetworkService.getNetworkState();
+      
+      return {
+        type: 'neural',
+        content: `Neural network is active with ${networkState.strategies.length} strategies and ${networkState.iterations} training iterations. You can ask me to "train neural network" or "hack [target]".`,
+        metadata: {
+          networkState
+        }
+      };
+    } catch (error) {
+      console.error("Neural network error:", error);
+      return {
+        type: 'neural',
+        content: 'The neural network encountered an error processing your request.',
         metadata: { error: true }
       };
     }

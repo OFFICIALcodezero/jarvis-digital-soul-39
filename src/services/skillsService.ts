@@ -77,7 +77,16 @@ export const isSkillCommand = (message: string): boolean => {
     lowerMessage.includes('environment') ||
     lowerMessage.includes('air quality') ||
     lowerMessage.includes('humidity') ||
-    lowerMessage.includes('environmental data')
+    lowerMessage.includes('environmental data') ||
+    
+    // Neural network related
+    lowerMessage.includes('neural network') ||
+    lowerMessage.includes('train network') ||
+    lowerMessage.includes('hack') ||
+    lowerMessage.includes('neural') ||
+    lowerMessage.includes('evolve ai') ||
+    lowerMessage.includes('brain') ||
+    (lowerMessage.includes('learn') && (lowerMessage.includes('ai') || lowerMessage.includes('network')))
   );
 };
 
@@ -86,6 +95,29 @@ export const processSkillCommand = async (message: string): Promise<SkillRespons
   const lowerMessage = message.toLowerCase();
   
   try {
+    // Neural network commands
+    if (
+      lowerMessage.includes('neural network') ||
+      lowerMessage.includes('train network') ||
+      lowerMessage.includes('hack') ||
+      lowerMessage.includes('neural') ||
+      lowerMessage.includes('evolve ai') ||
+      lowerMessage.includes('brain') ||
+      (lowerMessage.includes('learn') && (lowerMessage.includes('ai') || lowerMessage.includes('network')))
+    ) {
+      const response = await intelligenceCore.processRequest({
+        type: 'neural',
+        prompt: message
+      });
+      
+      return {
+        text: response.content,
+        shouldSpeak: true,
+        data: response.metadata,
+        skillType: 'neural'
+      };
+    }
+    
     // Environmental data commands
     if (
       lowerMessage.includes('environment') ||
