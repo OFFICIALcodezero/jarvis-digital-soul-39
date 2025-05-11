@@ -102,7 +102,7 @@ export const LocationAwareness: React.FC<LocationAwarenessProps> = ({
             </div>
           </>
         ) : (
-          <div className="text-sm text-gray-300">Location data unavailable</div>
+          <div className="text-sm text-white">Location data unavailable</div>
         )}
       </CardContent>
     </Card>

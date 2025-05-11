@@ -124,7 +124,7 @@ export const WeatherDisplay: React.FC<WeatherDisplayProps> = ({ isHackerMode = f
             )}
           </div>
         ) : (
-          <div className="text-sm text-gray-300">No weather data available</div>
+          <div className="text-sm text-white">No weather data available</div>
         )}
       </CardContent>
     </Card>
