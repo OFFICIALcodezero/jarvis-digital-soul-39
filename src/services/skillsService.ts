@@ -6,7 +6,7 @@ import { getDailyBriefing } from './dailyBriefingService';
 import { processCalculation, isCalculationRequest } from './calculatorService';
 import { processWorldClockQuery, isWorldClockQuery } from './worldClockService';
 import { processHistoryQuery } from './chatHistoryService';
-import { toast } from '@/components/ui/sonner';
+import { toast } from '@/components/ui/use-toast';
 import { detectThreats } from './threatDetectionService';
 import { intelligenceCore } from './intelligenceCoreService';
 

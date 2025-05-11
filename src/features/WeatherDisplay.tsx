@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Cloud, CloudRain, CloudSnow, Sun, Thermometer, Wind } from 'lucide-react';
 import { useWeatherContext } from './WeatherContext';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/use-toast';
 
 interface WeatherDisplayProps {
   isHackerMode?: boolean;
@@ -25,11 +25,17 @@ export const WeatherDisplay: React.FC<WeatherDisplayProps> = ({ isHackerMode = f
         },
         (error) => {
           console.error('Error getting location:', error);
-          toast.error('Unable to access your location');
+          toast({
+            title: "Location Error",
+            description: 'Unable to access your location'
+          });
         }
       );
     } else {
-      toast.error('Geolocation is not supported by your browser');
+      toast({
+        title: "Browser Compatibility",
+        description: 'Geolocation is not supported by your browser'
+      });
     }
   }, []);
 

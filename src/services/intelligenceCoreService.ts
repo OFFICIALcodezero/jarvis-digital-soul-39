@@ -1,5 +1,5 @@
 import { generateImage } from './imageGenerationService';
-import { toast } from '@/components/ui/sonner';
+import { toast } from '@/components/ui/use-toast';
 import { neuralNetworkService } from './neuralNetworkService';
 import { philosophicalAIService } from './philosophicalAIService';
 
@@ -284,7 +284,8 @@ class IntelligenceCoreService {
 
   private handleError(error: Error): IntelligenceResponse {
     console.error("Intelligence core error:", error);
-    toast("Processing Error", {
+    toast({
+      title: "Processing Error",
       description: "The intelligence core encountered an error."
     });
     return {
