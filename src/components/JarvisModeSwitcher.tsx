@@ -1,11 +1,14 @@
+
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import HackerModeWrapper from './chat/HackerModeWrapper';
+import VoiceCommandIntegration from '@/features/VoiceCommandIntegration';
 
 // This component will detect the current mode and apply our enhanced effects
 const JarvisModeSwitcher = () => {
   const [isHackerMode, setIsHackerMode] = useState(false);
   const [effectsContainer, setEffectsContainer] = useState<HTMLElement | null>(null);
+  const [voiceCommandsActive, setVoiceCommandsActive] = useState(false);
   
   // Create a container for our effects
   useEffect(() => {
@@ -59,13 +62,21 @@ const JarvisModeSwitcher = () => {
       clearInterval(interval);
     };
   }, []);
+
+  // Toggle voice commands when entering/exiting hacker mode
+  useEffect(() => {
+    setVoiceCommandsActive(isHackerMode);
+  }, [isHackerMode]);
   
   // If effects container is not ready, don't render anything
   if (!effectsContainer) return null;
   
   // Use portal to render our effects overlay
   return createPortal(
-    <HackerModeWrapper isHackerMode={isHackerMode} />,
+    <>
+      <HackerModeWrapper isHackerMode={isHackerMode} />
+      <VoiceCommandIntegration isActive={voiceCommandsActive} />
+    </>,
     effectsContainer
   );
 };

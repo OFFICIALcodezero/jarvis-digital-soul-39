@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import NeuralNetworkBrain from './NeuralNetworkBrain';
@@ -13,6 +13,7 @@ import TimeTravel from './TimeTravel';
 import { useNeuralNetwork } from '@/hooks/useNeuralNetwork';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/sonner';
+import { Brain, Atom, Zap, Network, WandSparkles, Store, Infinity, Clock } from 'lucide-react';
 
 interface NeuralNetworkPanelProps {
   className?: string;
@@ -20,12 +21,20 @@ interface NeuralNetworkPanelProps {
 
 const NeuralNetworkPanel: React.FC<NeuralNetworkPanelProps> = ({ className }) => {
   const [activeTab, setActiveTab] = useState('neural');
+  const [evolution, setEvolution] = useState(false);
   const { 
     networkState, 
     trainNetwork,
     isTraining,
-    resetNetwork
+    resetNetwork,
+    toggleEvolution
   } = useNeuralNetwork();
+
+  // Handle evolution toggle effects
+  useEffect(() => {
+    toggleEvolution(evolution);
+    return () => toggleEvolution(false);
+  }, [evolution, toggleEvolution]);
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
@@ -56,12 +65,7 @@ const NeuralNetworkPanel: React.FC<NeuralNetworkPanelProps> = ({ className }) =>
     <Card className={`${className} bg-black/40 border-jarvis/30`}>
       <CardHeader className="pb-2">
         <CardTitle className="text-jarvis flex items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-            <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-5 0v-15A2.5 2.5 0 0 1 9.5 2Z"></path>
-            <path d="M14.5 2A2.5 2.5 0 0 1 17 4.5v15a2.5 2.5 0 0 1-5 0v-15A2.5 2.5 0 0 1 14.5 2Z"></path>
-            <path d="M4 12H2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h2"></path>
-            <path d="M20 12h2a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"></path>
-          </svg>
+          <Brain className="w-5 h-5" />
           Advanced Neural Systems
         </CardTitle>
       </CardHeader>
@@ -75,6 +79,20 @@ const NeuralNetworkPanel: React.FC<NeuralNetworkPanelProps> = ({ className }) =>
             </div>
             <div className="text-xs text-gray-400">
               Intelligence Level: {intelligenceLevel}/100
+            </div>
+            <div className="text-xs text-gray-400 mt-1">
+              <label className="inline-flex items-center cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  checked={evolution} 
+                  onChange={() => setEvolution(!evolution)} 
+                  className="sr-only peer"
+                />
+                <div className="relative w-9 h-5 bg-gray-700 rounded-full peer peer-checked:bg-jarvis/50 peer-focus:ring-1 peer-focus:ring-jarvis">
+                  <div className={`absolute w-4 h-4 rounded-full top-0.5 left-0.5 bg-white transition-transform ${evolution ? 'translate-x-4' : ''}`}></div>
+                </div>
+                <span className="ml-2">Evolution Mode</span>
+              </label>
             </div>
           </div>
           <div className="space-x-2">
@@ -100,13 +118,34 @@ const NeuralNetworkPanel: React.FC<NeuralNetworkPanelProps> = ({ className }) =>
 
         <Tabs defaultValue="neural" className="w-full" value={activeTab} onValueChange={handleTabChange}>
           <TabsList className="w-full bg-black/30 border-jarvis/20 overflow-x-auto flex-wrap">
-            <TabsTrigger value="neural">Neural Core</TabsTrigger>
-            <TabsTrigger value="quantum">Quantum AI</TabsTrigger>
-            <TabsTrigger value="conscious">Consciousness</TabsTrigger>
-            <TabsTrigger value="legion">Hacker Legion</TabsTrigger>
-            <TabsTrigger value="creative">Creativity AI</TabsTrigger>
-            <TabsTrigger value="market">Digital Market</TabsTrigger>
-            <TabsTrigger value="advanced">Advanced</TabsTrigger>
+            <TabsTrigger value="neural" className="flex items-center gap-1">
+              <Brain className="w-4 h-4" />
+              <span>Neural Core</span>
+            </TabsTrigger>
+            <TabsTrigger value="quantum" className="flex items-center gap-1">
+              <Atom className="w-4 h-4" />
+              <span>Quantum AI</span>
+            </TabsTrigger>
+            <TabsTrigger value="conscious" className="flex items-center gap-1">
+              <Zap className="w-4 h-4" />
+              <span>Consciousness</span>
+            </TabsTrigger>
+            <TabsTrigger value="legion" className="flex items-center gap-1">
+              <Network className="w-4 h-4" />
+              <span>Hacker Legion</span>
+            </TabsTrigger>
+            <TabsTrigger value="creative" className="flex items-center gap-1">
+              <WandSparkles className="w-4 h-4" />
+              <span>Creativity AI</span>
+            </TabsTrigger>
+            <TabsTrigger value="market" className="flex items-center gap-1">
+              <Store className="w-4 h-4" />
+              <span>Digital Market</span>
+            </TabsTrigger>
+            <TabsTrigger value="advanced" className="flex items-center gap-1">
+              <Infinity className="w-4 h-4" />
+              <span>Advanced</span>
+            </TabsTrigger>
           </TabsList>
           
           <TabsContent value="neural" className="space-y-4 mt-2">
@@ -136,7 +175,9 @@ const NeuralNetworkPanel: React.FC<NeuralNetworkPanelProps> = ({ className }) =>
           <TabsContent value="advanced" className="space-y-4 mt-2">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <AutonomousLifeform />
-              <TimeTravel />
+              <div className="space-y-4">
+                <TimeTravel />
+              </div>
             </div>
           </TabsContent>
         </Tabs>
