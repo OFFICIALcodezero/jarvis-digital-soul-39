@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertCircle, Clock, MapPin } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import WeatherDisplay from './WeatherDisplay';
 import { useWeatherContext } from './WeatherContext';
 
 interface LocationAwarenessProps {
@@ -21,7 +20,6 @@ export const LocationAwareness: React.FC<LocationAwarenessProps> = ({
 }) => {
   const [localTime, setLocalTime] = useState<string>('');
   const [locationName, setLocationName] = useState<string>('Unknown');
-  const { weather } = useWeatherContext();
 
   // Update local time every minute
   useEffect(() => {
@@ -61,11 +59,11 @@ export const LocationAwareness: React.FC<LocationAwarenessProps> = ({
   return (
     <Card className={`border-${isHackerMode ? 'red-500/30' : 'jarvis/30'} ${isHackerMode ? 'bg-black/20' : 'bg-black/10'}`}>
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg flex items-center">
+        <CardTitle className="text-lg flex items-center text-white">
           <MapPin className="mr-2 h-4 w-4" />
           Location Awareness
         </CardTitle>
-        <CardDescription>Current geographical context</CardDescription>
+        <CardDescription className="text-gray-300">Current geographical context</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {isLoading ? (
@@ -81,42 +79,30 @@ export const LocationAwareness: React.FC<LocationAwarenessProps> = ({
           <>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <div className="text-sm font-medium">Current Location:</div>
-                <Badge className={`bg-${isHackerMode ? 'red' : 'jarvis'}/20`}>
+                <div className="text-sm font-medium text-white">Current Location:</div>
+                <Badge className={`bg-${isHackerMode ? 'red' : 'jarvis'}/20 text-white`}>
                   {locationName}
                 </Badge>
               </div>
               
               <div className="flex items-center justify-between">
-                <div className="text-sm font-medium">Local Time:</div>
-                <div className="flex items-center">
-                  <Clock className="h-3 w-3 mr-1 text-gray-400" />
+                <div className="text-sm font-medium text-white">Local Time:</div>
+                <div className="flex items-center text-white">
+                  <Clock className="h-3 w-3 mr-1 text-gray-300" />
                   <span className="text-sm">{localTime}</span>
                 </div>
               </div>
               
               <div className="flex items-center justify-between">
-                <div className="text-sm font-medium">Coordinates:</div>
-                <div className="text-sm">
+                <div className="text-sm font-medium text-white">Coordinates:</div>
+                <div className="text-sm text-white">
                   {userLocation.coords.latitude.toFixed(4)}, {userLocation.coords.longitude.toFixed(4)}
                 </div>
               </div>
             </div>
-            
-            {weather && (
-              <div className="pt-2">
-                <div className="text-sm font-medium mb-2">Weather Conditions:</div>
-                <div className="bg-black/20 p-2 rounded-lg">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">{weather.condition}</span>
-                    <span className="text-sm font-bold">{Math.round(weather.temperature)}°</span>
-                  </div>
-                </div>
-              </div>
-            )}
           </>
         ) : (
-          <div className="text-sm text-gray-400">Location data unavailable</div>
+          <div className="text-sm text-gray-300">Location data unavailable</div>
         )}
       </CardContent>
     </Card>

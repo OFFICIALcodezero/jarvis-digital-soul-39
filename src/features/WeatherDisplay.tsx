@@ -66,11 +66,11 @@ export const WeatherDisplay: React.FC<WeatherDisplayProps> = ({ isHackerMode = f
   return (
     <Card className={`border-${isHackerMode ? 'red-500/30' : 'jarvis/30'} ${isHackerMode ? 'bg-black/20' : 'bg-black/10'}`}>
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg flex items-center">
+        <CardTitle className="text-lg flex items-center text-white">
           <Thermometer className="mr-2 h-4 w-4" />
           Weather Conditions
         </CardTitle>
-        <CardDescription>Real-time environmental data</CardDescription>
+        <CardDescription className="text-gray-300">Environmental data</CardDescription>
       </CardHeader>
       <CardContent>
         {isLoading ? (
@@ -85,23 +85,23 @@ export const WeatherDisplay: React.FC<WeatherDisplayProps> = ({ isHackerMode = f
               <div className="flex items-center">
                 {getWeatherIcon()}
                 <div className="ml-2">
-                  <div className="font-medium">{weather.condition}</div>
-                  <div className="text-sm text-gray-400">{weather.location}</div>
+                  <div className="font-medium text-white">{weather.condition}</div>
+                  <div className="text-sm text-gray-300">{weather.location}</div>
                 </div>
               </div>
-              <div className="text-2xl font-bold">{Math.round(weather.temperature)}°</div>
+              <div className="text-2xl font-bold text-white">{Math.round(weather.temperature)}°</div>
             </div>
             
             {(weather.humidity !== undefined || weather.windSpeed !== undefined) && (
               <div className="grid grid-cols-2 gap-2 pt-2">
                 {weather.humidity !== undefined && (
-                  <div className="flex items-center text-sm">
+                  <div className="flex items-center text-sm text-white">
                     <Cloud className="h-4 w-4 mr-1 text-blue-400" />
                     <span>Humidity: {weather.humidity}%</span>
                   </div>
                 )}
                 {weather.windSpeed !== undefined && (
-                  <div className="flex items-center text-sm">
+                  <div className="flex items-center text-sm text-white">
                     <Wind className="h-4 w-4 mr-1 text-blue-400" />
                     <span>Wind: {weather.windSpeed} km/h</span>
                   </div>
@@ -111,12 +111,12 @@ export const WeatherDisplay: React.FC<WeatherDisplayProps> = ({ isHackerMode = f
             
             {weather.forecast && weather.forecast.length > 0 && (
               <div className="mt-4">
-                <div className="text-sm font-medium mb-2">Forecast</div>
+                <div className="text-sm font-medium mb-2 text-white">Forecast</div>
                 <div className="grid grid-cols-3 gap-2">
                   {weather.forecast.slice(0, 3).map((day, index) => (
                     <div key={index} className="text-center p-2 bg-black/20 rounded-lg">
-                      <div className="text-xs">{day.day}</div>
-                      <div className="font-medium">{Math.round(day.temperature)}°</div>
+                      <div className="text-xs text-gray-300">{day.day}</div>
+                      <div className="font-medium text-white">{Math.round(day.temperature)}°</div>
                     </div>
                   ))}
                 </div>
@@ -124,7 +124,7 @@ export const WeatherDisplay: React.FC<WeatherDisplayProps> = ({ isHackerMode = f
             )}
           </div>
         ) : (
-          <div className="text-sm text-gray-400">No weather data available</div>
+          <div className="text-sm text-gray-300">No weather data available</div>
         )}
       </CardContent>
     </Card>
