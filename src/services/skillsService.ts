@@ -1,3 +1,4 @@
+
 import { getTimeCalendarResponse } from './timeCalendarService';
 import { getWeatherResponse } from './weatherService';
 import { getNewsResponse } from './newsService';
@@ -7,6 +8,7 @@ import { processWorldClockQuery, isWorldClockQuery } from './worldClockService';
 import { processHistoryQuery } from './chatHistoryService';
 import { toast } from '@/components/ui/sonner';
 import { detectThreats } from './threatDetectionService';
+import { intelligenceCore } from './intelligenceCoreService';
 
 export interface SkillResponse {
   text: string;
@@ -69,7 +71,13 @@ export const isSkillCommand = (message: string): boolean => {
     lowerMessage.includes('detect threat') ||
     lowerMessage.includes('scan for threats') ||
     lowerMessage.includes('threat detection') ||
-    lowerMessage.includes('security scan')
+    lowerMessage.includes('security scan') ||
+    
+    // Environmental data related
+    lowerMessage.includes('environment') ||
+    lowerMessage.includes('air quality') ||
+    lowerMessage.includes('humidity') ||
+    lowerMessage.includes('environmental data')
   );
 };
 
@@ -78,6 +86,26 @@ export const processSkillCommand = async (message: string): Promise<SkillRespons
   const lowerMessage = message.toLowerCase();
   
   try {
+    // Environmental data commands
+    if (
+      lowerMessage.includes('environment') ||
+      lowerMessage.includes('air quality') ||
+      lowerMessage.includes('humidity') ||
+      lowerMessage.includes('environmental data')
+    ) {
+      const response = await intelligenceCore.processRequest({
+        type: 'environmental',
+        prompt: message
+      });
+      
+      return {
+        text: response.content,
+        shouldSpeak: true,
+        data: response.metadata,
+        skillType: 'environmental'
+      };
+    }
+    
     // Threat detection commands
     if (
       lowerMessage.includes('detect threat') ||
