@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -75,7 +74,7 @@ const NeuralNetworkPanel: React.FC<NeuralNetworkPanelProps> = ({ className }) =>
     try {
       const result = await trainNetwork();
       toast(result.message, {
-        description: `Neural network trained with ${result.improvement.toFixed(2)} improvement and ${result.newStrategies.length} new strategies.`
+        description: `Neural network trained with ${Number(result.improvement).toFixed(2)} improvement and ${result.newStrategies.length} new strategies.`
       });
       
       // Log user interaction in console (could be extended to Firebase)
@@ -111,7 +110,7 @@ const NeuralNetworkPanel: React.FC<NeuralNetworkPanelProps> = ({ className }) =>
   // Calculate network status and intelligence level
   const isNetworkActive = Object.values(networkState.knowledgeBase).some(value => value > 0.1);
   const intelligenceLevel = Math.round(
-    Object.values(networkState.knowledgeBase).reduce((sum, val) => sum + val, 0) / 
+    Object.values(networkState.knowledgeBase).reduce((sum, val) => Number(sum) + Number(val), 0) / 
     Object.keys(networkState.knowledgeBase).length * 100
   );
 

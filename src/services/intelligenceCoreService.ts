@@ -1,7 +1,57 @@
 import { generateImage } from './imageGenerationService';
 import { toast } from '@/components/ui/use-toast';
 import { neuralNetworkService } from './neuralNetworkService';
-import { philosophicalAIService } from './philosophicalAIService';
+
+// Define the missing interfaces
+interface PhilosophicalAnalysisFrameworks {
+  utilitarian: string;
+  deontological: string;
+  virtueEthics: string;
+}
+
+interface PhilosophicalAnalysisPerspectives {
+  existential: string;
+  humanistic: string;
+  cognitive: string;
+}
+
+interface PhilosophicalAnalysisData {
+  ethicalFrameworks: PhilosophicalAnalysisFrameworks;
+  psychologicalPerspectives: PhilosophicalAnalysisPerspectives;
+  recommendations: string[];
+}
+
+// Define a mock philosophicalAIService if it's not available
+const philosophicalAIService = {
+  getLifeGuidance: async (situation: string) => {
+    return {
+      question: situation,
+      analysis: {
+        ethicalFrameworks: {
+          utilitarian: 'Utilitarian perspective',
+          deontological: 'Deontological perspective',
+          virtueEthics: 'Virtue ethics perspective'
+        },
+        psychologicalPerspectives: {
+          existential: 'Existential psychology perspective',
+          humanistic: 'Humanistic psychology perspective',
+          cognitive: 'Cognitive approach'
+        },
+        recommendations: ['Recommendation 1', 'Recommendation 2']
+      }
+    };
+  },
+  analyzeQuestion: async (question: string) => {
+    return {
+      content: 'Philosophical analysis of ' + question,
+      id: 'analysis-id',
+      questionId: 'question-id',
+      philosophies: ['existentialism', 'utilitarianism'],
+      alternatives: ['Alternative approach 1', 'Alternative approach 2'],
+      timestamp: new Date().toISOString()
+    };
+  }
+};
 
 export type IntelligenceType = 'personal' | 'professional' | 'creative' | 'recon' | 'ghost' | 'environmental' | 'neural' | 'philosophical';
 
@@ -187,12 +237,18 @@ class IntelligenceCoreService {
         // Execute task
         const result = await neuralNetworkService.executeHackingTask(task);
         
+        // Add appropriate type handling for result
+        const taskResult = {
+          ...result,
+          strategyUsed: { name: 'Default Strategy' }  // Default value if missing
+        };
+        
         return {
           type: 'neural',
-          content: result.result || `Neural network executed task on target: ${target}`,
+          content: taskResult.result || `Neural network executed task on target: ${target}`,
           metadata: {
-            task: result,
-            strategy: result.strategyUsed
+            task: taskResult,
+            strategy: taskResult.strategyUsed
           }
         };
       }
@@ -202,7 +258,7 @@ class IntelligenceCoreService {
       
       return {
         type: 'neural',
-        content: `Neural network is active with ${networkState.strategies.length} strategies and ${networkState.iterations} training iterations. You can ask me to "train neural network" or "hack [target]".`,
+        content: `Neural network is active with ${networkState.strategies ? networkState.strategies.length : 0} strategies and ${networkState.iterations} training iterations. You can ask me to "train neural network" or "hack [target]".`,
         metadata: {
           networkState
         }

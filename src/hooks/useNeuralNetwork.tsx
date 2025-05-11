@@ -2,6 +2,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { neuralNetworkService } from '@/services/neuralNetworkService';
 
+// Define the interface locally to match the actual structure in the service
 interface NeuralNetworkState {
   knowledgeBase: {
     [domain: string]: number;

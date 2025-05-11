@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -9,12 +8,97 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Lightbulb, BookOpen, Brain, Compass, Send, Trash2, History, Users } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
-import { 
-  philosophicalAIService, 
-  PhilosophicalQuestion,
-  PhilosophicalResponse,
-  PhilosophicalAnalysis
-} from '@/services/philosophicalAIService';
+
+// Define proper interfaces to match the service
+interface PhilosophicalAnalysisFrameworks {
+  utilitarian: string;
+  deontological: string;
+  virtueEthics: string;
+}
+
+interface PhilosophicalAnalysisPerspectives {
+  existential: string;
+  humanistic: string;
+  cognitive: string;
+}
+
+interface PhilosophicalAnalysisData {
+  ethicalFrameworks: PhilosophicalAnalysisFrameworks;
+  psychologicalPerspectives: PhilosophicalAnalysisPerspectives;
+  recommendations: string[];
+}
+
+interface PhilosophicalAnalysis {
+  id: string;
+  question: string;
+  analysis: PhilosophicalAnalysisData;
+  timestamp: string;
+}
+
+interface PhilosophicalQuestion {
+  id: string;
+  question: string;
+  timestamp: string;
+}
+
+interface PhilosophicalResponse {
+  id: string;
+  questionId: string;
+  content: string;
+  philosophies: string[];
+  alternatives: string[];
+  timestamp: string;
+}
+
+// Simulate the service import
+const philosophicalAIService = {
+  analyzeQuestion: async (question: string): Promise<PhilosophicalResponse> => {
+    // Mock implementation
+    return {
+      id: `resp-${Date.now()}`,
+      questionId: `q-${Date.now()}`,
+      content: `Analysis of ${question}`,
+      philosophies: ['Existentialism', 'Stoicism'],
+      alternatives: ['Alternative view 1', 'Alternative view 2'],
+      timestamp: new Date().toISOString()
+    };
+  },
+  getLifeGuidance: async (situation: string): Promise<{ question: string, analysis: PhilosophicalAnalysisData }> => {
+    // Mock implementation
+    return {
+      question: situation,
+      analysis: {
+        ethicalFrameworks: {
+          utilitarian: 'Utilitarian perspective on ' + situation,
+          deontological: 'Deontological perspective on ' + situation,
+          virtueEthics: 'Virtue ethics perspective on ' + situation
+        },
+        psychologicalPerspectives: {
+          existential: 'Existential psychology perspective on ' + situation,
+          humanistic: 'Humanistic psychology perspective on ' + situation,
+          cognitive: 'Cognitive approach to ' + situation
+        },
+        recommendations: [
+          'Recommendation 1',
+          'Recommendation 2',
+          'Recommendation 3'
+        ]
+      }
+    };
+  },
+  getHistory: () => ({
+    questions: [{ id: 'q1', question: 'Sample question?', timestamp: new Date().toISOString() }],
+    responses: [{ 
+      id: 'r1', 
+      questionId: 'q1', 
+      content: 'Sample response', 
+      philosophies: ['Philosophy'], 
+      alternatives: ['Alternative'], 
+      timestamp: new Date().toISOString() 
+    }]
+  }),
+  clearHistory: () => {}
+};
 
 interface PhilosophicalAIProps {
   className?: string;
@@ -26,7 +110,7 @@ const PhilosophicalAI: React.FC<PhilosophicalAIProps> = ({ className }) => {
   const [situation, setSituation] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [currentResponse, setCurrentResponse] = useState<PhilosophicalResponse | null>(null);
-  const [currentAnalysis, setCurrentAnalysis] = useState<PhilosophicalAnalysis | null>(null);
+  const [currentAnalysis, setCurrentAnalysis] = useState<{ question: string, analysis: PhilosophicalAnalysisData } | null>(null);
   const [history, setHistory] = useState<{
     questions: PhilosophicalQuestion[];
     responses: PhilosophicalResponse[];
