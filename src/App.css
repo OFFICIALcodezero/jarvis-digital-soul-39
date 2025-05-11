@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
 
 :root {
@@ -126,6 +130,16 @@ main {
   100% { transform: rotate(360deg) translateX(60px) rotate(-360deg); }
 }
 
+@keyframes scan {
+  0%, 100% { transform: translateY(-100%); }
+  50% { transform: translateY(100%); }
+}
+
+@keyframes matrix-fall {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
 /* Specific Animation Classes */
 .animate-breathe {
   animation: breathe 4s ease-in-out infinite;
@@ -155,6 +169,18 @@ main {
   animation: orbit 10s linear infinite;
 }
 
+.animate-scan {
+  animation: scan 2s linear infinite;
+}
+
+.animate-matrix-fall {
+  animation: matrix-fall 10s linear infinite;
+}
+
+.shadow-glow-sm {
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
 /* Neon elements */
 .neon-text {
   color: var(--neon-blue);
@@ -182,6 +208,37 @@ main {
 
 .neon-purple-glow {
   box-shadow: 0 0 15px rgba(139, 92, 246, 0.4), 0 0 30px rgba(139, 92, 246, 0.2);
+}
+
+/* Hacker mode styles */
+.hacker-grid {
+  background-image: linear-gradient(rgba(0, 40, 0, 0.1) 1px, transparent 1px),
+                   linear-gradient(90deg, rgba(0, 40, 0, 0.1) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.hacker-text {
+  color: #00ff00;
+  text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+}
+
+.hacker-scan-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: rgba(255, 0, 0, 0.5);
+  opacity: 0.3;
+  animation: scan 3s linear infinite;
+  pointer-events: none;
+}
+
+.matrix-char {
+  animation: float 5s ease-in-out infinite;
+  opacity: 0.6;
+  font-family: monospace;
+  text-shadow: 0 0 3px #ff0000;
 }
 
 /* Jarvis Panel Styles */

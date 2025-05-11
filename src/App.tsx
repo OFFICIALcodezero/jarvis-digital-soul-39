@@ -18,6 +18,7 @@ import { Toaster } from "./components/ui/sonner";
 import { AuthProvider } from "./contexts/AuthContext";
 import { WeatherContextProvider } from "./features/WeatherContext";
 import JarvisModeSwitcher from "./components/JarvisModeSwitcher";
+import JarvisV2Interface from "./pages/JarvisV2Interface";
 
 function App() {
   return (
@@ -32,6 +33,9 @@ function App() {
                   <Route path="/startup" element={<Startup />} />
                   <Route path="/interface" element={<JarvisInterface />} />
                   <Route path="/jarvis" element={<JarvisInterface />} /> 
+                  <Route path="/jarvis-v2" element={<JarvisV2Interface />} />
+                  <Route path="/code-zero" element={<JarvisV2Interface />} />
+                  <Route path="/ghost" element={<JarvisV2Interface />} />
                   <Route path="/image-generation" element={<ImageGeneration />} />
                   <Route path="/images" element={<ImageGeneration />} />
                   <Route path="/settings" element={<JarvisSettings />} />
