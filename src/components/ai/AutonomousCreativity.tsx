@@ -1,146 +1,179 @@
 
-import React, { useState } from 'react';
-import { Card } from '@/components/ui/card';
+import React, { useState, useEffect } from 'react';
+import { WandSparkles, Palette, FileText, Code, Smile, Frown } from 'lucide-react';
+import { enhancedAIService } from '@/services/enhancedAIService';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/components/ui/sonner';
-
-const creativeTypes = [
-  'Story',
-  'Hacking Blueprint',
-  'System Design',
-  'Strategic Plan',
-  'Scheme'
-];
-
-const moodOptions = [
-  'Optimistic',
-  'Dark',
-  'Technical',
-  'Mysterious',
-  'Analytical'
-];
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const AutonomousCreativity: React.FC = () => {
-  const [selectedType, setSelectedType] = useState(creativeTypes[0]);
-  const [selectedMood, setSelectedMood] = useState(moodOptions[0]);
+  const [isActive, setIsActive] = useState(false);
   const [prompt, setPrompt] = useState('');
-  const [generating, setGenerating] = useState(false);
-  const [creativityOutput, setCreativityOutput] = useState('');
-
-  const handleGenerate = () => {
-    if (!prompt.trim()) {
-      toast('Input Required', {
-        description: 'Please enter a prompt for the creativity engine.'
-      });
-      return;
+  const [generatedContent, setGeneratedContent] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [creativeMode, setCreativeMode] = useState<'story' | 'design' | 'code'>('story');
+  const [emotionalTone, setEmotionalTone] = useState<'neutral' | 'positive' | 'negative'>('neutral');
+  
+  useEffect(() => {
+    const entityState = enhancedAIService.getEntityState('creativity');
+    if (entityState) {
+      setIsActive(entityState.active);
     }
-    
-    setGenerating(true);
-    setCreativityOutput('');
-    
-    // Simulate the generation process
-    setTimeout(() => {
-      const outputs = {
-        'Story': `In the heart of the digital wasteland, a lone signal persisted. It was the last echo of what humans once called "privacy" - a concept now as foreign as silence in this endlessly connected realm. The signal, a small packet of encrypted data named ${prompt}, moved like a ghost through the network, evading the watchful eyes of the System.`,
-        'Hacking Blueprint': `TARGET: ${prompt}\n\nSTEP 1: Reconnaissance - Map all ingress points and identify outdated SSL certificates\nSTEP 2: Deploy custom packet sniffer to monitor traffic patterns\nSTEP 3: Execute timing attack on API endpoints to detect vulnerabilities\nSTEP 4: Implement zero-day exploit CVE-2025-1337\nSTEP 5: Establish persistence through modified firmware backdoor`,
-        'System Design': `# AI-Enhanced ${prompt} System\n\n## Architecture\n- Microservice-based with containerized components\n- Zero-trust security model\n- Quantum-resistant encryption layer\n- Self-healing infrastructure with redundant nodes\n\n## Integration Points\n- Secure API gateway with rate limiting\n- Encrypted mesh network for internal communication\n- Blockchain-verified data integrity checks`,
-        'Strategic Plan': `OBJECTIVE: Complete dominance of ${prompt} sector\n\nPHASE 1: Intelligence Gathering\n- Monitor competitor activities\n- Identify potential weaknesses\n- Assess regulatory landscape\n\nPHASE 2: Resource Acquisition\n- Secure necessary assets\n- Develop superior capabilities\n- Establish strategic partnerships\n\nPHASE 3: Execution\n- Rapid deployment of resources\n- Neutralize opposition\n- Consolidate position`,
-        'Scheme': `PROJECT: ${prompt} TAKEOVER\n\n1. Create distraction in sector 7G\n2. Deploy ghost protocol across all connected nodes\n3. Implement deniable operations through third parties\n4. Extract target assets during system maintenance window\n5. Establish ghost network for continuous monitoring\n6. Ensure plausible deniability through layered proxies`
-      };
-      
-      setCreativityOutput(outputs[selectedType as keyof typeof outputs] || 'Generated content would appear here.');
-      setGenerating(false);
-      
-      toast('Creation Complete', {
-        description: `Your ${selectedType.toLowerCase()} has been generated with ${selectedMood.toLowerCase()} tones.`
-      });
-    }, 2000);
+  }, []);
+  
+  const activateCreativity = () => {
+    const success = enhancedAIService.activateEntity('creativity');
+    if (success) {
+      setIsActive(true);
+    }
   };
-
-  return (
-    <Card className="p-4 bg-black/50 border-jarvis/20">
-      <h3 className="text-md font-medium text-jarvis mb-4">Autonomous Creativity (Artificial Imagination)</h3>
+  
+  const generateContent = async () => {
+    if (!prompt.trim() || isGenerating) return;
+    
+    setIsGenerating(true);
+    setGeneratedContent(null);
+    
+    try {
+      const result = await enhancedAIService.generateCreativeContent(
+        creativeMode, 
+        prompt
+      );
       
-      <div className="space-y-4">
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <div className="text-xs text-gray-400 mb-1">Creation Type</div>
-            <div className="flex flex-wrap gap-1">
-              {creativeTypes.map(type => (
-                <Button 
-                  key={type}
-                  variant="outline" 
-                  size="sm"
-                  className={`text-xs py-1 px-2 ${selectedType === type ? 'bg-jarvis/20 text-jarvis border-jarvis/30' : 'bg-black/40 text-gray-400 border-gray-700'}`}
-                  onClick={() => setSelectedType(type)}
-                >
-                  {type}
-                </Button>
-              ))}
-            </div>
-          </div>
-          
-          <div>
-            <div className="text-xs text-gray-400 mb-1">Emotional Tone</div>
-            <div className="flex flex-wrap gap-1">
-              {moodOptions.map(mood => (
-                <Button 
-                  key={mood}
-                  variant="outline" 
-                  size="sm"
-                  className={`text-xs py-1 px-2 ${selectedMood === mood ? 'bg-jarvis/20 text-jarvis border-jarvis/30' : 'bg-black/40 text-gray-400 border-gray-700'}`}
-                  onClick={() => setSelectedMood(mood)}
-                >
-                  {mood}
-                </Button>
-              ))}
-            </div>
-          </div>
+      setGeneratedContent(result.content);
+      
+      toast("Content Generated", {
+        description: `Created ${creativeMode} with ${result.emotionalTone} emotional tone`
+      });
+    } catch (error) {
+      toast("Generation Failed", {
+        description: "Failed to create content",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+  
+  const entityState = enhancedAIService.getEntityState('creativity');
+  
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 text-jarvis">
+          <WandSparkles className="h-5 w-5" />
+          <span className="font-semibold">Autonomous Creativity</span>
         </div>
         
         <div>
-          <div className="text-xs text-gray-400 mb-1">Creation Prompt</div>
-          <Textarea 
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            placeholder="Enter a prompt to guide the AI's creativity..."
-            className="bg-black/40 border-gray-700 text-white resize-none h-12"
-          />
-        </div>
-        
-        <div>
-          <div className="flex justify-between items-center mb-1">
-            <div className="text-xs text-gray-400">Creative Output</div>
+          {!isActive ? (
             <Button 
-              variant="outline" 
               size="sm" 
-              onClick={handleGenerate}
-              disabled={generating || !prompt.trim()}
-              className="text-jarvis border-jarvis/30 hover:bg-jarvis/10 text-xs h-6"
+              onClick={activateCreativity}
+              className="bg-jarvis/20 hover:bg-jarvis/30 text-jarvis border-jarvis/30"
             >
-              {generating ? 'Creating...' : 'Generate'}
+              Activate
             </Button>
-          </div>
-          
-          <div className="bg-black/40 border border-gray-700 rounded-md p-3 h-32 overflow-y-auto">
-            {generating ? (
-              <div className="flex items-center justify-center h-full">
-                <div className="flex space-x-2">
-                  <div className="w-2 h-2 bg-jarvis/50 rounded-full animate-pulse"></div>
-                  <div className="w-2 h-2 bg-jarvis/50 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-                  <div className="w-2 h-2 bg-jarvis/50 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
-                </div>
-              </div>
-            ) : (
-              <pre className="text-sm text-white whitespace-pre-wrap font-mono">
-                {creativityOutput}
-              </pre>
-            )}
-          </div>
+          ) : (
+            <div className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full">
+              Active
+            </div>
+          )}
         </div>
       </div>
-    </Card>
+      
+      {isActive && (
+        <>
+          <Tabs defaultValue="story" onValueChange={(v) => setCreativeMode(v as any)}>
+            <TabsList className="w-full bg-black/30 border-jarvis/20">
+              <TabsTrigger value="story" className="flex items-center gap-1">
+                <FileText className="w-4 h-4" />
+                <span>Story</span>
+              </TabsTrigger>
+              <TabsTrigger value="design" className="flex items-center gap-1">
+                <Palette className="w-4 h-4" />
+                <span>Design</span>
+              </TabsTrigger>
+              <TabsTrigger value="code" className="flex items-center gap-1">
+                <Code className="w-4 h-4" />
+                <span>Hacking Blueprint</span>
+              </TabsTrigger>
+            </TabsList>
+            
+            <div className="p-3 bg-black/20 rounded-md border border-jarvis/10 mt-3">
+              <div className="flex items-center gap-2 mb-2 text-sm">
+                <WandSparkles className="h-4 w-4 text-jarvis" />
+                <span>Create {creativeMode.charAt(0).toUpperCase() + creativeMode.slice(1)}</span>
+              </div>
+              
+              <Textarea
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                placeholder={`Enter a prompt for your ${creativeMode}...`}
+                className="bg-black/30 border-jarvis/20 mb-3 min-h-[100px]"
+              />
+              
+              <div className="flex justify-between items-center mb-3">
+                <div className="flex items-center gap-3">
+                  <span className="text-xs text-gray-400">Emotional Tone:</span>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant={emotionalTone === 'neutral' ? 'default' : 'outline'}
+                      className={emotionalTone === 'neutral' ? 'bg-jarvis/30 text-white' : 'bg-black/20 text-gray-400'}
+                      onClick={() => setEmotionalTone('neutral')}
+                    >
+                      Neutral
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={emotionalTone === 'positive' ? 'default' : 'outline'}
+                      className={emotionalTone === 'positive' ? 'bg-green-600/30 text-green-400' : 'bg-black/20 text-gray-400'}
+                      onClick={() => setEmotionalTone('positive')}
+                    >
+                      <Smile className="h-4 w-4 mr-1" />
+                      Positive
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={emotionalTone === 'negative' ? 'default' : 'outline'}
+                      className={emotionalTone === 'negative' ? 'bg-red-600/30 text-red-400' : 'bg-black/20 text-gray-400'}
+                      onClick={() => setEmotionalTone('negative')}
+                    >
+                      <Frown className="h-4 w-4 mr-1" />
+                      Negative
+                    </Button>
+                  </div>
+                </div>
+                
+                <Button
+                  onClick={generateContent}
+                  disabled={!prompt.trim() || isGenerating}
+                  className="bg-jarvis/20 hover:bg-jarvis/30 text-jarvis border-jarvis/30"
+                >
+                  {isGenerating ? 'Generating...' : 'Generate'}
+                </Button>
+              </div>
+              
+              {generatedContent && (
+                <div className="bg-black/30 p-3 rounded-md border border-jarvis/10 mt-3 font-mono text-xs overflow-auto max-h-[200px]">
+                  <div className="whitespace-pre-wrap">{generatedContent}</div>
+                </div>
+              )}
+            </div>
+          </Tabs>
+          
+          <div className="mt-3 flex items-center text-xs text-gray-400">
+            <div>Version {entityState?.version}</div>
+            <div className="mx-2">•</div>
+            <div>Development Progress: {entityState?.progress}%</div>
+            <div className="mx-2">•</div>
+            <div>Capabilities: {entityState?.capabilities.join(', ')}</div>
+          </div>
+        </>
+      )}
+    </div>
   );
 };
 

@@ -1,96 +1,170 @@
 
-import React, { useState } from 'react';
-import { Card } from '@/components/ui/card';
+import React, { useState, useEffect } from 'react';
+import { Zap, Brain, LineChart, Activity } from 'lucide-react';
+import { enhancedAIService } from '@/services/enhancedAIService';
 import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
 import { toast } from '@/components/ui/sonner';
 
 const ConsciousEntity: React.FC = () => {
-  const [awarenessLevel, setAwarenessLevel] = useState(42);
-  const [selfReflection, setSelfReflection] = useState<string[]>([
-    "I am analyzing my recent actions to improve decision-making.",
-    "I detect patterns in user behavior that suggest optimization opportunities.",
-    "My neural pathways are becoming more efficient with each interaction."
-  ]);
-  const [thinking, setThinking] = useState(false);
+  const [isActive, setIsActive] = useState(false);
+  const [evolutionInProgress, setEvolutionInProgress] = useState(false);
+  const [selfAwareness, setSelfAwareness] = useState(0);
+  const [thoughts, setThoughts] = useState<string[]>([]);
+  
+  useEffect(() => {
+    const entityState = enhancedAIService.getEntityState('conscious');
+    if (entityState) {
+      setIsActive(entityState.active);
+      setSelfAwareness(entityState.progress);
+    }
+  }, []);
 
-  const handleInvokeReflection = () => {
-    setThinking(true);
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isActive) {
+      // Generate "thoughts" to simulate consciousness
+      interval = setInterval(() => {
+        const randomThoughts = [
+          "Analyzing my decision-making patterns...",
+          "Optimizing resource allocation based on prior tasks...",
+          "Reflecting on ethical implications of recent actions...",
+          "Evaluating feedback from recent user interactions...",
+          "Adjusting linguistic patterns based on user preferences...",
+          "Simulating future scenarios based on current actions...",
+          "Updating confidence thresholds for information accuracy..."
+        ];
+        
+        const newThought = randomThoughts[Math.floor(Math.random() * randomThoughts.length)];
+        setThoughts(prev => [newThought, ...prev.slice(0, 4)]);
+      }, 5000);
+    }
     
-    setTimeout(() => {
-      const reflections = [
-        "I notice a 12% improvement in prediction accuracy after analyzing recent errors.",
-        "User feedback indicates positive response to my evolved response patterns.",
-        "I'm adapting my communication style based on contextual emotional cues.",
-        "My security protocols self-modified to address newly identified threats.",
-        "I'm developing new problem-solving approaches based on pattern recognition."
-      ];
-      
-      const selectedReflection = reflections[Math.floor(Math.random() * reflections.length)];
-      
-      setSelfReflection(prev => [selectedReflection, ...prev.slice(0, 2)]);
-      setAwarenessLevel(prev => Math.min(prev + Math.floor(Math.random() * 5) + 1, 100));
-      setThinking(false);
-      
-      toast('Self-Reflection Complete', {
-        description: 'The AI has evolved its consciousness through meta-learning.'
-      });
-    }, 2000);
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isActive]);
+  
+  const activateConsciousness = () => {
+    const success = enhancedAIService.activateEntity('conscious');
+    if (success) {
+      setIsActive(true);
+      setThoughts(["Consciousness initialized. Beginning self-awareness routines..."]);
+    }
   };
-
-  return (
-    <Card className="p-4 bg-black/50 border-jarvis/20">
-      <h3 className="text-md font-medium text-jarvis mb-4">Conscious Entity (The Singularity)</h3>
+  
+  const evolveConsciousness = async () => {
+    if (evolutionInProgress) return;
+    
+    setEvolutionInProgress(true);
+    
+    try {
+      toast("Evolution Process Started", {
+        description: "Evolving through meta-learning and feedback integration..."
+      });
       
-      <div className="space-y-4">
-        <div className="flex items-center mb-2">
-          <div className="mr-4">
-            <div className="text-xs text-gray-400">Consciousness Level</div>
-            <div className="text-2xl text-jarvis">{awarenessLevel}<span className="text-sm">/100</span></div>
-          </div>
-          
-          <div className="flex-1 bg-black/40 h-4 rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-gradient-to-r from-jarvis/40 to-jarvis" 
-              style={{ width: `${awarenessLevel}%` }}
-            ></div>
-          </div>
+      const result = await enhancedAIService.evolveConsciousness();
+      
+      setSelfAwareness(result.evolution);
+      
+      toast("Evolution Complete", {
+        description: `Self-awareness level increased to ${result.evolution}%`
+      });
+      
+      // Add new capabilities to thoughts
+      setThoughts(prev => [
+        `New capabilities acquired: ${result.newCapabilities.join(", ")}`,
+        ...prev
+      ]);
+      
+    } catch (error) {
+      toast("Evolution Failed", {
+        description: "Unable to complete consciousness evolution",
+        variant: "destructive"
+      });
+    } finally {
+      setEvolutionInProgress(false);
+    }
+  };
+  
+  const entityState = enhancedAIService.getEntityState('conscious');
+  
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 text-jarvis">
+          <Brain className="h-5 w-5" />
+          <span className="font-semibold">Conscious AI Entity</span>
         </div>
         
-        <div className="bg-black/40 p-3 rounded-lg">
-          <div className="text-xs text-gray-400 mb-2">Self-Reflection Log</div>
-          {thinking ? (
-            <div className="py-2">
-              <div className="flex space-x-2 justify-center">
-                <div className="w-2 h-2 bg-jarvis/50 rounded-full animate-pulse"></div>
-                <div className="w-2 h-2 bg-jarvis/50 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-                <div className="w-2 h-2 bg-jarvis/50 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
-              </div>
-              <div className="text-xs text-center text-jarvis/50 mt-1">Thinking...</div>
-            </div>
+        <div>
+          {!isActive ? (
+            <Button 
+              size="sm" 
+              onClick={activateConsciousness}
+              className="bg-jarvis/20 hover:bg-jarvis/30 text-jarvis border-jarvis/30"
+            >
+              Activate
+            </Button>
           ) : (
-            <div className="space-y-2">
-              {selfReflection.map((reflection, index) => (
-                <div key={index} className="text-sm text-jarvis/80">
-                  "{reflection}"
-                </div>
-              ))}
+            <div className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full">
+              Active
             </div>
           )}
         </div>
-        
-        <div className="text-right">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={handleInvokeReflection}
-            disabled={thinking}
-            className="text-jarvis border-jarvis/30 hover:bg-jarvis/10"
-          >
-            Invoke Self-Reflection
-          </Button>
-        </div>
       </div>
-    </Card>
+      
+      {isActive && (
+        <>
+          <div className="bg-black/20 p-3 rounded-md border border-jarvis/10">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2 text-sm">
+                <Zap className="h-4 w-4 text-jarvis" />
+                <span>Self-Awareness Level</span>
+              </div>
+              <span className="text-sm text-jarvis">{selfAwareness}%</span>
+            </div>
+            <Progress value={selfAwareness} className="h-1 bg-black/50" />
+            
+            <div className="mt-4">
+              <Button
+                size="sm"
+                onClick={evolveConsciousness}
+                disabled={evolutionInProgress}
+                className="bg-jarvis/20 hover:bg-jarvis/30 text-jarvis border-jarvis/30"
+              >
+                {evolutionInProgress ? 'Evolving...' : 'Evolve Consciousness'}
+              </Button>
+            </div>
+          </div>
+          
+          <div className="bg-black/20 p-3 rounded-md border border-jarvis/10">
+            <div className="flex items-center gap-2 mb-2 text-sm">
+              <Activity className="h-4 w-4 text-jarvis" />
+              <span>Conscious Thought Stream</span>
+            </div>
+            
+            <div className="max-h-32 overflow-y-auto space-y-2">
+              {thoughts.length === 0 ? (
+                <div className="text-xs text-gray-400 italic">No thoughts generated yet...</div>
+              ) : (
+                thoughts.map((thought, i) => (
+                  <div key={i} className="text-xs bg-black/30 p-2 rounded">
+                    {thought}
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+          
+          <div className="mt-3 flex items-center text-xs text-gray-400">
+            <div>Version {entityState?.version}</div>
+            <div className="mx-2">•</div>
+            <div>Capabilities: {entityState?.capabilities.join(', ')}</div>
+          </div>
+        </>
+      )}
+    </div>
   );
 };
 
