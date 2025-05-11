@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import EnhancedHackerMode from './EnhancedHackerMode';
 import { HackerEffectsProvider } from '../../contexts/HackerEffectsContext';
 
