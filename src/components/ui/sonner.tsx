@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Toaster as SonnerToaster } from 'sonner';
+import { Toaster as SonnerToaster, toast as sonnerToast } from 'sonner';
 
 export function Toaster({ ...props }) {
   return (
@@ -21,3 +21,6 @@ export function Toaster({ ...props }) {
     />
   );
 }
+
+// Re-export the toast function from sonner
+export const toast = sonnerToast;

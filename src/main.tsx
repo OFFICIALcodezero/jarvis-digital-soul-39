@@ -6,7 +6,7 @@ import { HelmetProvider } from 'react-helmet-async'
 import App from './App'
 import './index.css'
 import ErrorBoundary from './components/ErrorBoundary'
-import { Toaster } from 'sonner'
+import { Toaster } from './components/ui/sonner'
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
