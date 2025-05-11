@@ -1,154 +1,191 @@
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Database, Cpu, BarChart2, CircuitBoard } from 'lucide-react';
+import { Atom, Terminal, Maximize2, Box, Code } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
-import { enhancedAIService } from '@/services/enhancedAIService';
+
+interface QuantumState {
+  qubits: number;
+  coherence: number;
+  entanglement: number;
+  algorithmComplexity: number;
+  computations: number[];
+}
 
 const QuantumAISystem: React.FC = () => {
-  const [activeAlgorithm, setActiveAlgorithm] = useState<string | null>(null);
-  const [processingProgress, setProcessingProgress] = useState(0);
-  const [entityState, setEntityState] = useState(enhancedAIService.getEntityState('quantum'));
-
+  const [quantum, setQuantum] = useState<QuantumState>({
+    qubits: 16,
+    coherence: 87,
+    entanglement: 64,
+    algorithmComplexity: 55,
+    computations: []
+  });
+  
+  const [isComputing, setIsComputing] = useState(false);
+  const [computeProgress, setComputeProgress] = useState(0);
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  // Simulate occasional quantum fluctuations
   useEffect(() => {
-    // Update entity state when component mounts
-    setEntityState(enhancedAIService.getEntityState('quantum'));
-    
-    // Simulate entity state updates
-    const interval = setInterval(() => {
-      setEntityState(enhancedAIService.getEntityState('quantum'));
+    const fluctuationInterval = setInterval(() => {
+      if (Math.random() > 0.7 && !isComputing) {
+        setQuantum(prev => ({
+          ...prev,
+          coherence: Math.min(100, Math.max(50, prev.coherence + (Math.random() * 6 - 3))),
+          entanglement: Math.min(100, Math.max(40, prev.entanglement + (Math.random() * 4 - 2)))
+        }));
+      }
     }, 5000);
     
-    return () => clearInterval(interval);
-  }, []);
+    return () => clearInterval(fluctuationInterval);
+  }, [isComputing]);
   
-  const runQuantumAlgorithm = async (algorithm: string) => {
-    setActiveAlgorithm(algorithm);
-    setProcessingProgress(0);
+  const initiateQuantumComputation = () => {
+    if (isComputing) return;
     
-    // Simulate progress
-    const progressInterval = setInterval(() => {
-      setProcessingProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(progressInterval);
-          return 100;
-        }
-        return prev + Math.floor(Math.random() * 10) + 1;
-      });
-    }, 300);
+    setIsComputing(true);
+    setComputeProgress(0);
     
-    // Simulate algorithm execution
-    try {
-      const result = await enhancedAIService.runQuantumAlgorithm(algorithm, { 
-        dataSize: '24TB', 
-        complexity: 'level-5'
-      });
+    const duration = Math.floor(Math.random() * 3000) + 2000; // 2-5 seconds
+    const startTime = Date.now();
+    const endTime = startTime + duration;
+    
+    const updateProgress = () => {
+      const now = Date.now();
+      const elapsed = now - startTime;
+      const progress = Math.min(100, (elapsed / duration) * 100);
       
-      toast(`Quantum Algorithm: ${algorithm}`, {
-        description: `Processing complete: ${result.processingSpeed}`
-      });
-    } catch (error) {
-      toast(`Algorithm Error`, {
-        description: `Failed to execute ${algorithm}`
-      });
-    } finally {
-      setTimeout(() => {
-        clearInterval(progressInterval);
-        setProcessingProgress(100);
-        setTimeout(() => {
-          setActiveAlgorithm(null);
-          setProcessingProgress(0);
-        }, 1000);
-      }, 5000);
-    }
+      setComputeProgress(progress);
+      
+      if (now < endTime) {
+        requestAnimationFrame(updateProgress);
+      } else {
+        completeComputation();
+      }
+    };
+    
+    requestAnimationFrame(updateProgress);
   };
   
-  if (!entityState || !entityState.active) {
-    return null;
-  }
+  const completeComputation = () => {
+    // Generate a random computation result
+    const result = Math.floor(Math.random() * 1000000);
+    
+    setQuantum(prev => ({
+      ...prev,
+      computations: [result, ...prev.computations].slice(0, 5),
+      qubits: Math.min(256, prev.qubits + (Math.random() > 0.7 ? 1 : 0)),
+      algorithmComplexity: Math.min(100, prev.algorithmComplexity + (Math.random() * 5))
+    }));
+    
+    setIsComputing(false);
+    setComputeProgress(100);
+    
+    toast('Quantum Computation Complete', {
+      description: `Result: ${result} | Complexity factor: ${(Math.random() * 5 + 7).toFixed(2)}`
+    });
+  };
   
   return (
-    <Card className="border-jarvis/30 bg-black/20 overflow-hidden">
+    <Card className={`border-jarvis/30 bg-black/20 ${isExpanded ? 'col-span-2' : ''}`}>
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg flex items-center">
-          <Cpu className="mr-2 h-4 w-4" /> Quantum AI System
-        </CardTitle>
-        <CardDescription>
-          Quantum-inspired algorithms for ultra-fast data processing
-        </CardDescription>
+        <div className="flex justify-between items-center">
+          <CardTitle className="text-lg flex items-center">
+            <Atom className="mr-2 h-4 w-4" /> Quantum AI System
+          </CardTitle>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="bg-jarvis/10">
+              {quantum.qubits} qubits
+            </Badge>
+            <Button 
+              variant="ghost" 
+              size="icon"
+              className="h-6 w-6"
+              onClick={() => setIsExpanded(!isExpanded)}
+            >
+              <Maximize2 className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div 
-            className="flex flex-col p-3 rounded-lg border border-jarvis/30 bg-black/40 cursor-pointer transition-all hover:bg-black/60"
-            onClick={() => runQuantumAlgorithm('Grover Search')}
-          >
-            <div className="flex justify-between items-center">
-              <h3 className="text-sm font-medium">Grover's Search Algorithm</h3>
-              <Database className="h-4 w-4 text-jarvis" />
+        {/* Quantum State Indicators */}
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <div className="flex justify-between text-xs mb-1">
+              <span>Quantum Coherence</span>
+              <span className="text-jarvis">{quantum.coherence}%</span>
             </div>
-            <p className="text-xs text-gray-400 mt-1">
-              Quantum search algorithm with quadratic speedup
-            </p>
+            <Progress value={quantum.coherence} className="h-2" />
           </div>
-          
-          <div 
-            className="flex flex-col p-3 rounded-lg border border-jarvis/30 bg-black/40 cursor-pointer transition-all hover:bg-black/60"
-            onClick={() => runQuantumAlgorithm('Shor Factoring')}
-          >
-            <div className="flex justify-between items-center">
-              <h3 className="text-sm font-medium">Shor's Factoring Algorithm</h3>
-              <BarChart2 className="h-4 w-4 text-jarvis" />
+          <div>
+            <div className="flex justify-between text-xs mb-1">
+              <span>Entanglement</span>
+              <span className="text-jarvis">{quantum.entanglement}%</span>
             </div>
-            <p className="text-xs text-gray-400 mt-1">
-              Exponentially faster integer factorization
-            </p>
+            <Progress value={quantum.entanglement} className="h-2" />
           </div>
-          
-          <div 
-            className="flex flex-col p-3 rounded-lg border border-jarvis/30 bg-black/40 cursor-pointer transition-all hover:bg-black/60"
-            onClick={() => runQuantumAlgorithm('QPF Analysis')}
-          >
-            <div className="flex justify-between items-center">
-              <h3 className="text-sm font-medium">QPF Analysis</h3>
-              <CircuitBoard className="h-4 w-4 text-jarvis" />
+          <div>
+            <div className="flex justify-between text-xs mb-1">
+              <span>Algorithm Complexity</span>
+              <span className="text-jarvis">{Math.round(quantum.algorithmComplexity)}%</span>
             </div>
-            <p className="text-xs text-gray-400 mt-1">
-              Quantum Pattern Finder for data analysis
-            </p>
+            <Progress value={quantum.algorithmComplexity} className="h-2" />
           </div>
-          
-          <div className="flex flex-col p-3 rounded-lg border border-jarvis/30 bg-black/40">
-            <div className="flex justify-between items-center">
-              <h3 className="text-sm font-medium">System Status</h3>
+          <div>
+            <div className="flex justify-between text-xs mb-1">
+              <span>Computation Progress</span>
+              <span className="text-jarvis">{Math.round(computeProgress)}%</span>
             </div>
-            <div className="flex items-center mt-2">
-              <div className="h-2 w-2 rounded-full bg-green-400 mr-2"></div>
-              <span className="text-xs text-gray-300">Active</span>
-            </div>
-            <div className="mt-2">
-              <div className="text-xs text-gray-400">System Capacity</div>
-              <Progress value={entityState.progress} className="h-1 mt-1" />
-            </div>
-            <div className="text-xs text-gray-400 mt-1">
-              Version {entityState.version}
-            </div>
+            <Progress value={computeProgress} className="h-2" />
           </div>
         </div>
         
-        {activeAlgorithm && (
-          <div className="mt-4 p-3 rounded-lg border border-jarvis/30 bg-black/40">
-            <div className="flex justify-between items-center">
-              <h3 className="text-sm font-medium">Processing: {activeAlgorithm}</h3>
-              <span className="text-xs bg-jarvis/20 text-jarvis px-2 py-0.5 rounded">
-                {processingProgress < 100 ? 'Running' : 'Complete'}
-              </span>
+        {/* Computation Controls */}
+        <Button 
+          onClick={initiateQuantumComputation} 
+          disabled={isComputing}
+          className="w-full bg-gradient-to-r from-blue-600 to-jarvis hover:from-blue-700 hover:to-jarvis/90"
+        >
+          {isComputing ? 'Computing...' : 'Initiate Quantum Computation'}
+        </Button>
+        
+        {/* Computation Results */}
+        {quantum.computations.length > 0 && (
+          <div className="bg-black/40 p-3 rounded-lg border border-jarvis/20">
+            <div className="flex items-center gap-2 mb-2">
+              <Terminal className="h-3.5 w-3.5 text-jarvis" />
+              <h4 className="text-xs font-medium">Computation Results</h4>
             </div>
-            <Progress value={processingProgress} className="h-1.5 mt-2" />
+            <div className="space-y-1 max-h-28 overflow-auto">
+              {quantum.computations.map((result, index) => (
+                <div key={index} className="text-xs font-mono bg-black/30 p-1.5 rounded flex items-start">
+                  <Code className="h-3.5 w-3.5 mr-1.5 mt-0.5 text-blue-400" />
+                  <div>
+                    <span className="text-blue-400">QResult_{index}: </span>
+                    <span>{result}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
+        
+        {/* Status Indicators */}
+        <div className="flex justify-between text-xs text-gray-400">
+          <div className="flex items-center">
+            <Box className="h-3 w-3 mr-1" />
+            <span>Quantum Core: Active</span>
+          </div>
+          {isComputing && (
+            <span className="animate-pulse text-jarvis">
+              Processing...
+            </span>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
