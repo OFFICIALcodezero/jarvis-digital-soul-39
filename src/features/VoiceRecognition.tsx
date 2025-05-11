@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Mic, MicOff } from 'lucide-react';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
@@ -111,3 +110,5 @@ export const VoiceRecognition: React.FC<VoiceRecognitionProps> = ({ onTranscript
     </Card>
   );
 };
+
+export default VoiceRecognition;

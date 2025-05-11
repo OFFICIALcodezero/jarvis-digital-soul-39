@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 import { toast } from '@/components/ui/use-toast';
