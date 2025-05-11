@@ -292,7 +292,10 @@ export const processSkillCommand = async (message: string): Promise<SkillRespons
     };
   } catch (error) {
     console.error('Error processing skill command:', error);
-    toast("Failed to process your command.");
+    toast({
+      title: "Command Error",
+      description: "Failed to process your command."
+    });
     
     return {
       text: "I apologize, but I encountered an error while processing your request.",
