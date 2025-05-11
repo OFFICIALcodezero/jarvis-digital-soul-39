@@ -12,6 +12,7 @@ interface WeatherDisplayProps {
 export const WeatherDisplay: React.FC<WeatherDisplayProps> = ({ isHackerMode = false }) => {
   const { weather, fetchWeather, isLoading, error } = useWeatherContext();
   const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null);
+  const [hasFetchedWeather, setHasFetchedWeather] = useState(false);
 
   useEffect(() => {
     // Get geolocation when component mounts
@@ -39,12 +40,13 @@ export const WeatherDisplay: React.FC<WeatherDisplayProps> = ({ isHackerMode = f
     }
   }, []);
 
-  // Fetch weather when location is available
+  // Fetch weather when location is available - but only once
   useEffect(() => {
-    if (location) {
+    if (location && !hasFetchedWeather) {
       fetchWeather(location.lat, location.lon);
+      setHasFetchedWeather(true);
     }
-  }, [location, fetchWeather]);
+  }, [location, fetchWeather, hasFetchedWeather]);
 
   // Weather icons based on condition
   const getWeatherIcon = () => {

@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useCallback } from 'react';
 import { getWeatherForecast } from '@/services/weatherService';
 import { toast } from '@/components/ui/use-toast';
 
@@ -39,7 +39,7 @@ export const WeatherContextProvider: React.FC<{ children: ReactNode }> = ({ chil
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchWeather = async (latitude: number, longitude: number) => {
+  const fetchWeather = useCallback(async (latitude: number, longitude: number) => {
     setIsLoading(true);
     setError(null);
     
@@ -78,7 +78,7 @@ export const WeatherContextProvider: React.FC<{ children: ReactNode }> = ({ chil
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   const value = {
     weather,
