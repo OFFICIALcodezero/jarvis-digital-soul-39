@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { toast } from '@/components/ui/sonner';
 import AIFace from './AIFace';
@@ -15,13 +16,13 @@ const JarvisV2: React.FC<JarvisV2Props> = ({
   initialMode = 'normal',
   className
 }) => {
-  const [mode, setMode<'normal' | 'hacker' | 'ghost'>(initialMode);
+  const [mode, setMode] = useState<'normal' | 'hacker' | 'ghost'>(initialMode);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const [expression, setExpression<AvatarExpression>('neutral');
-  const [query, setQuery('');
-  const [processing, setProcessing(false);
-  const [response, setResponse('');
+  const [expression, setExpression] = useState<AvatarExpression>('neutral');
+  const [query, setQuery] = useState('');
+  const [processing, setProcessing] = useState(false);
+  const [response, setResponse] = useState('');
   
   // Initialize ghost AI
   const ghostAI = useGhostAI({ autoActivate: mode === 'ghost', logLevel: 'minimal' });
@@ -30,13 +31,13 @@ const JarvisV2: React.FC<JarvisV2Props> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   
   // Message history
-  const [messages, setMessages<Array<{
+  const [messages, setMessages] = useState<Array<{
     id: string;
     content: string;
     role: 'user' | 'assistant';
     type?: IntelligenceType;
     timestamp: Date;
-  }>>([]); 
+  }>>([]);
   
   // Activate avatar service when component mounts
   useEffect(() => {
