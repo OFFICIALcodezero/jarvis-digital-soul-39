@@ -10,6 +10,10 @@ interface WeatherForecastDay {
   temp: number;
   condition: string;
   icon?: string;
+  // Adding maxTemp for compatibility with WeatherWidget
+  maxTemp?: number;
+  // Adding date for compatibility with WeatherWidget
+  date?: string;
 }
 
 interface WeatherResponse {
@@ -26,6 +30,22 @@ interface WeatherResponse {
     region?: string;
   };
   forecast?: WeatherForecastDay[];
+}
+
+// Export the WeatherData interface for use in other files
+export interface WeatherData {
+  location: string;
+  temperature: number;
+  condition: string;
+  icon: string;
+  forecast: {
+    day: string;
+    temperature: number;
+    condition: string;
+    icon: string;
+    maxTemp?: number;
+    date?: string;
+  }[];
 }
 
 // Function to get weather forecast based on location

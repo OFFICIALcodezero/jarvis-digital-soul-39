@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { WeatherData, getWeatherForecast } from '@/services/weatherService';
+import { getWeatherForecast, WeatherData } from '@/services/weatherService';
 import { CloudSun, CloudRain, Sun, Cloud } from 'lucide-react';
 
 const getWeatherIcon = (condition: string) => {
@@ -44,7 +44,24 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ isCompact = false }) => {
         const locationString = `Lat: ${position.coords.latitude.toFixed(2)}, Lon: ${position.coords.longitude.toFixed(2)}`;
         // Simulate different place by modifying the query; in real-world, send the coords
         try {
-          const data = await getWeatherForecast({ location: locationString });
+          const response = await getWeatherForecast({ location: locationString });
+          
+          // Convert response to WeatherData format
+          const data: WeatherData = {
+            location: response.location.name,
+            temperature: response.current.temp,
+            condition: response.current.condition,
+            icon: response.current.icon,
+            forecast: response.forecast?.map(day => ({
+              day: day.day,
+              temperature: day.temp,
+              condition: day.condition,
+              icon: day.icon || '',
+              maxTemp: day.temp, // Using temp as maxTemp since it's not provided
+              date: day.day // Using day as date since it's not provided
+            })) || []
+          };
+          
           setWeather(data);
         } catch (e) {
           setError('Unable to fetch weather for your location.');
@@ -85,15 +102,15 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ isCompact = false }) => {
       <div className="weather-widget-compact bg-black/40 p-3 rounded-lg border border-[#33c3f0]/20">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            {getWeatherIcon(weather.current.condition)}
+            {getWeatherIcon(weather.condition)}
             <div className="ml-2">
               <div className="text-lg font-bold text-white">
-                {weather.current.temp}°C
+                {weather.temperature}°C
               </div>
               <div className="text-xs text-[#33c3f0]/80">{weather.location}</div>
             </div>
           </div>
-          <div className="text-sm text-gray-300">{weather.current.condition}</div>
+          <div className="text-sm text-gray-300">{weather.condition}</div>
         </div>
       </div>
     );
@@ -107,25 +124,17 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ isCompact = false }) => {
       </div>
 
       <div className="flex items-center mb-4">
-        {getWeatherIcon(weather.current.condition)}
+        {getWeatherIcon(weather.condition)}
         <div className="ml-3">
-          <div className="text-2xl font-bold">{weather.current.temp}°C</div>
-          <div className="text-sm text-gray-300">{weather.current.condition}</div>
-        </div>
-        <div className="ml-auto">
-          <div className="text-xs text-gray-400">
-            Humidity: {weather.current.humidity}%
-          </div>
-          <div className="text-xs text-gray-400">
-            Wind: {weather.current.windSpeed} mph
-          </div>
+          <div className="text-2xl font-bold">{weather.temperature}°C</div>
+          <div className="text-sm text-gray-300">{weather.condition}</div>
         </div>
       </div>
 
       <div className="flex justify-between">
         {weather.forecast.slice(0, 4).map((day, index) => (
           <div key={index} className="text-center">
-            <div className="text-xs text-gray-400">{day.date}</div>
+            <div className="text-xs text-gray-400">{day.day}</div>
             <div className="my-1">{getWeatherIcon(day.condition)}</div>
             <div className="text-xs font-medium">{day.maxTemp}°C</div>
           </div>

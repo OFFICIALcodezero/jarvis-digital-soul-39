@@ -40,8 +40,8 @@ const getTimeBasedGreeting = (): string => {
 
 export const getDailyBriefing = async (): Promise<{text: string, briefing: DailyBriefing}> => {
   try {
-    // Get weather data
-    const weatherData = await getWeatherForecast();
+    // Get weather data - pass a default location
+    const weatherData = await getWeatherForecast({ location: "New York" });
     
     // Get calendar events
     const events = await getCalendarEvents();
@@ -57,7 +57,7 @@ export const getDailyBriefing = async (): Promise<{text: string, briefing: Daily
       greeting: getTimeBasedGreeting(),
       date: currentDate,
       weather: {
-        location: weatherData.location,
+        location: weatherData.location.name, // Use name property instead of the entire object
         condition: weatherData.current.condition,
         temperature: weatherData.current.temp,
         forecast: weatherData.forecast[0].condition
