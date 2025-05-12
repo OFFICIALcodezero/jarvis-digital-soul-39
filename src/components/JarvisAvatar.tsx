@@ -41,10 +41,9 @@ const JarvisAvatar: React.FC<JarvisAvatarProps> = ({
         />
       </div>
       
-      {/* JarvisFaceAI Component - only show in face mode - REMOVED FACE IMAGE */}
+      {/* JarvisLipSync Component - only show in face mode */}
       {activeMode === 'face' && (
         <>
-          {/* Face display removed */}
           {isSpeaking && <JarvisLipSync className="z-[2]" />}
         </>
       )}
