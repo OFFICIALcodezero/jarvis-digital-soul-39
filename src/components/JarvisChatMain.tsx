@@ -7,11 +7,17 @@ import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 interface JarvisChatMainProps {
   hackerMode?: boolean;
   detectedEmotion?: string;
+  detectedAge?: number | null;
+  detectedGender?: string | null;
+  detectedObjects?: Array<{ class: string; confidence: number }>;
 }
 
 const JarvisChatMain: React.FC<JarvisChatMainProps> = ({ 
   hackerMode = false, 
-  detectedEmotion 
+  detectedEmotion,
+  detectedAge,
+  detectedGender,
+  detectedObjects
 }) => {
   const {
     messages, 
@@ -166,6 +172,18 @@ const JarvisChatMain: React.FC<JarvisChatMainProps> = ({
     }
   };
 
+  // Enhanced details for face mode
+  const getFaceAnalysisText = () => {
+    if (!detectedEmotion && !detectedAge && !detectedGender) return null;
+    
+    let text = "";
+    if (detectedEmotion) text += `Emotion: ${detectedEmotion}`;
+    if (detectedAge) text += text ? ` • Age: ~${detectedAge}` : `Age: ~${detectedAge}`;
+    if (detectedGender) text += text ? ` • ${detectedGender}` : `${detectedGender}`;
+    
+    return text;
+  };
+
   return (
     <ChatLayout
       messages={messages}
@@ -189,7 +207,8 @@ const JarvisChatMain: React.FC<JarvisChatMainProps> = ({
       getSuggestions={getSuggestions}
       hackerMode={hackerMode}
       toggleListening={toggleListeningHandler}
-      detectedEmotion={detectedEmotion}
+      detectedEmotion={getFaceAnalysisText()}
+      detectedObjects={detectedObjects}
     />
   );
 };

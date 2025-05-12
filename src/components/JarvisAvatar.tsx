@@ -10,6 +10,9 @@ interface JarvisAvatarProps {
   isListening?: boolean;
   isProcessing?: boolean;
   detectedEmotion?: string;
+  detectedAge?: number | null;
+  detectedGender?: string | null;
+  detectedObjects?: Array<{ class: string; confidence: number }>;
 }
 
 const JarvisAvatar: React.FC<JarvisAvatarProps> = ({ 
@@ -17,7 +20,10 @@ const JarvisAvatar: React.FC<JarvisAvatarProps> = ({
   isSpeaking,
   isListening = false,
   isProcessing = false,
-  detectedEmotion
+  detectedEmotion,
+  detectedAge,
+  detectedGender,
+  detectedObjects = []
 }) => {
   return (
     <div className="jarvis-panel relative h-[350px] flex items-center justify-center group">
@@ -61,10 +67,21 @@ const JarvisAvatar: React.FC<JarvisAvatarProps> = ({
          'IDLE'}
       </div>
       
-      {/* Emotion Display - show when emotion is detected */}
+      {/* Emotion and Personal Data Display - show when in face mode */}
       {activeMode === 'face' && detectedEmotion && (
         <div className="absolute top-16 right-4 bg-jarvis/20 text-jarvis px-3 py-1 rounded-full text-xs">
-          Emotion: {detectedEmotion}
+          {detectedGender && detectedAge 
+            ? `${detectedEmotion} • ${detectedGender} • ~${detectedAge} yrs`
+            : `Emotion: ${detectedEmotion}`
+          }
+        </div>
+      )}
+      
+      {/* Object Detection Display - show in face mode */}
+      {activeMode === 'face' && detectedObjects && detectedObjects.length > 0 && (
+        <div className="absolute top-24 right-4 bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-xs">
+          Objects: {detectedObjects.slice(0, 3).map(obj => obj.class).join(', ')}
+          {detectedObjects.length > 3 && '...'}
         </div>
       )}
       

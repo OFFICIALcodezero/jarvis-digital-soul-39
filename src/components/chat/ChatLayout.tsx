@@ -26,6 +26,7 @@ interface ChatLayoutProps {
   hackerMode?: boolean;
   toggleListening: () => void;
   detectedEmotion?: string;
+  detectedObjects?: Array<{ class: string; confidence: number }>;
 }
 
 const ChatLayout: React.FC<ChatLayoutProps> = ({
@@ -50,14 +51,19 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
   getSuggestions,
   hackerMode = false,
   toggleListening,
-  detectedEmotion
+  detectedEmotion,
+  detectedObjects
 }) => {
   // For demo purposes, we'll just log the emotion
   React.useEffect(() => {
     if (detectedEmotion) {
       console.log("Detected emotion in ChatLayout:", detectedEmotion);
     }
-  }, [detectedEmotion]);
+    
+    if (detectedObjects && detectedObjects.length > 0) {
+      console.log("Detected objects in ChatLayout:", detectedObjects);
+    }
+  }, [detectedEmotion, detectedObjects]);
 
   // Simple placeholder for visualization
   return (
@@ -89,7 +95,18 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
         {detectedEmotion && (
           <div className="mb-4 text-center">
             <Card className="inline-block p-2 bg-transparent border-jarvis/30 text-white">
-              <p className="text-sm">Detected Emotion: <span className="font-semibold">{detectedEmotion}</span></p>
+              <p className="text-sm">{detectedEmotion}</p>
+            </Card>
+          </div>
+        )}
+        
+        {detectedObjects && detectedObjects.length > 0 && (
+          <div className="mb-4 text-center">
+            <Card className="inline-block p-2 bg-transparent border-green-500/30 text-white">
+              <p className="text-sm">
+                Objects: {detectedObjects.slice(0, 5).map(obj => obj.class).join(', ')}
+                {detectedObjects.length > 5 ? '...' : ''}
+              </p>
             </Card>
           </div>
         )}

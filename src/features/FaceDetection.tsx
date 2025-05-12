@@ -21,6 +21,12 @@ export const FaceDetection: React.FC<FaceDetectionProps> = ({
   const [faceData, setFaceData] = useState<any>(null);
   const [expressionAnalysis, setExpressionAnalysis] = useState<string | null>(null);
   const [confidenceScore, setConfidenceScore] = useState<number>(0);
+  const [ageEstimate, setAgeEstimate] = useState<number | null>(null);
+  const [genderEstimate, setGenderEstimate] = useState<string | null>(null);
+  const [detectedObjects, setDetectedObjects] = useState<Array<{
+    class: string;
+    confidence: number;
+  }>>([]);
 
   // Handle face detection
   const handleFaceDetected = (data: any) => {
@@ -54,6 +60,15 @@ export const FaceDetection: React.FC<FaceDetectionProps> = ({
     setExpressionAnalysis(null);
   };
   
+  const handleAgeGenderDetected = (data: { age: number | null; gender: string | null }) => {
+    setAgeEstimate(data.age);
+    setGenderEstimate(data.gender);
+  };
+  
+  const handleObjectsDetected = (objects: Array<{ class: string; confidence: number }>) => {
+    setDetectedObjects(objects);
+  };
+  
   const toggleActive = () => {
     setIsActive(!isActive);
     if (!isActive) {
@@ -61,6 +76,9 @@ export const FaceDetection: React.FC<FaceDetectionProps> = ({
       setFaceDetected(false);
       setFaceData(null);
       setExpressionAnalysis(null);
+      setAgeEstimate(null);
+      setGenderEstimate(null);
+      setDetectedObjects([]);
     }
   };
 
@@ -71,7 +89,7 @@ export const FaceDetection: React.FC<FaceDetectionProps> = ({
           <Scan className="mr-2 h-4 w-4" /> 
           Face Detection
         </CardTitle>
-        <CardDescription>Computer vision capabilities</CardDescription>
+        <CardDescription>Enhanced computer vision capabilities</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <FaceRecognition
@@ -80,6 +98,8 @@ export const FaceDetection: React.FC<FaceDetectionProps> = ({
           onFaceDetected={handleFaceDetected}
           onFaceNotDetected={handleFaceNotDetected}
           onEmotionDetected={onEmotionDetected}
+          onAgeGenderDetected={handleAgeGenderDetected}
+          onObjectsDetected={handleObjectsDetected}
         />
         
         {isActive && (
@@ -119,6 +139,26 @@ export const FaceDetection: React.FC<FaceDetectionProps> = ({
                   </div>
                 )}
                 
+                {/* Age estimation */}
+                {ageEstimate !== null && (
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm font-medium">Estimated Age:</div>
+                    <Badge className={`bg-${isHackerMode ? 'red' : 'jarvis'}/20`}>
+                      ~{ageEstimate} years
+                    </Badge>
+                  </div>
+                )}
+                
+                {/* Gender estimation (if available) */}
+                {genderEstimate && (
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm font-medium">Gender:</div>
+                    <Badge className={`bg-${isHackerMode ? 'red' : 'jarvis'}/20`}>
+                      {genderEstimate}
+                    </Badge>
+                  </div>
+                )}
+                
                 <Alert className={`bg-${isHackerMode ? 'red' : 'jarvis'}/5 border-${isHackerMode ? 'red' : 'jarvis'}/20`}>
                   <AlertDescription>
                     {isHackerMode 
@@ -127,6 +167,24 @@ export const FaceDetection: React.FC<FaceDetectionProps> = ({
                   </AlertDescription>
                 </Alert>
               </>
+            )}
+            
+            {/* Object Detection Section */}
+            {detectedObjects.length > 0 && (
+              <div className="mt-4">
+                <div className="text-sm font-medium mb-2">Detected Objects:</div>
+                <div className="flex flex-wrap gap-2">
+                  {detectedObjects.map((obj, idx) => (
+                    <Badge 
+                      key={idx} 
+                      className="bg-green-500/20 text-green-400"
+                      variant="outline"
+                    >
+                      {obj.class} ({Math.round(obj.confidence * 100)}%)
+                    </Badge>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
         )}

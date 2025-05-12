@@ -3,12 +3,14 @@ import React, { useRef, useEffect, useState } from 'react';
 import { toast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
 import { Eye, EyeOff } from 'lucide-react';
-import { analyzeEmotions } from '@/services/emotionalIntelligenceService';
+import { analyzeEmotions, analyzeFaceAttributes, detectObjects, initializeModels } from '@/services/emotionalIntelligenceService';
 
 interface FaceRecognitionProps {
   onFaceDetected?: (faceData: any) => void;
   onFaceNotDetected?: () => void;
   onEmotionDetected?: (emotion: string) => void;
+  onAgeGenderDetected?: (data: { age: number | null; gender: string | null }) => void;
+  onObjectsDetected?: (objects: Array<{ class: string; confidence: number }>) => void;
   onError?: (error: string) => void;
   isActive: boolean;
   toggleActive: () => void;
@@ -18,6 +20,8 @@ const FaceRecognition: React.FC<FaceRecognitionProps> = ({
   onFaceDetected,
   onFaceNotDetected,
   onEmotionDetected,
+  onAgeGenderDetected,
+  onObjectsDetected,
   onError,
   isActive,
   toggleActive
@@ -29,44 +33,51 @@ const FaceRecognition: React.FC<FaceRecognitionProps> = ({
   const [cameraPermission, setCameraPermission] = useState<'granted' | 'denied' | 'pending'>('pending');
   const [detectionInterval, setDetectionInterval] = useState<NodeJS.Timeout | null>(null);
   const [detectedEmotion, setDetectedEmotion] = useState<string>('neutral');
+  const [detectedAge, setDetectedAge] = useState<number | null>(null);
+  const [detectedGender, setDetectedGender] = useState<string | null>(null);
+  const [detectedObjects, setDetectedObjects] = useState<Array<{
+    class: string;
+    confidence: number;
+    bbox: [number, number, number, number];
+  }>>([]);
+  const [modelsLoaded, setModelsLoaded] = useState(false);
+  const [faceConfidenceThreshold] = useState(0.7); // Minimum confidence for face detection
   
-  // Initialize face recognition
+  // Initialize face recognition and object detection
   useEffect(() => {
     if (!isActive) return;
     
-    const initFaceDetection = async () => {
+    const initModels = async () => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        if (stream) {
-          stream.getTracks().forEach(track => track.stop());
-          setCameraPermission('granted');
-        }
+        toast({
+          title: "AI Models",
+          description: "Loading face detection and object recognition models...",
+        });
         
-        if (!(window as any).faceapi) {
-          toast({
-            title: "Face API",
-            description: "Loading face recognition capabilities...",
-          });
-          
-          // Simulate face detection for this demo
+        const success = await initializeModels();
+        if (success) {
           setIsInitialized(true);
+          setModelsLoaded(true);
           setCameraPermission('granted');
-          return;
+          toast({
+            title: "AI Models",
+            description: "Face detection and object recognition ready",
+          });
+        } else {
+          throw new Error("Failed to initialize models");
         }
-        
-        setIsInitialized(true);
       } catch (error) {
-        console.error('Error initializing face detection:', error);
-        onError?.('Failed to initialize face detection');
+        console.error('Error initializing models:', error);
+        onError?.('Failed to initialize face and object detection models');
         toast({
           title: "Error",
-          description: "Failed to initialize face detection",
+          description: "Failed to initialize AI models",
           variant: "destructive"
         });
       }
     };
     
-    initFaceDetection();
+    initModels();
   }, [isActive, onError]);
   
   // Start webcam when active
@@ -111,54 +122,63 @@ const FaceRecognition: React.FC<FaceRecognitionProps> = ({
     };
   }, [isActive, isInitialized, onError]);
   
-  // Detect faces when webcam is active - with stabilization to prevent flicker
+  // Run face detection and object detection when webcam is active
   useEffect(() => {
     if (!isActive || !isInitialized || cameraPermission !== 'granted') return;
     
-    let animationFrameId: number;
-    
-    // Use consistent detection status with debounce mechanism
     if (detectionInterval) {
       clearInterval(detectionInterval);
     }
     
-    const stableFaceDetection = setInterval(() => {
-      // Simulated face detection for demo purposes
-      // In a real implementation, we would use face-api.js here
+    const runDetection = setInterval(async () => {
+      if (!videoRef.current || !canvasRef.current) return;
       
-      // Simulate face detection with higher probability of success (90%)
-      const randomFaceDetection = Math.random() > 0.1; 
+      const context = canvasRef.current.getContext('2d');
+      if (!context) return;
       
-      if (randomFaceDetection) {
-        if (!faceDetected) {
-          setFaceDetected(true);
-          
-          // Generate a random emotion for demonstration
-          const emotions = ['happy', 'sad', 'neutral', 'surprised', 'angry'];
-          const randomEmotionIndex = Math.floor(Math.random() * emotions.length);
-          const emotion = emotions[randomEmotionIndex];
-          setDetectedEmotion(emotion);
-          
-          // In a real implementation, we would analyze the face for emotions
-          // For now, we'll use our random emotion
-          const faceData = {
-            confidence: 0.95,
-            landmarks: {},
+      try {
+        // Clear previous drawings
+        context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+        
+        // In a real implementation, we'd pass the video frame to face-api.js and YOLO/TensorFlow
+        // For simulation purposes, we'll generate mock results
+        
+        // Simulate face detection (70% chance to detect a face)
+        const faceDetectionResult = Math.random() > 0.3;
+        
+        if (faceDetectionResult) {
+          // Face detected simulation
+          const mockFaceData = {
+            confidence: Math.random() * 0.3 + 0.7, // 70-100% confidence
             expressions: {
-              [emotion]: 0.8,
-              neutral: 0.2
-            }
+              happy: Math.random(),
+              sad: Math.random(),
+              angry: Math.random(),
+              surprised: Math.random(),
+              neutral: Math.random()
+            },
+            landmarks: {},
           };
           
-          onFaceDetected?.(faceData);
-          onEmotionDetected?.(emotion.charAt(0).toUpperCase() + emotion.slice(1));
-        }
-        
-        // Draw face box on canvas for visualization
-        if (canvasRef.current && videoRef.current) {
-          const context = canvasRef.current.getContext('2d');
-          if (context) {
-            context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+          // Only consider as detected if confidence is above threshold
+          if (mockFaceData.confidence >= faceConfidenceThreshold) {
+            if (!faceDetected) {
+              setFaceDetected(true);
+              onFaceDetected?.(mockFaceData);
+            }
+            
+            // Analyze emotion
+            const emotion = analyzeEmotions(mockFaceData);
+            setDetectedEmotion(emotion);
+            onEmotionDetected?.(emotion.charAt(0).toUpperCase() + emotion.slice(1));
+            
+            // Analyze age and gender
+            const attributes = await analyzeFaceAttributes(mockFaceData);
+            setDetectedAge(attributes.age);
+            setDetectedGender(attributes.gender);
+            onAgeGenderDetected?.({ age: attributes.age, gender: attributes.gender });
+            
+            // Draw face box
             context.strokeStyle = '#33c3f0';
             context.lineWidth = 3;
             
@@ -189,41 +209,107 @@ const FaceRecognition: React.FC<FaceRecognitionProps> = ({
             context.arc(centerX, centerY + 30, 3, 0, 2 * Math.PI);
             context.fill();
             
-            // Add emotion text above the face box
+            // Add emotion, age, gender text above the face box
             context.fillStyle = '#33c3f0';
-            context.font = '14px Arial';
+            context.font = '12px Arial';
             context.textAlign = 'center';
+            
+            const emotionText = `${detectedEmotion.charAt(0).toUpperCase() + detectedEmotion.slice(1)}`;
+            let attributesText = '';
+            
+            if (detectedAge !== null) {
+              attributesText += `Age: ~${detectedAge}`;
+            }
+            
+            if (detectedGender !== null) {
+              attributesText += attributesText ? ` • ${detectedGender}` : `${detectedGender}`;
+            }
+            
             context.fillText(
-              `${detectedEmotion.charAt(0).toUpperCase() + detectedEmotion.slice(1)}`, 
+              emotionText, 
               centerX, 
-              centerY - boxHeight/2 - 10
+              centerY - boxHeight/2 - 20
             );
+            
+            if (attributesText) {
+              context.fillText(
+                attributesText,
+                centerX,
+                centerY - boxHeight/2 - 5
+              );
+            }
+          } else if (faceDetected) {
+            setFaceDetected(false);
+            onFaceNotDetected?.();
           }
+        } else if (faceDetected) {
+          setFaceDetected(false);
+          onFaceNotDetected?.();
         }
-      } else if (faceDetected) {
-        setFaceDetected(false);
-        onFaceNotDetected?.();
         
-        // Clear canvas
-        if (canvasRef.current) {
-          const context = canvasRef.current.getContext('2d');
-          if (context) {
-            context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-          }
+        // Run object detection (separate from face detection)
+        if (videoRef.current) {
+          const objects = await detectObjects(videoRef.current);
+          setDetectedObjects(objects);
+          
+          // Pass detected objects to parent component (filtered to just class and confidence)
+          onObjectsDetected?.(objects.map(obj => ({ 
+            class: obj.class, 
+            confidence: obj.confidence 
+          })));
+          
+          // Draw object bounding boxes
+          objects.forEach(obj => {
+            const [x, y, width, height] = obj.bbox;
+            
+            const boxX = x * canvasRef.current!.width;
+            const boxY = y * canvasRef.current!.height;
+            const boxWidth = width * canvasRef.current!.width;
+            const boxHeight = height * canvasRef.current!.height;
+            
+            context.strokeStyle = '#4ade80'; // Green for objects
+            context.lineWidth = 2;
+            context.strokeRect(boxX, boxY, boxWidth, boxHeight);
+            
+            // Add object label
+            context.fillStyle = '#4ade80';
+            context.font = '12px Arial';
+            context.textAlign = 'left';
+            context.fillText(
+              `${obj.class} (${Math.round(obj.confidence * 100)}%)`,
+              boxX,
+              boxY - 5
+            );
+          });
         }
+      } catch (error) {
+        console.error('Error in detection process:', error);
       }
-    }, 1000); // More stable interval for detection status changes
+    }, 1000); // Run detection every second
     
     setDetectionInterval(stableFaceDetection);
     
     // Cleanup function
     return () => {
-      cancelAnimationFrame(animationFrameId);
       if (detectionInterval) {
         clearInterval(detectionInterval);
       }
     };
-  }, [isActive, isInitialized, cameraPermission, faceDetected, onFaceDetected, onFaceNotDetected, onEmotionDetected]);
+  }, [
+    isActive, 
+    isInitialized, 
+    cameraPermission, 
+    faceDetected, 
+    onFaceDetected, 
+    onFaceNotDetected, 
+    onEmotionDetected,
+    onAgeGenderDetected,
+    onObjectsDetected,
+    detectedEmotion,
+    detectedAge,
+    detectedGender,
+    faceConfidenceThreshold
+  ]);
   
   return (
     <div className="relative w-full">
@@ -269,6 +355,16 @@ const FaceRecognition: React.FC<FaceRecognitionProps> = ({
           {faceDetected && (
             <div className="absolute top-2 right-2 bg-[#33c3f0]/80 px-2 py-1 rounded text-xs">
               Face Detected
+            </div>
+          )}
+          
+          {detectedObjects.length > 0 && (
+            <div className="absolute bottom-2 left-2 bg-[#4ade80]/80 px-2 py-1 rounded text-xs flex flex-wrap gap-1">
+              {detectedObjects.map((obj, idx) => (
+                <span key={idx} className="bg-black/30 rounded px-1">
+                  {obj.class}
+                </span>
+              ))}
             </div>
           )}
         </div>
