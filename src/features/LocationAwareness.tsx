@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertCircle, Clock, MapPin } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { useWeatherContext } from './WeatherContext';
 
 interface LocationAwarenessProps {
   userLocation: GeolocationPosition | null;
@@ -56,7 +57,7 @@ export const LocationAwareness: React.FC<LocationAwarenessProps> = ({
   }, [userLocation]);
 
   return (
-    <Card className={`${isHackerMode ? 'border-red-500/30 bg-black/20' : 'border-jarvis/30 bg-black/10'}`}>
+    <Card className={`border-${isHackerMode ? 'red-500/30' : 'jarvis/30'} ${isHackerMode ? 'bg-black/20' : 'bg-black/10'}`}>
       <CardHeader className="pb-2">
         <CardTitle className="text-lg flex items-center text-white">
           <MapPin className="mr-2 h-4 w-4" />
@@ -79,7 +80,7 @@ export const LocationAwareness: React.FC<LocationAwarenessProps> = ({
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <div className="text-sm font-medium text-white">Current Location:</div>
-                <Badge className={`${isHackerMode ? 'bg-red/20' : 'bg-jarvis/20'} text-white`}>
+                <Badge className={`bg-${isHackerMode ? 'red' : 'jarvis'}/20 text-white`}>
                   {locationName}
                 </Badge>
               </div>

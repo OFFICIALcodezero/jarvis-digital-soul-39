@@ -55,18 +55,18 @@ export const WeatherDisplay: React.FC<WeatherDisplayProps> = ({ isHackerMode = f
     const condition = weather.condition.toLowerCase();
     
     if (condition.includes('rain') || condition.includes('drizzle')) {
-      return <CloudRain className={`h-8 w-8 ${isHackerMode ? 'text-red-400' : 'text-blue-400'}`} />;
+      return <CloudRain className={`h-8 w-8 text-${isHackerMode ? 'red-400' : 'blue-400'}`} />;
     } else if (condition.includes('snow')) {
-      return <CloudSnow className={`h-8 w-8 ${isHackerMode ? 'text-red-400' : 'text-blue-200'}`} />;
+      return <CloudSnow className={`h-8 w-8 text-${isHackerMode ? 'red-400' : 'blue-200'}`} />;
     } else if (condition.includes('clear') || condition.includes('sun')) {
-      return <Sun className={`h-8 w-8 ${isHackerMode ? 'text-red-400' : 'text-yellow-400'}`} />;
+      return <Sun className={`h-8 w-8 text-${isHackerMode ? 'red-400' : 'yellow-400'}`} />;
     } else {
-      return <Cloud className={`h-8 w-8 ${isHackerMode ? 'text-red-400' : 'text-gray-400'}`} />;
+      return <Cloud className={`h-8 w-8 text-${isHackerMode ? 'red-400' : 'gray-400'}`} />;
     }
   };
 
   return (
-    <Card className={`${isHackerMode ? 'border-red-500/30 bg-black/20' : 'border-jarvis/30 bg-black/10'}`}>
+    <Card className={`border-${isHackerMode ? 'red-500/30' : 'jarvis/30'} ${isHackerMode ? 'bg-black/20' : 'bg-black/10'}`}>
       <CardHeader className="pb-2">
         <CardTitle className="text-lg flex items-center text-white">
           <Thermometer className="mr-2 h-4 w-4" />

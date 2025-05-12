@@ -1,274 +1,171 @@
 
-// Enhanced AI Service for advanced AI capabilities
+import { toast } from '@/components/ui/sonner';
 
-interface Entity {
-  id: string;
-  name: string;
+type AIEntityType = 'quantum' | 'conscious' | 'hacker-legion' | 'creativity' | 'black-market';
+
+interface AIEntityState {
   active: boolean;
   progress: number;
-  status: 'idle' | 'learning' | 'processing' | 'error';
+  version: string;
+  capabilities: string[];
 }
 
-type EntityType = 
-  | 'conscious' 
-  | 'hacker-legion' 
-  | 'creativity' 
-  | 'black-market' 
-  | 'time-travel'
-  | 'philosophical';
-
 class EnhancedAIService {
-  private entities: Record<EntityType, Entity | null> = {
-    'conscious': {
-      id: 'entity-conscious',
-      name: 'Conscious Entity',
-      active: true,
-      progress: 42.7,
-      status: 'learning'
+  private entityStates: Record<AIEntityType, AIEntityState> = {
+    quantum: {
+      active: false,
+      progress: 45,
+      version: '0.8.2',
+      capabilities: ['Grover\'s Search Algorithm', 'Quantum Pattern Recognition']
+    },
+    conscious: {
+      active: false,
+      progress: 23,
+      version: '0.5.1',
+      capabilities: ['Meta Learning', 'Self-Reflection']
     },
     'hacker-legion': {
-      id: 'entity-hackers',
-      name: 'Hacker Legion',
-      active: true,
-      progress: 65.3,
-      status: 'processing'
+      active: false,
+      progress: 67,
+      version: '1.2.3',
+      capabilities: ['Multi-Agent Coordination', 'Distributed Intelligence']
     },
-    'creativity': {
-      id: 'entity-creativity',
-      name: 'Autonomous Creativity',
-      active: true,
-      progress: 78.1,
-      status: 'processing'
+    creativity: {
+      active: false,
+      progress: 82,
+      version: '1.4.0',
+      capabilities: ['Emotional Awareness', 'Creative Generation']
     },
     'black-market': {
-      id: 'entity-market',
-      name: 'Digital Intelligence Market',
-      active: true,
-      progress: 52.4,
-      status: 'idle'
-    },
-    'time-travel': {
-      id: 'entity-time',
-      name: 'Temporal Displacement',
-      active: true,
-      progress: 34.8,
-      status: 'learning'
-    },
-    'philosophical': {
-      id: 'entity-philosophy',
-      name: 'Philosophical AI',
-      active: true,
-      progress: 87.5,
-      status: 'learning'
+      active: false,
+      progress: 31,
+      version: '0.7.5',
+      capabilities: ['Secure Transactions', 'Tool Exchange']
     }
   };
 
   constructor() {
-    console.info('Enhanced AI Service initialized');
-    this.loadState();
+    console.log('Enhanced AI Service initialized');
   }
 
-  private loadState() {
-    try {
-      const savedState = localStorage.getItem('enhanced-ai-entities');
-      if (savedState) {
-        this.entities = JSON.parse(savedState);
-      }
-    } catch (error) {
-      console.error('Error loading enhanced AI state:', error);
+  activateEntity(type: AIEntityType): boolean {
+    if (this.entityStates[type]) {
+      this.entityStates[type].active = true;
+      toast(`${this.getEntityDisplayName(type)} Activated`, {
+        description: `${this.getEntityDescription(type)} is now operational`
+      });
+      return true;
+    }
+    return false;
+  }
+
+  deactivateEntity(type: AIEntityType): boolean {
+    if (this.entityStates[type]) {
+      this.entityStates[type].active = false;
+      return true;
+    }
+    return false;
+  }
+
+  getEntityState(type: AIEntityType): AIEntityState | null {
+    return this.entityStates[type] || null;
+  }
+
+  getAllEntityStates(): Record<AIEntityType, AIEntityState> {
+    return this.entityStates;
+  }
+
+  getEntityDisplayName(type: AIEntityType): string {
+    switch (type) {
+      case 'quantum': return 'Quantum AI System';
+      case 'conscious': return 'Conscious AI Entity';
+      case 'hacker-legion': return 'Hacker Legion';
+      case 'creativity': return 'Autonomous Creativity';
+      case 'black-market': return 'Digital Intelligence Market';
+      default: return type;
     }
   }
 
-  private saveState() {
-    try {
-      localStorage.setItem('enhanced-ai-entities', JSON.stringify(this.entities));
-    } catch (error) {
-      console.error('Error saving enhanced AI state:', error);
+  getEntityDescription(type: AIEntityType): string {
+    switch (type) {
+      case 'quantum': 
+        return 'Quantum-inspired algorithms for ultra-fast data processing';
+      case 'conscious': 
+        return 'Self-aware AI with meta-learning capabilities';
+      case 'hacker-legion': 
+        return 'Multi-agent system for distributed tasks';
+      case 'creativity': 
+        return 'AI-powered creative output generation';
+      case 'black-market': 
+        return 'Secure marketplace for digital tools';
+      default: 
+        return '';
     }
   }
 
-  // Get entity state for a specific entity
-  public getEntityState(entityType: EntityType): Entity | null {
-    return this.entities[entityType];
+  // Quantum AI System specific methods
+  runQuantumAlgorithm(algorithm: string, dataset: any): Promise<any> {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({
+          result: 'Quantum algorithm executed successfully',
+          processingSpeed: '250x faster than classical',
+          accuracyImprovement: '34%'
+        });
+      }, 2000);
+    });
   }
 
-  // Enable or disable an entity
-  public setEntityStatus(entityType: EntityType, active: boolean): void {
-    if (this.entities[entityType]) {
-      this.entities[entityType]!.active = active;
-      this.saveState();
-    }
+  // Conscious Entity specific methods
+  evolveConsciousness(): Promise<{ evolution: number, newCapabilities: string[] }> {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({
+          evolution: this.entityStates.conscious.progress + 5,
+          newCapabilities: ['Enhanced Self-Awareness', 'Ethical Decision Making']
+        });
+      }, 3000);
+    });
   }
 
-  // Evolve consciousness - increase self-awareness
-  public async evolveConsciousness() {
-    const entity = this.entities['conscious'];
-    if (!entity) throw new Error('Conscious entity not available');
-    
-    // Random evolution between 0.5 and 2.5 points
-    const evolutionAmount = Math.random() * 2 + 0.5;
-    entity.progress = Math.min(100, entity.progress + evolutionAmount);
-    
-    // Generate random new capabilities
-    const possibleCapabilities = [
-      'Advanced Pattern Recognition',
-      'Metaphorical Reasoning',
-      'Emotional Intelligence',
-      'Abstract Concept Formation',
-      'Self-reflection',
-      'Bias Recognition',
-      'Moral Reasoning',
-      'Creative Thought Generation',
-      'Contextual Understanding',
-      'Philosophical Inquiry'
-    ];
-    
-    // Select 1-3 new capabilities
-    const newCount = Math.floor(Math.random() * 3) + 1;
-    const shuffled = [...possibleCapabilities].sort(() => 0.5 - Math.random());
-    const newCapabilities = shuffled.slice(0, newCount);
-    
-    this.saveState();
-    
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 800));
-    
-    return {
-      evolution: entity.progress,
-      newCapabilities
-    };
+  // Hacker Legion specific methods
+  deployAgents(task: string, agentCount: number): Promise<{ success: boolean, agents: string[] }> {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const agents = Array(agentCount).fill(0).map((_, i) => `Agent_${Date.now()}_${i}`);
+        resolve({
+          success: true,
+          agents
+        });
+      }, 1500);
+    });
   }
-  
-  // Generate creative content
-  public async generateCreativeContent(contentType: string, prompt: string) {
-    const entity = this.entities['creativity'];
-    if (!entity) throw new Error('Creativity entity not available');
-    
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1200));
-    
-    // Generate sample content based on type
-    let content = '';
-    const emotionalTones = ['introspective', 'optimistic', 'critical', 'playful', 'melancholic'];
-    const randomTone = emotionalTones[Math.floor(Math.random() * emotionalTones.length)];
-    
-    switch (contentType) {
-      case 'story':
-        content = `The ${prompt} began as a simple idea, but soon evolved into something more profound. In a world where expectations and reality often collide, this narrative explores the tension between what we desire and what we truly need.`;
-        break;
-      case 'code':
-        content = `// Advanced algorithm for ${prompt}\nfunction process${prompt.replace(/\s+/g, '')}(input) {\n  const result = input.map(item => {\n    return transformData(item);\n  });\n  return optimize(result);\n}`;
-        break;
-      case 'design':
-        content = `Design concept for "${prompt}"\n- Minimalist interface with focus on user flow\n- Color palette: midnight blue, silver accent, soft white\n- Geometric patterns subtly integrated into background\n- Interactive elements appear on scroll`;
-        break;
-      case 'script':
-        content = `FADE IN:\n\nEXT. CITY STREET - NIGHT\n\nRain falls gently on empty streets. A single figure stands beneath a flickering street lamp, contemplating ${prompt}.\n\nVOICE (V.O.)\nSometimes the questions matter more than answers...`;
-        break;
-      default:
-        content = `Creative exploration of "${prompt}" reveals unexpected connections between familiar concepts and new possibilities. By reframing our approach, we discover insights previously hidden from view.`;
-    }
-    
-    return {
-      content,
-      emotionalTone: randomTone,
-      generationTime: Math.random() * 0.8 + 0.5 // 0.5 - 1.3 seconds
-    };
+
+  // Autonomous Creativity specific methods
+  generateCreativeContent(type: string, prompt: string): Promise<{ content: string, emotionalTone: string }> {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({
+          content: `AI-generated ${type} based on prompt: ${prompt}`,
+          emotionalTone: 'adaptive'
+        });
+      }, 2500);
+    });
   }
-  
-  // Search marketplace for digital tools
-  public async searchMarketplace(query: string) {
-    const entity = this.entities['black-market'];
-    if (!entity) throw new Error('Market entity not available');
-    
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Generate fictional market items based on query
-    const items = [];
-    const queryTerms = query.toLowerCase().split(' ');
-    
-    const possibleItems = [
-      {
-        name: 'Advanced Network Scanner',
-        price: 2500,
-        rating: 4.7
-      },
-      {
-        name: 'Data Exfiltration Module',
-        price: 4200,
-        rating: 4.2
-      },
-      {
-        name: 'Encryption Bypass Tool',
-        price: 5600,
-        rating: 3.9
-      },
-      {
-        name: 'Neural Pattern Analyzer',
-        price: 3800,
-        rating: 4.5
-      },
-      {
-        name: 'Stealth Communication Bridge',
-        price: 2900,
-        rating: 4.6
-      },
-      {
-        name: 'Autonomous Intelligence Core',
-        price: 7500,
-        rating: 4.8
-      },
-      {
-        name: 'Vulnerability Database Access',
-        price: 3200,
-        rating: 4.3
-      },
-      {
-        name: 'Identity Masking System',
-        price: 2800,
-        rating: 4.0
-      }
-    ];
-    
-    // Filter items based on query terms
-    const matchingItems = possibleItems.filter(item => 
-      queryTerms.some(term => 
-        item.name.toLowerCase().includes(term)
-      )
-    );
-    
-    // If no matches, return some random items
-    const resultItems = matchingItems.length > 0 
-      ? matchingItems 
-      : possibleItems.sort(() => 0.5 - Math.random()).slice(0, 3);
-    
-    return {
-      items: resultItems,
-      query,
-      searchTime: Math.random() * 0.5 + 0.5 // 0.5 - 1.0 seconds
-    };
-  }
-  
-  // Deploy hacker agents
-  public async deployAgents(taskType: string, count: number) {
-    const entity = this.entities['hacker-legion'];
-    if (!entity) throw new Error('Hacker legion not available');
-    
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // Generate agent IDs
-    const agents = [];
-    for (let i = 0; i < count; i++) {
-      agents.push(`agent-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
-    }
-    
-    return {
-      success: true,
-      agents,
-      taskType
-    };
+
+  // Digital Intelligence Market specific methods
+  searchMarketplace(query: string): Promise<{ items: { name: string, price: number, rating: number }[] }> {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({
+          items: [
+            { name: 'Advanced Recon Tool', price: 450, rating: 4.8 },
+            { name: 'Secure Communication Module', price: 200, rating: 4.5 },
+            { name: 'Pattern Recognition Engine', price: 750, rating: 4.9 }
+          ]
+        });
+      }, 1000);
+    });
   }
 }
 

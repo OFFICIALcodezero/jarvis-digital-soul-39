@@ -1,32 +1,13 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { 
   neuralNetworkService, 
+  NeuralNetworkState, 
   Strategy, 
-  HackingTask 
+  HackingTask, 
+  TrainingResult 
 } from '@/services/neuralNetworkService';
 import { toast } from '@/components/ui/sonner';
-
-// Define local interfaces to match the service structure
-interface NeuralNetworkState {
-  learningRate: number;
-  iterations: number;
-  knowledgeBase: {
-    [domain: string]: number;
-  };
-  successRates: {
-    [taskType: string]: number;
-  };
-  lastTrainingDate: string;
-  strategies: Strategy[];
-  version: number;
-}
-
-interface TrainingResult {
-  success: boolean;
-  message: string;
-  improvement: number;
-  newStrategies: Strategy[];
-}
 
 export interface UseNeuralNetworkOptions {
   autoRefresh?: boolean;
@@ -55,7 +36,7 @@ export const useNeuralNetwork = (options: UseNeuralNetworkOptions = {}): UseNeur
   } = options;
   
   const [networkState, setNetworkState] = useState<NeuralNetworkState>(
-    neuralNetworkService.getNetworkState() as NeuralNetworkState
+    neuralNetworkService.getNetworkState()
   );
   const [strategies, setStrategies] = useState<Strategy[]>(
     neuralNetworkService.getStrategies()
@@ -68,7 +49,7 @@ export const useNeuralNetwork = (options: UseNeuralNetworkOptions = {}): UseNeur
   
   // Refresh data from service
   const refreshData = useCallback(() => {
-    setNetworkState(neuralNetworkService.getNetworkState() as NeuralNetworkState);
+    setNetworkState(neuralNetworkService.getNetworkState());
     setStrategies(neuralNetworkService.getStrategies());
     setTaskHistory(neuralNetworkService.getTaskHistory());
   }, []);
@@ -87,7 +68,7 @@ export const useNeuralNetwork = (options: UseNeuralNetworkOptions = {}): UseNeur
     try {
       const result = await neuralNetworkService.trainNetwork();
       refreshData();
-      return result as TrainingResult;
+      return result;
     } catch (error) {
       console.error("Error training network:", error);
       toast('Training Error', {
@@ -108,14 +89,14 @@ export const useNeuralNetwork = (options: UseNeuralNetworkOptions = {}): UseNeur
       const task: HackingTask = {
         id: `task-${Date.now()}`,
         status: 'pending',
-        startTime: new Date().toISOString(),
+        startTime: new Date(),
         endTime: null,
         ...taskData
       };
       
       const result = await neuralNetworkService.executeHackingTask(task);
       refreshData();
-      return task; // Return the task instead of just the result
+      return result;
     } catch (error) {
       console.error("Error executing task:", error);
       toast('Task Error', {
@@ -143,14 +124,10 @@ export const useNeuralNetwork = (options: UseNeuralNetworkOptions = {}): UseNeur
     }
   };
   
-  // Toggle evolution mode - Adding this manually since it's missing in the service
+  // Toggle evolution mode
   const toggleEvolution = (enabled: boolean) => {
     try {
-      // If toggleEvolution doesn't exist on the service, we'll handle it locally
-      if (typeof neuralNetworkService.toggleEvolution === 'function') {
-        neuralNetworkService.toggleEvolution(enabled);
-      }
-      
+      neuralNetworkService.toggleEvolution(enabled);
       toast(enabled ? 'Evolution Enabled' : 'Evolution Disabled', {
         description: enabled ? 'Neural network will evolve automatically.' : 'Neural network evolution has been paused.'
       });

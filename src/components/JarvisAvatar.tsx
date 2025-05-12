@@ -1,6 +1,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import { JarvisMode } from './JarvisCore';
+import JarvisFaceAI from './JarvisFaceAI';
 import JarvisLipSync from './JarvisLipSync';
 import JarvisCore from './core/JarvisCore';
 import SatelliteVision from './SatelliteVision';
@@ -40,9 +41,10 @@ const JarvisAvatar: React.FC<JarvisAvatarProps> = ({
         />
       </div>
       
-      {/* Face mode - Only showing lip sync now, actual face image removed */}
+      {/* JarvisFaceAI Component - only show in face mode - REMOVED FACE IMAGE */}
       {activeMode === 'face' && (
         <>
+          {/* Face display removed */}
           {isSpeaking && <JarvisLipSync className="z-[2]" />}
         </>
       )}
