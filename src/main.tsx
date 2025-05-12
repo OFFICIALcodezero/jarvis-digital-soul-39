@@ -7,6 +7,7 @@ import App from './App'
 import './index.css'
 import ErrorBoundary from './components/ErrorBoundary'
 import { Toaster } from './components/ui/sonner'
+import { logToSupabase } from './supabase';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
