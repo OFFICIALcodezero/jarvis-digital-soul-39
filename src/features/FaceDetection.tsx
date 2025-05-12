@@ -9,10 +9,12 @@ import FaceRecognition from '@/components/FaceRecognition';
 
 interface FaceDetectionProps {
   isHackerMode?: boolean;
+  onEmotionDetected?: (emotion: string) => void;
 }
 
 export const FaceDetection: React.FC<FaceDetectionProps> = ({
-  isHackerMode = false
+  isHackerMode = false,
+  onEmotionDetected
 }) => {
   const [isActive, setIsActive] = useState(false);
   const [faceDetected, setFaceDetected] = useState(false);
@@ -38,6 +40,11 @@ export const FaceDetection: React.FC<FaceDetectionProps> = ({
         ['neutral', 0]
       );
       setExpressionAnalysis(dominant[0]);
+      
+      // Pass the detected emotion to the parent component
+      if (onEmotionDetected) {
+        onEmotionDetected(dominant[0].charAt(0).toUpperCase() + dominant[0].slice(1));
+      }
     }
   };
   
@@ -72,6 +79,7 @@ export const FaceDetection: React.FC<FaceDetectionProps> = ({
           toggleActive={toggleActive}
           onFaceDetected={handleFaceDetected}
           onFaceNotDetected={handleFaceNotDetected}
+          onEmotionDetected={onEmotionDetected}
         />
         
         {isActive && (

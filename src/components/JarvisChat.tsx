@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { JarvisChatProvider } from "./JarvisChatContext";
 import JarvisSidebar from "./JarvisSidebar";
 import JarvisChatMain from "./JarvisChatMain";
@@ -8,10 +8,16 @@ import HackerMode from "./chat/HackerMode";
 import type { JarvisChatProps } from "@/types/chat";
 
 const JarvisChat: React.FC<JarvisChatProps> = (props) => {
+  const [detectedEmotion, setDetectedEmotion] = useState<string | undefined>(undefined);
+  
   // Render Hacker Mode directly
   if (props.activeMode === 'hacker') {
     return <HackerMode hackerOutput={props.hackerOutput || ""} setHackerOutput={props.setHackerOutput || (() => {})} onDeactivate={props.onDeactivateHacker} />;
   }
+
+  const handleEmotionDetected = (emotion: string) => {
+    setDetectedEmotion(emotion);
+  };
 
   return (
     <JarvisChatProvider {...props}>
@@ -25,12 +31,15 @@ const JarvisChat: React.FC<JarvisChatProps> = (props) => {
           {/* Sidebar/dashboard */}
           {props.activeMode === 'face' && (
             <div className={`md:w-[320px] p-3 ${props.hackerModeActive ? 'bg-black/60 border-red-500/20' : 'bg-black/30 border-jarvis/20'} border-r`}>
-              <JarvisSidebar />
+              <JarvisSidebar onEmotionDetected={handleEmotionDetected} />
             </div>
           )}
           {/* Main chat area */}
           <div className="flex-1 flex flex-col">
-            <JarvisChatMain hackerMode={props.hackerModeActive} />
+            <JarvisChatMain 
+              hackerMode={props.hackerModeActive} 
+              detectedEmotion={detectedEmotion}
+            />
           </div>
         </div>
         <JarvisImageOverlayHandler />

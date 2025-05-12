@@ -11,13 +11,15 @@ interface JarvisAvatarProps {
   isSpeaking: boolean;
   isListening?: boolean;
   isProcessing?: boolean;
+  detectedEmotion?: string;
 }
 
 const JarvisAvatar: React.FC<JarvisAvatarProps> = ({ 
   activeMode, 
   isSpeaking,
   isListening = false,
-  isProcessing = false
+  isProcessing = false,
+  detectedEmotion
 }) => {
   return (
     <div className="jarvis-panel relative h-[350px] flex items-center justify-center group">
@@ -71,6 +73,13 @@ const JarvisAvatar: React.FC<JarvisAvatarProps> = ({
          isProcessing ? 'PROCESSING' : 
          'IDLE'}
       </div>
+      
+      {/* Emotion Display - show when emotion is detected */}
+      {activeMode === 'face' && detectedEmotion && (
+        <div className="absolute top-16 right-4 bg-jarvis/20 text-jarvis px-3 py-1 rounded-full text-xs">
+          Emotion: {detectedEmotion}
+        </div>
+      )}
       
       {/* Mode Badge */}
       <div className="absolute top-4 right-4 bg-jarvis/20 text-jarvis px-3 py-1 rounded-full text-xs uppercase font-bold">

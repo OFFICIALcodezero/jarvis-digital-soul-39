@@ -3,10 +3,12 @@ import React, { useRef, useEffect, useState } from 'react';
 import { toast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
 import { Eye, EyeOff } from 'lucide-react';
+import { analyzeEmotions } from '@/services/emotionalIntelligenceService';
 
 interface FaceRecognitionProps {
   onFaceDetected?: (faceData: any) => void;
   onFaceNotDetected?: () => void;
+  onEmotionDetected?: (emotion: string) => void;
   onError?: (error: string) => void;
   isActive: boolean;
   toggleActive: () => void;
@@ -15,6 +17,7 @@ interface FaceRecognitionProps {
 const FaceRecognition: React.FC<FaceRecognitionProps> = ({
   onFaceDetected,
   onFaceNotDetected,
+  onEmotionDetected,
   onError,
   isActive,
   toggleActive
@@ -25,6 +28,7 @@ const FaceRecognition: React.FC<FaceRecognitionProps> = ({
   const [faceDetected, setFaceDetected] = useState(false);
   const [cameraPermission, setCameraPermission] = useState<'granted' | 'denied' | 'pending'>('pending');
   const [detectionInterval, setDetectionInterval] = useState<NodeJS.Timeout | null>(null);
+  const [detectedEmotion, setDetectedEmotion] = useState<string>('neutral');
   
   // Initialize face recognition
   useEffect(() => {
@@ -128,14 +132,26 @@ const FaceRecognition: React.FC<FaceRecognitionProps> = ({
       if (randomFaceDetection) {
         if (!faceDetected) {
           setFaceDetected(true);
-          onFaceDetected?.({
+          
+          // Generate a random emotion for demonstration
+          const emotions = ['happy', 'sad', 'neutral', 'surprised', 'angry'];
+          const randomEmotionIndex = Math.floor(Math.random() * emotions.length);
+          const emotion = emotions[randomEmotionIndex];
+          setDetectedEmotion(emotion);
+          
+          // In a real implementation, we would analyze the face for emotions
+          // For now, we'll use our random emotion
+          const faceData = {
             confidence: 0.95,
             landmarks: {},
             expressions: {
-              neutral: 0.8,
-              happy: 0.2
+              [emotion]: 0.8,
+              neutral: 0.2
             }
-          });
+          };
+          
+          onFaceDetected?.(faceData);
+          onEmotionDetected?.(emotion.charAt(0).toUpperCase() + emotion.slice(1));
         }
         
         // Draw face box on canvas for visualization
@@ -172,6 +188,16 @@ const FaceRecognition: React.FC<FaceRecognitionProps> = ({
             context.beginPath();
             context.arc(centerX, centerY + 30, 3, 0, 2 * Math.PI);
             context.fill();
+            
+            // Add emotion text above the face box
+            context.fillStyle = '#33c3f0';
+            context.font = '14px Arial';
+            context.textAlign = 'center';
+            context.fillText(
+              `${detectedEmotion.charAt(0).toUpperCase() + detectedEmotion.slice(1)}`, 
+              centerX, 
+              centerY - boxHeight/2 - 10
+            );
           }
         }
       } else if (faceDetected) {
@@ -197,7 +223,7 @@ const FaceRecognition: React.FC<FaceRecognitionProps> = ({
         clearInterval(detectionInterval);
       }
     };
-  }, [isActive, isInitialized, cameraPermission, faceDetected, onFaceDetected, onFaceNotDetected]);
+  }, [isActive, isInitialized, cameraPermission, faceDetected, onFaceDetected, onFaceNotDetected, onEmotionDetected]);
   
   return (
     <div className="relative w-full">
