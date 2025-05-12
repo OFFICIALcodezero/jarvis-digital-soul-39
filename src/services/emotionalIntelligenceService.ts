@@ -3,7 +3,7 @@ import OpenAI from 'openai';
 
 // Initialize OpenAI client with API key
 const openai = new OpenAI({
-  apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
+  apiKey: import.meta.env.VITE_OPENAI_API_KEY || 'dummy-key',
   dangerouslyAllowBrowser: true,
 });
 
@@ -22,6 +22,7 @@ export type SentimentData = {
   score: number;  // -1 (negative) to 1 (positive)
   label: 'positive' | 'negative' | 'neutral';
   confidence: number;
+  type: string;  // Added for compatibility with existing code
 };
 
 // Function to analyze emotion in text using OpenAI
@@ -94,7 +95,7 @@ export const analyzeEmotion = async (text: string): Promise<EmotionData> => {
   }
 };
 
-// Alias for analyzeEmotion to maintain compatibility with other files
+// Create alias for analyzeEmotion for backward compatibility
 export const analyzeTextEmotions = analyzeEmotion;
 
 // Analyze emotions from facial expressions data
@@ -139,7 +140,7 @@ export const analyzeSentiment = (text: string): SentimentData => {
   
   const total = positiveScore + negativeScore;
   if (total === 0) {
-    return { score: 0, label: 'neutral', confidence: 0.5 };
+    return { score: 0, label: 'neutral', confidence: 0.5, type: 'neutral' };
   }
   
   const score = (positiveScore - negativeScore) / total;
@@ -150,7 +151,7 @@ export const analyzeSentiment = (text: string): SentimentData => {
   
   const confidence = Math.abs(score) * 0.8 + 0.2;
   
-  return { score, label, confidence };
+  return { score, label, confidence, type: label };
 };
 
 // Analyze face attributes (age, gender)

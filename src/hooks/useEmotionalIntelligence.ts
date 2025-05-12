@@ -13,10 +13,11 @@ export const useEmotionalIntelligence = () => {
   }[]>([]);
 
   // Process text to detect emotions and sentiment
-  const processText = useCallback((text: string) => {
+  const processText = useCallback(async (text: string) => {
     if (!text.trim()) return;
     
-    const detectedEmotions = analyzeTextEmotions(text);
+    // Use await to resolve the promise before setting state
+    const detectedEmotions = await analyzeTextEmotions(text);
     const detectedSentiment = analyzeSentiment(text);
     
     setEmotions(detectedEmotions);

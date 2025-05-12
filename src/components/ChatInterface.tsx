@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Mic, Upload, Terminal, Heart, Brain, Camera, Globe, Calendar, Mail, VolumeX, Volume2 } from 'lucide-react';
 import { logToSupabase } from '../supabase'; // Correctly importing from our new mock file
@@ -73,10 +72,13 @@ const ChatInterface = () => {
       const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
       window.open(url, "_blank");
 
-      // Make this an immediately invoked async function to use await
-      (async () => {
-        await logToSupabase(input, "Play YouTube video", url, "neutral");
-      })();
+      // Use a regular function instead of an immediately invoked async function
+      const logResult = () => {
+        logToSupabase(input, "Play YouTube video", url, "neutral")
+          .catch(err => console.error("Error logging to Supabase:", err));
+      };
+      
+      logResult();
 
       setInput('');
       return; // Stop further processing
