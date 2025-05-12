@@ -20,7 +20,8 @@ const JarvisChatMain: React.FC<JarvisChatMainProps> = ({
     activeAssistant,
     inputMode, 
     setInputMode,
-    isSpeaking
+    isSpeaking,
+    activeMode
   } = useJarvisChat();
   
   const [input, setInput] = useState("");
@@ -112,10 +113,10 @@ const JarvisChatMain: React.FC<JarvisChatMainProps> = ({
     }
   }, [isSpeaking, isListening, inputMode, startListening, stopListening]);
 
-  // Start listening automatically when in voice mode
+  // Start listening automatically only when in voice mode, not in face mode
   useEffect(() => {
-    if (inputMode === 'voice' && !isListening && !isProcessing && !isSpeaking) {
-      console.log("Starting voice listening automatically");
+    if (inputMode === 'voice' && !isListening && !isProcessing && !isSpeaking && activeMode !== 'face') {
+      console.log("Starting voice listening automatically in voice mode");
       startListening();
     } else if (inputMode === 'text' && isListening) {
       console.log("Switching to text mode, stopping voice recognition");
@@ -129,7 +130,7 @@ const JarvisChatMain: React.FC<JarvisChatMainProps> = ({
         stopListening();
       }
     };
-  }, [inputMode, isListening, isProcessing, isSpeaking, startListening, stopListening]);
+  }, [inputMode, isListening, isProcessing, isSpeaking, startListening, stopListening, activeMode]);
 
   // Return suggestions based on context
   const getSuggestions = (): string[] => {
