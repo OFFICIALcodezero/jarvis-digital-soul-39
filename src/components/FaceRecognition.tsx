@@ -287,7 +287,7 @@ const FaceRecognition: React.FC<FaceRecognitionProps> = ({
       }
     }, 1000); // Run detection every second
     
-    setDetectionInterval(stableFaceDetection);
+    setDetectionInterval(runDetection);
     
     // Cleanup function
     return () => {

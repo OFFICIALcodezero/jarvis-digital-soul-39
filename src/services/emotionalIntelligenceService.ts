@@ -1,6 +1,24 @@
 
 import * as tf from '@tensorflow/tfjs';
 
+// Define the emotion data types
+export interface EmotionData {
+  joy: number;
+  surprise: number;
+  anger: number;
+  sadness: number;
+  neutral: number;
+  dominant: string;
+  [key: string]: number | string;
+}
+
+// Define the sentiment data types
+export interface SentimentData {
+  score: number;
+  comparative?: number;
+  type: string;
+}
+
 // Analyze emotions from face data
 export const analyzeEmotions = (faceData: any): string => {
   // Simple mapping function that would normally use ML models
@@ -16,6 +34,46 @@ export const analyzeEmotions = (faceData: any): string => {
   );
 
   return dominantEmotion[0];
+};
+
+// Analyze sentiment from text
+export const analyzeSentiment = (text: string): SentimentData => {
+  // In a real implementation, this would use NLP to determine sentiment
+  // For demo purposes, we'll do simple keyword matching
+  
+  const positiveWords = ['good', 'great', 'excellent', 'happy', 'positive', 'wonderful', 'nice', 'love', 'like'];
+  const negativeWords = ['bad', 'terrible', 'awful', 'sad', 'negative', 'horrible', 'hate', 'dislike'];
+  
+  const words = text.toLowerCase().split(/\s+/);
+  
+  let positiveCount = 0;
+  let negativeCount = 0;
+  
+  words.forEach(word => {
+    if (positiveWords.includes(word)) positiveCount++;
+    if (negativeWords.includes(word)) negativeCount++;
+  });
+  
+  const totalWords = words.length || 1; // Avoid division by zero
+  const positiveRatio = positiveCount / totalWords;
+  const negativeRatio = negativeCount / totalWords;
+  
+  let score = 0.5; // Neutral default
+  let type = 'neutral';
+  
+  if (positiveCount > negativeCount) {
+    score = 0.5 + (positiveRatio * 0.5);
+    type = 'positive';
+  } else if (negativeCount > positiveCount) {
+    score = 0.5 - (negativeRatio * 0.5);
+    type = 'negative';
+  }
+  
+  return {
+    score,
+    comparative: (positiveCount - negativeCount) / totalWords,
+    type
+  };
 };
 
 // Analyze age and gender from face data
