@@ -1,7 +1,5 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Mic, Upload, Terminal, Heart, Brain, Camera, Globe, Calendar, Mail, VolumeX, Volume2 } from 'lucide-react';
-import React, { useState } from 'react';
 import { logToSupabase } from '../supabase'; // Make sure the path is correct to your supabase.js
 
 type Message = {
