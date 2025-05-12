@@ -24,6 +24,7 @@ const FaceRecognition: React.FC<FaceRecognitionProps> = ({
   const [isInitialized, setIsInitialized] = useState(false);
   const [faceDetected, setFaceDetected] = useState(false);
   const [cameraPermission, setCameraPermission] = useState<'granted' | 'denied' | 'pending'>('pending');
+  const [detectionInterval, setDetectionInterval] = useState<NodeJS.Timeout | null>(null);
   
   // Initialize face recognition
   useEffect(() => {
@@ -106,30 +107,36 @@ const FaceRecognition: React.FC<FaceRecognitionProps> = ({
     };
   }, [isActive, isInitialized, onError]);
   
-  // Detect faces when webcam is active
+  // Detect faces when webcam is active - with stabilization to prevent flicker
   useEffect(() => {
     if (!isActive || !isInitialized || cameraPermission !== 'granted') return;
     
     let animationFrameId: number;
-    let faceCheckInterval: NodeJS.Timeout;
     
-    const detectFaces = async () => {
+    // Use consistent detection status with debounce mechanism
+    if (detectionInterval) {
+      clearInterval(detectionInterval);
+    }
+    
+    const stableFaceDetection = setInterval(() => {
       // Simulated face detection for demo purposes
       // In a real implementation, we would use face-api.js here
       
-      // Simulate face detection by randomly detecting faces
-      const randomFaceDetection = Math.random() > 0.3; // 70% chance of detecting a face
+      // Simulate face detection with higher probability of success (90%)
+      const randomFaceDetection = Math.random() > 0.1; 
       
       if (randomFaceDetection) {
-        setFaceDetected(true);
-        onFaceDetected?.({
-          confidence: 0.95,
-          landmarks: {},
-          expressions: {
-            neutral: 0.8,
-            happy: 0.2
-          }
-        });
+        if (!faceDetected) {
+          setFaceDetected(true);
+          onFaceDetected?.({
+            confidence: 0.95,
+            landmarks: {},
+            expressions: {
+              neutral: 0.8,
+              happy: 0.2
+            }
+          });
+        }
         
         // Draw face box on canvas for visualization
         if (canvasRef.current && videoRef.current) {
@@ -167,7 +174,7 @@ const FaceRecognition: React.FC<FaceRecognitionProps> = ({
             context.fill();
           }
         }
-      } else {
+      } else if (faceDetected) {
         setFaceDetected(false);
         onFaceNotDetected?.();
         
@@ -179,32 +186,16 @@ const FaceRecognition: React.FC<FaceRecognitionProps> = ({
           }
         }
       }
-      
-      // Continue detection loop
-      animationFrameId = requestAnimationFrame(detectFaces);
-    };
+    }, 1000); // More stable interval for detection status changes
     
-    // Start detection loop
-    detectFaces();
-    
-    // Interval to report consistent detection to parent
-    faceCheckInterval = setInterval(() => {
-      if (faceDetected) {
-        onFaceDetected?.({
-          confidence: 0.95,
-          landmarks: {},
-          expressions: {
-            neutral: 0.8,
-            happy: 0.2
-          }
-        });
-      }
-    }, 2000);
+    setDetectionInterval(stableFaceDetection);
     
     // Cleanup function
     return () => {
       cancelAnimationFrame(animationFrameId);
-      clearInterval(faceCheckInterval);
+      if (detectionInterval) {
+        clearInterval(detectionInterval);
+      }
     };
   }, [isActive, isInitialized, cameraPermission, faceDetected, onFaceDetected, onFaceNotDetected]);
   
