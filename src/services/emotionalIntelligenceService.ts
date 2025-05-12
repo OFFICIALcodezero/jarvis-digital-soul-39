@@ -1,4 +1,3 @@
-
 // Define the emotion data types
 export interface EmotionData {
   joy: number;

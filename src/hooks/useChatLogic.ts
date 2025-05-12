@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { toast } from '@/components/ui/use-toast';
 import { getApiKey } from '../utils/apiKeyManager';
@@ -104,7 +103,7 @@ export const useChatLogic = (
     
     try {
       // Analyze emotions for emotional intelligence
-      const emotions = analyzeEmotions(message);
+      const emotions = analyzeTextEmotions(message);
       const sentiment = analyzeSentiment(message);
       setEmotionalData({ emotions, sentiment });
       
