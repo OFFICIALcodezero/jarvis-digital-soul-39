@@ -68,10 +68,10 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
           <div key={message.id} className={`mb-4 ${message.role === 'user' ? 'text-right' : ''}`}>
             <Card className={`inline-block p-3 max-w-[80%] ${
               message.role === 'user' ? 
-                'bg-blue-600/20 border-blue-500/30' : 
+                'bg-purple-600/30 border-purple-500/50 text-white shadow-purple-500/20 shadow-md' : 
                 hackerMode ? 
-                  'bg-red-900/20 border-red-500/30' : 
-                  'bg-[#33c3f0]/20 border-[#33c3f0]/30'
+                  'bg-red-900/20 border-red-500/30 shadow-red-500/20 shadow-md' : 
+                  'bg-[#33c3f0]/30 border-[#33c3f0]/40 shadow-[#33c3f0]/20 shadow-md'
             }`}>
               <p>{message.content}</p>
             </Card>
@@ -81,7 +81,9 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
         {isTyping && (
           <div className="mb-4">
             <Card className={`inline-block p-3 max-w-[80%] ${
-              hackerMode ? 'bg-red-900/20 border-red-500/30' : 'bg-[#33c3f0]/20 border-[#33c3f0]/30'
+              hackerMode ? 
+                'bg-red-900/20 border-red-500/30 shadow-red-500/20 shadow-md' : 
+                'bg-[#33c3f0]/30 border-[#33c3f0]/40 shadow-[#33c3f0]/20 shadow-md'
             }`}>
               <p>{currentTypingText}</p>
             </Card>
@@ -90,8 +92,8 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
         
         {detectedEmotion && (
           <div className="mb-4 text-center">
-            <Card className="inline-block p-2 bg-jarvis/20 border-jarvis/30">
-              <p className="text-sm">Detected Emotion: <span className="font-semibold">{detectedEmotion}</span></p>
+            <Card className="inline-block p-2 bg-jarvis/20 border-jarvis/30 shadow-jarvis/20 shadow-md">
+              <p className="text-sm">Detected Emotion: <span className="font-semibold text-jarvis">{detectedEmotion}</span></p>
             </Card>
           </div>
         )}
@@ -111,8 +113,10 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
           <button
             onClick={handleSendMessage}
             className={`px-4 py-2 rounded-r ${
-              hackerMode ? 'bg-red-600 hover:bg-red-700' : 'bg-[#33c3f0] hover:bg-[#33c3f0]/80'
-            } text-white`}
+              hackerMode ? 
+                'bg-red-600 hover:bg-red-700 shadow-red-500/30 shadow-md' : 
+                'bg-[#8B5CF6] hover:bg-[#8B5CF6]/80 shadow-[#8B5CF6]/30 shadow-md'
+            } text-white transition-colors`}
             disabled={isProcessing}
           >
             Send
@@ -123,10 +127,12 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
         <div className="mt-2 flex justify-between items-center">
           <button
             onClick={toggleListening}
-            className={`px-4 py-1 rounded ${
+            className={`px-4 py-1 rounded transition-colors shadow-md ${
               isListening ?
-                (hackerMode ? 'bg-red-600 text-white' : 'bg-green-600 text-white') :
-                'bg-gray-700 text-gray-300'
+                (hackerMode ? 
+                  'bg-red-600 text-white shadow-red-500/30' : 
+                  'bg-green-600 text-white shadow-green-500/30') :
+                'bg-gray-700 text-gray-300 shadow-gray-800/30'
             }`}
           >
             {isListening ? 'Listening...' : 'Start Listening'}
