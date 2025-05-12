@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, Mic, Upload, Terminal, Heart, Brain, Camera, Globe, Calendar, Mail, VolumeX, Volume2 } from 'lucide-react';
 import React, { useState } from 'react';
 import { logToSupabase } from '../supabase'; // Make sure the path is correct to your supabase.js
+import YouTube from 'react-youtube';
 
 
 type Message = {
@@ -15,6 +16,8 @@ type Message = {
 type JarvisMode = 'assistant' | 'hacker' | 'girlfriend' | 'translator' | 'vision';
 
 const ChatInterface = () => {
+  const [input, setInput] = useState('');
+  const [youtubeId, setYoutubeId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 0, 
@@ -67,36 +70,48 @@ const ChatInterface = () => {
   const handleSendMessage = () => {
     if (input.trim() === '') return;
 
-    if (input.toLowerCase().startsWith("play ")) {
-  const query = input.replace("play", "").trim();
-  const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
-  window.open(url, "_blank");
-
-  await logToSupabase(input, "Play YouTube video", url, "neutral");
-
-  setInput(""); // Clear the input box
-  return; // Exit to prevent further processing
-}
-    
     const inputLower = input.toLowerCase();
 
-    // Handle play YouTube command
     if (inputLower.startsWith("play ")) {
-      const query = inputLower.replace("play", "").trim();
-      const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
-      window.open(url, "_blank");
+      const query = input.replace("play", "").trim();
 
-      // Use a regular function instead of an immediately invoked async function
-      const logResult = () => {
-        logToSupabase(input, "Play YouTube video", url, "neutral")
-          .catch(err => console.error("Error logging to Supabase:", err));
-      };
-      
-      logResult();
+      // Embed specific known video
+      if (query.includes("believer")) {
+        setYoutubeId("7wtfhZwyrcc"); // Believer - Imagine Dragons
+      } else {
+        const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
+        window.open(searchUrl, "_blank");
+      }
 
+      await logToSupabase(input, "Play YouTube video", query, "neutral");
       setInput('');
-      return; // Stop further processing
+      return;
     }
+
+    // Continue with other command handling if needed...
+  };
+
+  return (
+    <div className="chat-interface">
+      <input
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+        placeholder="Type a message..."
+        className="input-box"
+      />
+      <button onClick={handleSendMessage}>Send</button>
+
+      {youtubeId && (
+        <div className="my-4">
+          <YouTube videoId={youtubeId} />
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ChatInterface;
 
     const newUserMessage: Message = {
       id: messages.length,
