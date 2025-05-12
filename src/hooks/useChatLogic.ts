@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from 'react';
 import { toast } from '@/components/ui/use-toast';
 import { getApiKey } from '../utils/apiKeyManager';
@@ -6,7 +7,7 @@ import { generateAssistantResponse } from '@/services/aiAssistantService';
 import { getUserMemory, updateUserMemory } from '@/services/aiService';
 import { AssistantType } from '@/pages/JarvisInterface';
 import { processSkillCommand, isSkillCommand } from '@/services/skillsService';
-import { analyzeTextEmotions as analyzeEmotions, analyzeSentiment } from '@/services/emotionalIntelligenceService';
+import { analyzeTextEmotions, analyzeSentiment } from '@/services/emotionalIntelligenceService';
 import { detectLanguage } from '@/services/languageService';
 import { parseTaskFromText } from '@/services/taskManagementService';
 

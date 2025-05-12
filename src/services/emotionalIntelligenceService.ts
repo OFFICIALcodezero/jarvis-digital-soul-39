@@ -1,6 +1,4 @@
 
-import * as tf from '@tensorflow/tfjs';
-
 // Define the emotion data types
 export interface EmotionData {
   joy: number;
@@ -229,14 +227,12 @@ export const detectObjects = async (imageElement: HTMLImageElement | HTMLVideoEl
 export const initializeModels = async (): Promise<boolean> => {
   try {
     // In a real implementation, this would load TensorFlow.js models
-    console.log('Initializing TensorFlow.js models...');
+    console.log('Initializing AI models...');
     
     // Simulate model loading time
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    // Load TensorFlow.js
-    await tf.ready();
-    console.log('TensorFlow.js is ready');
+    console.log('AI models are ready');
     
     return true;
   } catch (error) {

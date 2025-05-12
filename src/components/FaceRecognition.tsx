@@ -3,7 +3,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { toast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
 import { Eye, EyeOff } from 'lucide-react';
-import { analyzeEmotions, analyzeFaceAttributes, detectObjects, initializeModels } from '@/services/emotionalIntelligenceService';
+import { analyzeEmotions, analyzeFaceAttributes, detectObjects, initializeModels, EmotionData } from '@/services/emotionalIntelligenceService';
 
 interface FaceRecognitionProps {
   onFaceDetected?: (faceData: any) => void;
@@ -168,9 +168,14 @@ const FaceRecognition: React.FC<FaceRecognitionProps> = ({
             }
             
             // Analyze emotion
-            const emotion = analyzeEmotions(mockFaceData);
-            setDetectedEmotion(emotion);
-            onEmotionDetected?.(emotion.charAt(0).toUpperCase() + emotion.slice(1));
+            const emotionData = analyzeEmotions(mockFaceData);
+            // Extract the dominant emotion string from emotionData
+            setDetectedEmotion(emotionData.dominant);
+            if (onEmotionDetected) {
+              // Properly format the first letter to uppercase
+              const emotionStr = emotionData.dominant.charAt(0).toUpperCase() + emotionData.dominant.slice(1);
+              onEmotionDetected(emotionStr);
+            }
             
             // Analyze age and gender
             const attributes = await analyzeFaceAttributes(mockFaceData);
