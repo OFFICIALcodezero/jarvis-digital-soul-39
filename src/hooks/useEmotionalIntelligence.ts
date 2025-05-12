@@ -1,5 +1,6 @@
+
 import { useState, useCallback, useEffect } from 'react';
-import { analyzeEmotions, analyzeSentiment, EmotionData, SentimentData } from '@/services/emotionalIntelligenceService';
+import { analyzeTextEmotions, analyzeSentiment, EmotionData, SentimentData } from '@/services/emotionalIntelligenceService';
 
 export const useEmotionalIntelligence = () => {
   const [emotions, setEmotions] = useState<EmotionData | null>(null);
@@ -15,7 +16,7 @@ export const useEmotionalIntelligence = () => {
   const processText = useCallback((text: string) => {
     if (!text.trim()) return;
     
-    const detectedEmotions = analyzeEmotions(text);
+    const detectedEmotions = analyzeTextEmotions(text);
     const detectedSentiment = analyzeSentiment(text);
     
     setEmotions(detectedEmotions);

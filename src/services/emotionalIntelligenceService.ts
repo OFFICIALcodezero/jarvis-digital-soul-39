@@ -20,10 +20,17 @@ export interface SentimentData {
 }
 
 // Analyze emotions from face data
-export const analyzeEmotions = (faceData: any): string => {
+export const analyzeEmotions = (faceData: any): EmotionData => {
   // Simple mapping function that would normally use ML models
   if (!faceData || !faceData.expressions) {
-    return 'neutral';
+    return {
+      joy: 0,
+      surprise: 0,
+      anger: 0,
+      sadness: 0,
+      neutral: 1,
+      dominant: 'neutral'
+    };
   }
 
   // Find the emotion with highest confidence
@@ -33,7 +40,73 @@ export const analyzeEmotions = (faceData: any): string => {
     ['neutral', 0]
   );
 
-  return dominantEmotion[0];
+  // Create a proper EmotionData object
+  const emotionData: EmotionData = {
+    joy: expressions.happy || 0,
+    surprise: expressions.surprised || 0,
+    anger: expressions.angry || 0,
+    sadness: expressions.sad || 0,
+    neutral: expressions.neutral || 0,
+    dominant: dominantEmotion[0]
+  };
+  
+  return emotionData;
+};
+
+// Analyze emotions from text
+export const analyzeTextEmotions = (text: string): EmotionData => {
+  // In a real implementation, this would use NLP to determine emotions
+  // For demo purposes, we'll do simple keyword matching
+  
+  const emotionKeywords = {
+    joy: ['happy', 'joy', 'excellent', 'good', 'great', 'wonderful'],
+    surprise: ['wow', 'surprised', 'amazing', 'unexpected'],
+    anger: ['angry', 'mad', 'furious', 'annoyed'],
+    sadness: ['sad', 'unhappy', 'depressed', 'disappointed'],
+    neutral: ['okay', 'fine', 'neutral']
+  };
+  
+  const lowerText = text.toLowerCase();
+  const words = lowerText.split(/\s+/);
+  
+  const emotionScores: Record<string, number> = {
+    joy: 0,
+    surprise: 0,
+    anger: 0,
+    sadness: 0,
+    neutral: 0.2, // Default small neutral bias
+  };
+  
+  // Count emotion keywords
+  words.forEach(word => {
+    Object.entries(emotionKeywords).forEach(([emotion, keywords]) => {
+      if (keywords.includes(word)) {
+        emotionScores[emotion] += 0.3; // Increase score for each keyword found
+      }
+    });
+  });
+  
+  // Find the dominant emotion
+  let dominantEmotion = 'neutral';
+  let maxScore = 0;
+  
+  Object.entries(emotionScores).forEach(([emotion, score]) => {
+    if (score > maxScore) {
+      maxScore = score;
+      dominantEmotion = emotion;
+    }
+  });
+  
+  // Normalize scores
+  const totalScore = Object.values(emotionScores).reduce((sum, score) => sum + score, 0) || 1;
+  Object.keys(emotionScores).forEach(key => {
+    emotionScores[key] = emotionScores[key] / totalScore;
+  });
+  
+  return {
+    ...emotionScores,
+    dominant: dominantEmotion
+  };
 };
 
 // Analyze sentiment from text
