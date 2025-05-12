@@ -66,12 +66,10 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
         {/* Messages list */}
         {messages.map(message => (
           <div key={message.id} className={`mb-4 ${message.role === 'user' ? 'text-right' : ''}`}>
-            <Card className={`inline-block p-3 max-w-[80%] ${
+            <Card className={`inline-block p-3 max-w-[80%] text-white ${
               message.role === 'user' ? 
-                'bg-blue-600/20 border-blue-500/30' : 
-                hackerMode ? 
-                  'bg-red-900/20 border-red-500/30' : 
-                  'bg-[#33c3f0]/20 border-[#33c3f0]/30'
+                hackerMode ? 'bg-transparent border-red-500/30' : 'bg-transparent border-[#33c3f0]/30' :
+                hackerMode ? 'bg-transparent border-red-500/30' : 'bg-transparent border-[#33c3f0]/30'
             }`}>
               <p>{message.content}</p>
             </Card>
@@ -80,8 +78,8 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
         
         {isTyping && (
           <div className="mb-4">
-            <Card className={`inline-block p-3 max-w-[80%] ${
-              hackerMode ? 'bg-red-900/20 border-red-500/30' : 'bg-[#33c3f0]/20 border-[#33c3f0]/30'
+            <Card className={`inline-block p-3 max-w-[80%] text-white ${
+              hackerMode ? 'bg-transparent border-red-500/30' : 'bg-transparent border-[#33c3f0]/30'
             }`}>
               <p>{currentTypingText}</p>
             </Card>
@@ -90,7 +88,7 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
         
         {detectedEmotion && (
           <div className="mb-4 text-center">
-            <Card className="inline-block p-2 bg-jarvis/20 border-jarvis/30">
+            <Card className="inline-block p-2 bg-transparent border-jarvis/30 text-white">
               <p className="text-sm">Detected Emotion: <span className="font-semibold">{detectedEmotion}</span></p>
             </Card>
           </div>

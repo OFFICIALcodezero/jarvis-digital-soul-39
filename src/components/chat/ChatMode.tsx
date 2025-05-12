@@ -34,7 +34,7 @@ const ChatMode: React.FC<ChatModeProps> = ({
             return (
               <div key={message.id} className="flex justify-start">
                 <div className="w-full max-w-[80%]">
-                  <div className={`${hackerMode ? 'bg-red-500/10 border-red-500/30' : 'bg-jarvis/5 border-jarvis/10'} p-2 rounded-t-lg rounded-b-none border`}>
+                  <div className={`${hackerMode ? 'bg-transparent border-red-500/30' : 'bg-transparent border-jarvis/10'} p-2 rounded-t-lg rounded-b-none border`}>
                     <span className={`${hackerMode ? 'hacker-text' : 'text-white'} text-xs`}>
                       Here is the image I created based on your prompt:
                     </span>
@@ -54,11 +54,11 @@ const ChatMode: React.FC<ChatModeProps> = ({
                 className={`max-w-[80%] rounded-lg px-4 py-2 ${
                   message.role === "user"
                     ? hackerMode 
-                      ? "bg-red-500/20 text-white border border-red-500/30" 
-                      : "bg-jarvis/20 text-white"
+                      ? "bg-transparent text-white border border-red-500/30" 
+                      : "bg-transparent text-white border border-jarvis/30"
                     : hackerMode 
-                      ? "bg-black/50 text-red-400 border border-red-500/30" 
-                      : "bg-jarvis/10 text-white"
+                      ? "bg-transparent text-red-400 border border-red-500/30" 
+                      : "bg-transparent text-white border border-jarvis/30"
                   }`}
               >
                 {message.content}
@@ -70,8 +70,8 @@ const ChatMode: React.FC<ChatModeProps> = ({
           <div className="flex justify-start">
             <div className={`max-w-[80%] rounded-lg px-4 py-2 ${
               hackerMode 
-                ? "bg-black/50 text-red-400 border border-red-500/30" 
-                : "bg-jarvis/10 text-white"
+                ? "bg-transparent text-red-400 border border-red-500/30" 
+                : "bg-transparent text-white border border-jarvis/30"
             }`}>
               {currentTypingText}
               <span className="animate-ping">_</span>
