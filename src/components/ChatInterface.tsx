@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Mic, Upload, Terminal, Heart, Brain, Camera, Globe, Calendar, Mail, VolumeX, Volume2 } from 'lucide-react';
-import { logToSupabase } from '../supabase'; // Correctly importing from our new mock file
+import React, { useState } from 'react';
+import { logToSupabase } from '../supabase'; // Make sure the path is correct to your supabase.js
+
 
 type Message = {
   id: number;
@@ -64,6 +66,17 @@ const ChatInterface = () => {
   const handleSendMessage = () => {
     if (input.trim() === '') return;
 
+    if (input.toLowerCase().startsWith("play ")) {
+  const query = input.replace("play", "").trim();
+  const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
+  window.open(url, "_blank");
+
+  await logToSupabase(input, "Play YouTube video", url, "neutral");
+
+  setInput(""); // Clear the input box
+  return; // Exit to prevent further processing
+}
+    
     const inputLower = input.toLowerCase();
 
     // Handle play YouTube command
