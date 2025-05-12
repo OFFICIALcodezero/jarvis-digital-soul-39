@@ -1,6 +1,7 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Mic, Upload, Terminal, Heart, Brain, Camera, Globe, Calendar, Mail, VolumeX, Volume2 } from 'lucide-react';
-import { logToSupabase } from '../supabase'; // Make sure the path is correct to your supabase.js
+import { logToSupabase } from '../supabase'; // Correctly importing from our new mock file
 
 type Message = {
   id: number;
@@ -66,16 +67,20 @@ const ChatInterface = () => {
 
     const inputLower = input.toLowerCase();
 
-if (inputLower.startsWith("play ")) {
-  const query = inputLower.replace("play", "").trim();
-  const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
-  window.open(url, "_blank");
+    // Handle play YouTube command
+    if (inputLower.startsWith("play ")) {
+      const query = inputLower.replace("play", "").trim();
+      const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
+      window.open(url, "_blank");
 
-  await logToSupabase(input, "Play YouTube video", url, "neutral");
+      // Make this an immediately invoked async function to use await
+      (async () => {
+        await logToSupabase(input, "Play YouTube video", url, "neutral");
+      })();
 
-  setInput('');
-  return; // Stop further processing
-}
+      setInput('');
+      return; // Stop further processing
+    }
 
     const newUserMessage: Message = {
       id: messages.length,
