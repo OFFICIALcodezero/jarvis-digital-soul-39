@@ -1,10 +1,8 @@
-import React from 'react';
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Mic, Upload, Terminal, Heart, Brain, Camera, Globe, Calendar, Mail, VolumeX, Volume2 } from 'lucide-react';
-import React, { useState } from 'react';
 import { logToSupabase } from '../supabase'; // Make sure the path is correct to your supabase.js
 import YouTube from 'react-youtube';
-
 
 type Message = {
   id: number;
@@ -26,7 +24,6 @@ const ChatInterface = () => {
       timestamp: new Date()
     }
   ]);
-  const [input, setInput] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [jarvisMode, setJarvisMode] = useState<JarvisMode>('assistant');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -67,7 +64,7 @@ const ChatInterface = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, hackerOutput]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (input.trim() === '') return;
 
     const inputLower = input.toLowerCase();
@@ -87,31 +84,6 @@ const ChatInterface = () => {
       setInput('');
       return;
     }
-
-    // Continue with other command handling if needed...
-  };
-
-  return (
-    <div className="chat-interface">
-      <input
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-        placeholder="Type a message..."
-        className="input-box"
-      />
-      <button onClick={handleSendMessage}>Send</button>
-
-      {youtubeId && (
-        <div className="my-4">
-          <YouTube videoId={youtubeId} />
-        </div>
-      )}
-    </div>
-  );
-};
-
-export default ChatInterface;
 
     const newUserMessage: Message = {
       id: messages.length,
@@ -456,6 +428,33 @@ export default ChatInterface;
           <span>{isRecording ? "Listening..." : isSpeaking ? "Speaking..." : "Ready"}</span>
         </div>
       </div>
+
+      {/* YouTube Video Display */}
+      {youtubeId && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+          <div className="relative max-w-3xl w-full p-2">
+            <button 
+              onClick={() => setYoutubeId(null)} 
+              className="absolute right-4 top-2 text-white hover:text-red-500 z-10"
+            >
+              Close
+            </button>
+            <div className="aspect-video">
+              <YouTube 
+                videoId={youtubeId} 
+                className="w-full h-full"
+                opts={{
+                  width: '100%',
+                  height: '100%',
+                  playerVars: {
+                    autoplay: 1,
+                  },
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
