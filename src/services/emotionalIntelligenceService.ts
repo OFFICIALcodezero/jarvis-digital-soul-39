@@ -1,11 +1,19 @@
 
 import OpenAI from 'openai';
 
-// Initialize OpenAI client with API key
-const openai = new OpenAI({
-  apiKey: import.meta.env.VITE_OPENAI_API_KEY || 'dummy-key',
-  dangerouslyAllowBrowser: true,
-});
+// Initialize OpenAI client with API key if available
+let openai: OpenAI | null = null;
+try {
+  const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+  if (apiKey && apiKey !== 'dummy-key') {
+    openai = new OpenAI({
+      apiKey,
+      dangerouslyAllowBrowser: true,
+    });
+  }
+} catch (error) {
+  console.warn('Failed to initialize OpenAI client:', error);
+}
 
 // Define the EmotionData type
 export type EmotionData = {
@@ -25,75 +33,109 @@ export type SentimentData = {
   type: string;  // Added for compatibility with existing code
 };
 
-// Function to analyze emotion in text using OpenAI
+// Function to analyze emotion in text using OpenAI or a fallback mechanism
 export const analyzeEmotion = async (text: string): Promise<EmotionData> => {
   try {
-    const prompt = `Analyze the sentiment of the following text and provide a breakdown of the emotions detected.
-      Text: "${text}"
-      Respond with a JSON object that includes the dominant emotion and the intensity of each emotion (joy, surprise, anger, sadness, neutral) as a percentage.`;
+    // If OpenAI client is available, use it
+    if (openai) {
+      const prompt = `Analyze the sentiment of the following text and provide a breakdown of the emotions detected.
+        Text: "${text}"
+        Respond with a JSON object that includes the dominant emotion and the intensity of each emotion (joy, surprise, anger, sadness, neutral) as a percentage.`;
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [
-        {
-          role: "system",
-          content: "You are an AI trained to analyze emotions in text.",
-        },
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-      response_format: { type: "json_object" },
-    });
+      const completion = await openai.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [
+          {
+            role: "system",
+            content: "You are an AI trained to analyze emotions in text.",
+          },
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+        response_format: { type: "json_object" },
+      });
 
-    const content = completion.choices[0].message?.content;
+      const content = completion.choices[0].message?.content;
 
-    if (content) {
-      try {
-        const emotionData = JSON.parse(content);
-        return {
-          dominant: emotionData.dominant || "neutral",
-          joy: emotionData.joy || 0,
-          surprise: emotionData.surprise || 0,
-          anger: emotionData.anger || 0,
-          sadness: emotionData.sadness || 0,
-          neutral: emotionData.neutral || 0,
-        };
-      } catch (error) {
-        console.error("Error parsing JSON response:", error);
-        return {
-          dominant: "neutral",
-          joy: 0,
-          surprise: 0,
-          anger: 0,
-          sadness: 0,
-          neutral: 1,
-        };
+      if (content) {
+        try {
+          const emotionData = JSON.parse(content);
+          return {
+            dominant: emotionData.dominant || "neutral",
+            joy: emotionData.joy || 0,
+            surprise: emotionData.surprise || 0,
+            anger: emotionData.anger || 0,
+            sadness: emotionData.sadness || 0,
+            neutral: emotionData.neutral || 0,
+          };
+        } catch (error) {
+          console.error("Error parsing JSON response:", error);
+          return createMockEmotionData(text);
+        }
+      } else {
+        console.warn("No content in OpenAI completion");
+        return createMockEmotionData(text);
       }
     } else {
-      console.warn("No content in OpenAI completion");
-      return {
-        dominant: "neutral",
-        joy: 0,
-        surprise: 0,
-        anger: 0, 
-        sadness: 0,
-        neutral: 1
-      };
+      // Use mock data if OpenAI is not available
+      console.info("OpenAI client not available, using mock emotion data");
+      return createMockEmotionData(text);
     }
   } catch (error) {
     console.error("Error analyzing emotion:", error);
-    return {
-      dominant: "neutral",
-      joy: 0,
-      surprise: 0,
-      anger: 0,
-      sadness: 0,
-      neutral: 1,
-    };
+    return createMockEmotionData(text);
   }
 };
+
+// Function to create mock emotion data
+function createMockEmotionData(text: string): EmotionData {
+  // Simple keyword-based detection for mock results
+  const lowerText = text.toLowerCase();
+  
+  // Default emotion distribution
+  let dominant = "neutral";
+  const emotions = {
+    joy: 0.1,
+    surprise: 0.1,
+    anger: 0.1,
+    sadness: 0.1,
+    neutral: 0.6
+  };
+
+  // Adjust based on keywords
+  if (lowerText.includes('happy') || lowerText.includes('glad') || lowerText.includes('excited')) {
+    dominant = "joy";
+    emotions.joy = 0.7;
+    emotions.neutral = 0.2;
+    emotions.surprise = 0.1;
+  } else if (lowerText.includes('sad') || lowerText.includes('depressed') || lowerText.includes('unhappy')) {
+    dominant = "sadness";
+    emotions.sadness = 0.7;
+    emotions.neutral = 0.2;
+    emotions.joy = 0.1;
+  } else if (lowerText.includes('angry') || lowerText.includes('mad') || lowerText.includes('furious')) {
+    dominant = "anger";
+    emotions.anger = 0.7;
+    emotions.neutral = 0.2;
+    emotions.surprise = 0.1;
+  } else if (lowerText.includes('wow') || lowerText.includes('amazing') || lowerText.includes('unexpected')) {
+    dominant = "surprise";
+    emotions.surprise = 0.7;
+    emotions.joy = 0.2;
+    emotions.neutral = 0.1;
+  }
+  
+  return {
+    dominant,
+    joy: emotions.joy,
+    surprise: emotions.surprise,
+    anger: emotions.anger,
+    sadness: emotions.sadness,
+    neutral: emotions.neutral
+  };
+}
 
 // Create alias for analyzeEmotion for backward compatibility
 export const analyzeTextEmotions = analyzeEmotion;
