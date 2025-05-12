@@ -1,34 +1,31 @@
 
-import React from 'react';
-import { Message } from '@/types/chat';
-import ChatMode from './ChatMode';
-import AudioControls from './AudioControls';
-import MessageInput from './MessageInput';
-import MessageSuggestions from './MessageSuggestions';
-import { AssistantType } from '@/pages/JarvisInterface';
+import React from "react";
+import { Message, LanguageOption } from "@/types/chat";
+import { Card } from "@/components/ui/card";
 
 interface ChatLayoutProps {
   messages: Message[];
   input: string;
-  setInput: (value: string) => void;
+  setInput: (input: string) => void;
   isTyping: boolean;
   currentTypingText: string;
   isProcessing: boolean;
   selectedLanguage: string;
-  onLanguageChange: (code: string) => void;
+  onLanguageChange: (languageCode: string) => void;
   audioPlaying: boolean;
   volume: number;
   onVolumeChange: (values: number[]) => void;
   stopSpeaking: () => void;
   toggleMute: () => void;
   isListening: boolean;
-  activeAssistant: AssistantType;
+  activeAssistant: string;
   inputMode: 'voice' | 'text';
   setInputMode: (mode: 'voice' | 'text') => void;
   handleSendMessage: () => void;
   getSuggestions: () => string[];
   hackerMode?: boolean;
-  toggleListening?: () => void;
+  toggleListening: () => void;
+  detectedEmotion?: string;
 }
 
 const ChatLayout: React.FC<ChatLayoutProps> = ({
@@ -51,58 +48,95 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
   setInputMode,
   handleSendMessage,
   getSuggestions,
-  hackerMode,
-  toggleListening
+  hackerMode = false,
+  toggleListening,
+  detectedEmotion
 }) => {
-  const chatModeProps = {
-    messages,
-    speakText: async () => {},
-    audioPlaying,
-    isTyping,
-    currentTypingText,
-    isProcessing,
-    selectedLanguage,
-    onLanguageChange,
-    hackerMode
-  };
+  // For demo purposes, we'll just log the emotion
+  React.useEffect(() => {
+    if (detectedEmotion) {
+      console.log("Detected emotion in ChatLayout:", detectedEmotion);
+    }
+  }, [detectedEmotion]);
 
-  const audioControlsProps = {
-    volume,
-    audioPlaying,
-    stopSpeaking,
-    toggleMute,
-    onVolumeChange,
-    isMicActive: isListening,
-    onMicToggle: toggleListening,
-    inputMode,
-    onInputModeChange: setInputMode
-  };
-
+  // Simple placeholder for visualization
   return (
-    <div className={`flex-1 flex flex-col ${hackerMode ? 'hacker-theme' : ''}`}>
-      <ChatMode {...chatModeProps} />
-      
-      {!isProcessing && messages.length < 3 && (
-        <MessageSuggestions 
-          suggestions={getSuggestions()} 
-          onSuggestionClick={text => {
-            setInput(text);
-            handleSendMessage();
-          }}
-        />
-      )}
-      
-      <div className="p-3 bg-black/30 border-t border-jarvis/20">
-        <AudioControls {...audioControlsProps} />
+    <div className="flex flex-col h-full">
+      <div className="flex-1 overflow-y-auto p-4">
+        {/* Messages list */}
+        {messages.map(message => (
+          <div key={message.id} className={`mb-4 ${message.role === 'user' ? 'text-right' : ''}`}>
+            <Card className={`inline-block p-3 max-w-[80%] ${
+              message.role === 'user' ? 
+                'bg-blue-600/20 border-blue-500/30' : 
+                hackerMode ? 
+                  'bg-red-900/20 border-red-500/30' : 
+                  'bg-[#33c3f0]/20 border-[#33c3f0]/30'
+            }`}>
+              <p>{message.content}</p>
+            </Card>
+          </div>
+        ))}
+        
+        {isTyping && (
+          <div className="mb-4">
+            <Card className={`inline-block p-3 max-w-[80%] ${
+              hackerMode ? 'bg-red-900/20 border-red-500/30' : 'bg-[#33c3f0]/20 border-[#33c3f0]/30'
+            }`}>
+              <p>{currentTypingText}</p>
+            </Card>
+          </div>
+        )}
+        
+        {detectedEmotion && (
+          <div className="mb-4 text-center">
+            <Card className="inline-block p-2 bg-jarvis/20 border-jarvis/30">
+              <p className="text-sm">Detected Emotion: <span className="font-semibold">{detectedEmotion}</span></p>
+            </Card>
+          </div>
+        )}
       </div>
       
-      <MessageInput
-        input={input}
-        setInput={setInput}
-        handleSendMessage={handleSendMessage}
-        isProcessing={isProcessing}
-        isListening={isListening}
-      />
+      {/* Input area */}
+      <div className="p-4 border-t border-gray-700">
+        <div className="flex">
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder={isListening ? "Listening..." : "Type a message..."}
+            className="flex-1 bg-black/40 border border-gray-700 rounded-l px-4 py-2 text-white"
+            onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+          />
+          <button
+            onClick={handleSendMessage}
+            className={`px-4 py-2 rounded-r ${
+              hackerMode ? 'bg-red-600 hover:bg-red-700' : 'bg-[#33c3f0] hover:bg-[#33c3f0]/80'
+            } text-white`}
+            disabled={isProcessing}
+          >
+            Send
+          </button>
+        </div>
+        
+        {/* Voice control */}
+        <div className="mt-2 flex justify-between items-center">
+          <button
+            onClick={toggleListening}
+            className={`px-4 py-1 rounded ${
+              isListening ?
+                (hackerMode ? 'bg-red-600 text-white' : 'bg-green-600 text-white') :
+                'bg-gray-700 text-gray-300'
+            }`}
+          >
+            {isListening ? 'Listening...' : 'Start Listening'}
+          </button>
+          
+          <div className="text-sm text-gray-400">
+            {isProcessing ? 'Processing...' : audioPlaying ? 'Speaking...' : 'Ready'}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

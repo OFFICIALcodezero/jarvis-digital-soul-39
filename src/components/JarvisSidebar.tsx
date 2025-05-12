@@ -3,8 +3,13 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Home, Image, Terminal, Settings, Layers, Satellite } from "lucide-react";
 import { cn } from "../lib/utils";
+import FaceDetection from "@/features/FaceDetection";
 
-const JarvisSidebar: React.FC = () => {
+interface JarvisSidebarProps {
+  onEmotionDetected?: (emotion: string) => void;
+}
+
+const JarvisSidebar: React.FC<JarvisSidebarProps> = ({ onEmotionDetected }) => {
   const location = useLocation();
 
   const isActive = (path: string) => location.pathname === path;
@@ -33,6 +38,13 @@ const JarvisSidebar: React.FC = () => {
           {item.icon}
         </Link>
       ))}
+      
+      {/* Pass the onEmotionDetected prop to FaceDetection */}
+      {onEmotionDetected && (
+        <div className="mt-4">
+          <FaceDetection onEmotionDetected={onEmotionDetected} />
+        </div>
+      )}
     </div>
   );
 };

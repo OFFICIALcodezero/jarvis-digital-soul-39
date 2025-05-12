@@ -6,9 +6,13 @@ import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 
 interface JarvisChatMainProps {
   hackerMode?: boolean;
+  detectedEmotion?: string;
 }
 
-const JarvisChatMain: React.FC<JarvisChatMainProps> = ({ hackerMode = false }) => {
+const JarvisChatMain: React.FC<JarvisChatMainProps> = ({ 
+  hackerMode = false, 
+  detectedEmotion 
+}) => {
   const {
     messages, 
     sendMessage, 
@@ -184,6 +188,7 @@ const JarvisChatMain: React.FC<JarvisChatMainProps> = ({ hackerMode = false }) =
       getSuggestions={getSuggestions}
       hackerMode={hackerMode}
       toggleListening={toggleListeningHandler}
+      detectedEmotion={detectedEmotion}
     />
   );
 };
