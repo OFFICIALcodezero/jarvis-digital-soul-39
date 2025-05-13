@@ -1,49 +1,46 @@
 
 import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
 import path from 'path'
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => {
-  // Try to import plugins only in development mode
-  let componentTaggerPlugin = null;
-  let reactPlugin = null;
-  
-  try {
-    // Try to import React plugin (should be available now)
-    const react = require('@vitejs/plugin-react');
-    reactPlugin = react.default();
-    
-    // Only try to load the tagger in development mode
-    if (mode === 'development') {
-      try {
-        const { componentTagger } = require("lovable-tagger");
-        componentTaggerPlugin = componentTagger();
-      } catch (e) {
-        console.warn("Could not load lovable-tagger, continuing without it");
+export default defineConfig({
+  plugins: [
+    react({
+      jsxImportSource: "react",
+      babel: {
+        plugins: [
+          ["@babel/plugin-transform-react-jsx", { runtime: "automatic" }]
+        ],
+      },
+    }),
+  ],
+  build: {
+    outDir: 'dist',
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            // Split each package in node_modules into a separate chunk
+            return id.toString().split('node_modules/')[1].split('/')[0].toString();
+          }
+        }
       }
     }
-  } catch (e) {
-    console.warn("Could not load plugins, continuing with minimal config");
-  }
-
-  return {
-    plugins: [
-      reactPlugin,
-      mode === 'development' && componentTaggerPlugin,
-    ].filter(Boolean),
-    resolve: {
-      alias: {
-        '@': path.resolve(__dirname, './src'),
-      },
+  },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
     },
-    server: {
-      host: "::",
-      port: 8080
-    },
-    // Add TypeScript configuration
-    esbuild: {
-      // This ensures JSX is properly handled
-      jsx: 'automatic',
-    },
+  },
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+    ]
+  },
+  server: {
+    host: "::",
+    port: 8080
   }
 })

@@ -2,7 +2,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Mic, Upload, Terminal, Heart, Brain, Camera, Globe, Calendar, Mail, VolumeX, Volume2 } from 'lucide-react';
 import { logToSupabase } from '../supabase'; // Make sure the path is correct to your supabase.js
-import YouTube from 'react-youtube';
+import { useYouTubeSearch } from '@/hooks/useYouTubeSearch';
+import YouTubePlayer from './YouTubePlayer';
 
 type Message = {
   id: number;
@@ -13,9 +14,13 @@ type Message = {
 
 type JarvisMode = 'assistant' | 'hacker' | 'girlfriend' | 'translator' | 'vision';
 
-const ChatInterface = () => {
+interface ChatInterfaceProps {
+  onYouTubeCommand?: (query: string) => Promise<boolean>;
+}
+
+const ChatInterface: React.FC<ChatInterfaceProps> = ({ onYouTubeCommand }) => {
   const [input, setInput] = useState('');
-  const [youtubeId, setYoutubeId] = useState<string | null>(null);
+  const { videoId, searchAndPlay, closeVideo } = useYouTubeSearch();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 0, 
@@ -69,20 +74,52 @@ const ChatInterface = () => {
 
     const inputLower = input.toLowerCase();
 
-    if (inputLower.startsWith("play ")) {
-      const query = input.replace("play", "").trim();
-
-      // Embed specific known video
-      if (query.includes("believer")) {
-        setYoutubeId("7wtfhZwyrcc"); // Believer - Imagine Dragons
-      } else {
-        const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
-        window.open(searchUrl, "_blank");
+    // Handle YouTube video playing with external handler if provided
+    if (onYouTubeCommand && inputLower.startsWith("play ")) {
+      const isHandled = await onYouTubeCommand(input);
+      
+      if (isHandled) {
+        // Add user message but don't process further
+        const newUserMessage: Message = {
+          id: messages.length,
+          text: input,
+          sender: 'user',
+          timestamp: new Date()
+        };
+        
+        setMessages([...messages, newUserMessage]);
+        setInput('');
+        return;
       }
-
-      await logToSupabase(input, "Play YouTube video", query, "neutral");
-      setInput('');
-      return;
+    }
+    
+    // Fallback YouTube handling directly in this component
+    if (inputLower.startsWith("play ") && !onYouTubeCommand) {
+      const query = input.replace(/^play\s+/i, "").trim();
+      
+      if (query) {
+        await searchAndPlay(query);
+        
+        // Add the message to the chat
+        const newUserMessage: Message = {
+          id: messages.length,
+          text: input,
+          sender: 'user',
+          timestamp: new Date()
+        };
+        
+        const responseMessage: Message = {
+          id: messages.length + 1,
+          text: `Playing "${query}" on YouTube`,
+          sender: 'jarvis',
+          timestamp: new Date()
+        };
+        
+        setMessages([...messages, newUserMessage, responseMessage]);
+        await logToSupabase(input, "Play YouTube video", query, "neutral");
+        setInput('');
+        return;
+      }
     }
 
     const newUserMessage: Message = {
@@ -428,33 +465,6 @@ const ChatInterface = () => {
           <span>{isRecording ? "Listening..." : isSpeaking ? "Speaking..." : "Ready"}</span>
         </div>
       </div>
-
-      {/* YouTube Video Display */}
-      {youtubeId && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-          <div className="relative max-w-3xl w-full p-2">
-            <button 
-              onClick={() => setYoutubeId(null)} 
-              className="absolute right-4 top-2 text-white hover:text-red-500 z-10"
-            >
-              Close
-            </button>
-            <div className="aspect-video">
-              <YouTube 
-                videoId={youtubeId} 
-                className="w-full h-full"
-                opts={{
-                  width: '100%',
-                  height: '100%',
-                  playerVars: {
-                    autoplay: 1,
-                  },
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
