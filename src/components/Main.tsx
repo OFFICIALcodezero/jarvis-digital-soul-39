@@ -2,7 +2,7 @@
 import React from 'react';
 import JarvisModeSwitcher from './JarvisModeSwitcher';
 
-const Main: React.FC = () => {
+const Main = () => {
   return (
     <div className="min-h-screen bg-black">
       <JarvisModeSwitcher />
