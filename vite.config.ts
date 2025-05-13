@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => ({
       jsxImportSource: "react",
       babel: {
         plugins: [
-          ["@babel/plugin-transform-react-jsx", { runtime: "automatic" }]
+          // Removed the explicit Babel plugin config
         ],
       },
     }),
@@ -39,6 +39,7 @@ export default defineConfig(({ mode }) => ({
     include: [
       'react',
       'react-dom',
+      '@babel/plugin-transform-react-jsx'  // Explicitly include this dependency
     ]
   },
   server: {
