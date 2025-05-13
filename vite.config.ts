@@ -39,6 +39,11 @@ export default defineConfig(({ mode }) => {
     server: {
       host: "::",
       port: 8080
-    }
+    },
+    // Add TypeScript configuration
+    esbuild: {
+      // This ensures JSX is properly handled
+      jsx: 'automatic',
+    },
   }
 })
