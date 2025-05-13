@@ -39,10 +39,19 @@ export default defineConfig(({ mode }) => ({
     include: [
       'react',
       'react-dom',
-    ]
+    ],
+    esbuildOptions: {
+      jsx: 'automatic',
+      jsxImportSource: 'react'
+    }
   },
   server: {
     host: "::",
     port: 8080
+  },
+  esbuild: {
+    // Configure esbuild to handle JSX properly
+    jsxFactory: 'React.createElement',
+    jsxFragment: 'React.Fragment'
   }
 }))
