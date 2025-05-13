@@ -44,5 +44,17 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080
+  },
+  // Add this to handle TypeScript compilation in Vite without conflicting with tsconfig
+  optimizeDeps: {
+    esbuildOptions: {
+      tsconfigRaw: {
+        compilerOptions: {
+          // Ensure these options don't conflict with tsconfig.json
+          preserveValueImports: true,
+          isolatedModules: true
+        }
+      }
+    }
   }
 }))
