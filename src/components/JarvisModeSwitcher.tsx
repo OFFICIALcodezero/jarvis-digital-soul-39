@@ -1,80 +1,49 @@
+import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { toast } from '@/components/ui/use-toast';
 
-import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import ChatInterface from './ChatInterface';
-import YouTubePlayer from './YouTubePlayer';
-import { useYouTubeSearch } from '@/hooks/useYouTubeSearch';
-import { toast } from '@/components/ui/sonner';
+type ModeProps = {
+  isFixedPosition?: boolean;
+};
 
-const JarvisModeSwitcher: React.FC = () => {
-  const [mode, setMode] = useState<'jarvis' | 'codezero'>('jarvis');
+const JarvisModeSwitcher: React.FC<ModeProps> = ({ isFixedPosition = true }) => {
   const location = useLocation();
-  const navigate = useNavigate();
-  const { videoId, searchAndPlay, closeVideo } = useYouTubeSearch();
+  const [currentRoute, setCurrentRoute] = useState<string>('');
+  const [showSwitcher, setShowSwitcher] = useState<boolean>(false);
   
+  // Consistent hook usage - always call all hooks regardless of conditions
+  const [isGhostMode, setIsGhostMode] = useState<boolean>(false);
+
+  // Effect to handle route changes and update state accordingly
   useEffect(() => {
-    // Check the current route to determine which mode to show
-    if (location.pathname.includes('code-zero') || location.pathname.includes('ghost')) {
-      setMode('codezero');
-    } else {
-      setMode('jarvis');
-    }
-  }, [location.pathname]);
-
-  const handleYouTubeSearch = async (query: string) => {
-    if (query.toLowerCase().startsWith('play ')) {
-      const searchQuery = query.replace(/^play\s+/i, '').trim();
-      
-      if (searchQuery) {
-        const result = await searchAndPlay(searchQuery);
-        
-        if (result) {
-          toast(`Playing "${result.title}"`, {
-            description: "YouTube video loaded",
-          });
-          return true; // Indicate that we handled this command
-        }
-      }
-    }
-    return false; // Not a YouTube command
-  };
-
-  const handleModeSwitch = () => {
-    const newMode = mode === 'jarvis' ? 'codezero' : 'jarvis';
-    setMode(newMode);
+    const path = location.pathname;
+    setCurrentRoute(path);
     
-    // Navigate to the appropriate route
-    if (newMode === 'codezero') {
-      navigate('/code-zero');
-    } else {
-      navigate('/jarvis');
+    // Check if we should show the switcher based on the route
+    const shouldShowSwitcher = !['/startup', '/', '/features'].includes(path);
+    setShowSwitcher(shouldShowSwitcher);
+    
+    // Check if we are in ghost mode
+    const inGhostMode = ['/ghost', '/code-zero'].includes(path);
+    setIsGhostMode(inGhostMode);
+    
+    // Show toast when entering ghost mode
+    if (inGhostMode && !isGhostMode) {
+      toast({
+        title: "CODE ZERO AI Activated",
+        description: "Ghost AI system operational. Enhanced stealth capabilities.",
+      });
     }
-  };
+  }, [location, isGhostMode]);
+
+  // If we shouldn't show the switcher, render nothing
+  if (!showSwitcher) {
+    return null;
+  }
 
   return (
-    <div className="w-full h-screen flex flex-col">
-      {mode === 'jarvis' ? (
-        <ChatInterface onYouTubeCommand={handleYouTubeSearch} />
-      ) : (
-        <div className="flex-1">
-          {/* Navigate to JarvisV2Interface instead of rendering it directly */}
-          {useEffect(() => { navigate('/code-zero'); }, [])}
-        </div>
-      )}
-      
-      {/* YouTube Player */}
-      <YouTubePlayer 
-        videoId={videoId} 
-        onClose={closeVideo}
-      />
-      
-      {/* Mode switcher button (optional) */}
-      <button 
-        className="fixed bottom-4 right-4 bg-black/60 text-white p-2 rounded-full z-40"
-        onClick={handleModeSwitch}
-      >
-        Switch to {mode === 'jarvis' ? 'CODE ZERO' : 'JARVIS'}
-      </button>
+    <div className={`jarvis-mode-switcher ${isFixedPosition ? 'fixed' : 'absolute'} bottom-4 right-4 z-50`}>
+      {/* Mode switch buttons would go here */}
     </div>
   );
 };
