@@ -42,5 +42,9 @@ export default defineConfig({
   server: {
     host: "::",
     port: 8080
+  },
+  // Add this to ensure TypeScript checking works properly with Vite
+  esbuild: {
+    logOverride: { 'this-is-undefined-in-esm': 'silent' }
   }
 })
