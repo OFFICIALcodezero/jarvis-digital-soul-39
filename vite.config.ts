@@ -2,9 +2,10 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
+import { componentTagger } from "lovable-tagger"
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     react({
       jsxImportSource: "react",
@@ -14,7 +15,8 @@ export default defineConfig({
         ],
       },
     }),
-  ],
+    mode === 'development' && componentTagger(),
+  ].filter(Boolean),
   build: {
     outDir: 'dist',
     rollupOptions: {
@@ -42,9 +44,5 @@ export default defineConfig({
   server: {
     host: "::",
     port: 8080
-  },
-  // Add this to ensure TypeScript checking works properly with Vite
-  esbuild: {
-    logOverride: { 'this-is-undefined-in-esm': 'silent' }
   }
-})
+}))
