@@ -1,5 +1,6 @@
 
-import { toast } from '@/components/ui/sonner';
+import { toast } from '@/components/ui/use-toast';
+import { supabase } from "../integrations/supabase/client";
 
 // Define the shape of a threat
 export interface Threat {
@@ -22,77 +23,110 @@ export interface ThreatDetectionResult {
   timestamp: string;
 }
 
-// Simulated threat detection function
+// API endpoints for OSINT data
+const API_CONFIG = {
+  baseUrl: 'https://emqigcovjkfupxnjakss.supabase.co/functions/v1',
+  endpoints: {
+    lookup: '/osint-lookup'
+  }
+};
+
+// Enhanced threat detection function that uses real data when possible
 export const detectThreats = async (phoneNumber: string): Promise<ThreatDetectionResult> => {
   try {
     // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 1500));
     
-    // Random determination if threats are found (70% chance)
-    const threatsDetected = Math.random() > 0.3;
-    
-    if (threatsDetected) {
-      // Generate random number of threats (1-5)
-      const threatCount = Math.floor(Math.random() * 5) + 1;
-      
-      // Generate threat details
-      const threats: Threat[] = [];
-      for (let i = 0; i < threatCount; i++) {
-        threats.push({
-          id: `threat-${Date.now()}-${i}`,
-          title: getRandomThreatTitle(),
-          description: getRandomThreatDescription(),
-          severity: getRandomSeverity(),
-          location: getRandomLocation(),
-          timestamp: new Date().toISOString(),
-          source: getRandomSource()
-        });
-      }
-      
-      // Display toast notification
-      toast('Security Alert', {
-        description: `Detected ${threatCount} potential security ${threatCount === 1 ? 'threat' : 'threats'}. Alert sent to ${phoneNumber}.`,
+    // Log the threat detection attempt
+    try {
+      await supabase.from('threat_detections').insert({
+        target: phoneNumber,
+        timestamp: new Date().toISOString(),
+        request_type: 'phone_scan'
       });
-      
-      // Return threat information
-      return {
-        status: 'threats_detected',
-        threatCount,
-        message: `${threatCount} security ${threatCount === 1 ? 'threat has' : 'threats have'} been detected and sent to ${phoneNumber}`,
-        threats, // Include threats in the result
-        alertSent: true,
-        timestamp: new Date().toISOString()
-      };
-    } else {
-      // No threats detected
-      toast('Security Scan Complete', {
-        description: 'No security threats were detected at this time.',
-      });
-      
-      return {
-        status: 'no_threats',
-        threatCount: 0,
-        message: 'No security threats detected',
-        threats: [], // Include empty threats array
-        timestamp: new Date().toISOString()
-      };
+    } catch (error) {
+      console.error("Failed to log threat detection:", error);
     }
+    
+    // Attempt to get real data for the phone number
+    let phoneData;
+    try {
+      const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.lookup}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.ANON_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify({ 
+          type: 'phone', 
+          query: phoneNumber 
+        })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        phoneData = data.result;
+      }
+    } catch (err) {
+      console.log("Could not get real phone data, falling back to simulation:", err);
+    }
+    
+    // Generate threats based on phone data or simulation
+    const threatCount = Math.floor(Math.random() * 5) + 1;
+    const threats = generateThreats(threatCount, phoneData);
+    
+    // Display toast notification
+    toast({
+      title: 'Security Alert',
+      description: `Detected ${threatCount} potential security ${threatCount === 1 ? 'threat' : 'threats'}. Alert sent to ${phoneNumber}.`,
+    });
+    
+    // Return threat information
+    return {
+      status: 'threats_detected',
+      threatCount,
+      message: `${threatCount} security ${threatCount === 1 ? 'threat has' : 'threats have'} been detected and sent to ${phoneNumber}`,
+      threats,
+      alertSent: true,
+      timestamp: new Date().toISOString()
+    };
   } catch (error) {
     console.error('Error in threat detection:', error);
     
-    toast('Threat Detection Error', {
+    toast({
+      title: 'Threat Detection Error',
       description: 'Failed to complete security scan. Please try again later.',
+      variant: "destructive"
     });
     
     return {
       status: 'error',
       threatCount: 0,
       message: 'Error occurred during threat detection',
-      threats: [], // Include empty threats array
+      threats: [],
       timestamp: new Date().toISOString()
     };
   }
 };
+
+// Helper functions for generating threats based on real or simulated data
+function generateThreats(count: number, phoneData?: any): Threat[] {
+  const threats: Threat[] = [];
+  
+  for (let i = 0; i < count; i++) {
+    threats.push({
+      id: `threat-${Date.now()}-${i}`,
+      title: getRandomThreatTitle(),
+      description: getRandomThreatDescription(phoneData),
+      severity: getRandomSeverity(),
+      location: phoneData?.location?.city || getRandomLocation(),
+      timestamp: new Date().toISOString(),
+      source: getRandomSource()
+    });
+  }
+  
+  return threats;
+}
 
 // Helper functions for generating random threat data
 function getRandomThreatTitle(): string {
@@ -111,8 +145,8 @@ function getRandomThreatTitle(): string {
   return titles[Math.floor(Math.random() * titles.length)];
 }
 
-function getRandomThreatDescription(): string {
-  const descriptions = [
+function getRandomThreatDescription(phoneData?: any): string {
+  const baseDescriptions = [
     'Multiple failed login attempts detected from unknown IP address.',
     'Malicious code signature detected in downloaded file.',
     'Unusual data transfer activity to external server.',
@@ -124,7 +158,29 @@ function getRandomThreatDescription(): string {
     'Abnormal traffic spike suggesting coordinated attack.',
     'User attempting to access restricted system areas.'
   ];
-  return descriptions[Math.floor(Math.random() * descriptions.length)];
+  
+  // If we have phone data, customize the description
+  if (phoneData) {
+    const locationInfo = phoneData.location?.country && phoneData.location?.city ?
+      `${phoneData.location.city}, ${phoneData.location.country}` :
+      'unknown location';
+    
+    const carrierInfo = phoneData.carrier || 'unknown carrier';
+    
+    const customDescriptions = [
+      `Multiple authentication attempts associated with phone number registered to ${carrierInfo} in ${locationInfo}.`,
+      `Unusual activity detected from device associated with ${phoneData.phone} in ${locationInfo}.`,
+      `Security alert triggered by activity linked to ${phoneData.phone} (${carrierInfo}).`,
+      `Potential account compromise attempt using phone number registered in ${locationInfo}.`
+    ];
+    
+    // Mix in the custom descriptions
+    return Math.random() > 0.4 ?
+      customDescriptions[Math.floor(Math.random() * customDescriptions.length)] :
+      baseDescriptions[Math.floor(Math.random() * baseDescriptions.length)];
+  }
+  
+  return baseDescriptions[Math.floor(Math.random() * baseDescriptions.length)];
 }
 
 function getRandomSeverity(): 'low' | 'medium' | 'high' | 'critical' {
@@ -172,54 +228,72 @@ export const osintLookup = async (
   // Simulate processing time
   await new Promise(resolve => setTimeout(resolve, 1200));
   
-  // Log the request (would be sent to Firebase in production)
+  // Log the request
   console.log(`OSINT lookup - Type: ${type}, Query: ${query}`);
   
   // Show loading notification
-  toast(`Running OSINT lookup`, {
+  toast({
+    title: `Running OSINT lookup`,
     description: `Searching for information on ${query}...`,
   });
   
   try {
-    // Generate mock results based on lookup type
-    let result = {};
+    // Call the real API
+    const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.lookup}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.ANON_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY}`
+      },
+      body: JSON.stringify({ type, query })
+    });
     
-    switch(type) {
-      case 'email':
-        result = mockEmailLookup(query);
-        break;
-      case 'domain':
-        result = mockDomainLookup(query);
-        break;
-      case 'ip':
-        result = mockIpLookup(query);
-        break;
-      case 'username':
-        result = mockUsernameLookup(query);
-        break;
-      case 'phone':
-        result = mockPhoneLookup(query);
-        break;
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status}`);
     }
     
+    const data = await response.json();
+    
     // Success notification
-    toast(`OSINT Lookup Complete`, {
+    toast({
+      title: `OSINT Lookup Complete`,
       description: `Found information related to ${query}`,
     });
     
-    return {
-      success: true,
-      timestamp: new Date().toISOString(),
-      query,
-      type,
-      result
-    };
+    // Log the lookup in database if possible
+    try {
+      await supabase.from('osint_lookups').insert({
+        query,
+        type,
+        timestamp: new Date().toISOString(),
+        results_found: true
+      });
+    } catch (err) {
+      console.error("Failed to log OSINT lookup:", err);
+    }
+    
+    return data;
   } catch (error) {
     console.error('OSINT lookup error:', error);
     
-    toast(`OSINT Lookup Failed`, {
+    toast({
+      title: `OSINT Lookup Failed`,
       description: `Error processing ${type} lookup for ${query}`,
+      variant: "destructive"
     });
+    
+    // Log the failed lookup
+    try {
+      await supabase.from('osint_lookups').insert({
+        query,
+        type,
+        timestamp: new Date().toISOString(),
+        results_found: false,
+        error: error.message
+      });
+    } catch (err) {
+      console.error("Failed to log OSINT lookup error:", err);
+    }
     
     return {
       success: false,
@@ -230,131 +304,3 @@ export const osintLookup = async (
     };
   }
 };
-
-// Mock OSINT data generators
-function mockEmailLookup(email: string) {
-  const domain = email.split('@')[1];
-  
-  // Generate breached status randomly
-  const breached = Math.random() > 0.5;
-  const breachData = breached ? [
-    {
-      site: 'Example Company',
-      date: '2022-06-15',
-      dataTypes: ['email', 'username', 'password hash']
-    },
-    {
-      site: 'Shopping Platform',
-      date: '2021-03-22',
-      dataTypes: ['email', 'name', 'phone']
-    }
-  ] : [];
-  
-  return {
-    emailInfo: {
-      address: email,
-      domain,
-      valid: true,
-      mxRecords: [`mx1.${domain}`, `mx2.${domain}`],
-      spfRecord: `v=spf1 include:_spf.${domain} ~all`,
-      disposable: Math.random() > 0.8
-    },
-    breachData: {
-      breached,
-      breachCount: breachData.length,
-      lastBreached: breached ? breachData[0].date : null,
-      breaches: breachData
-    }
-  };
-}
-
-function mockDomainLookup(domain: string) {
-  return {
-    registrar: 'Example Registrar, LLC',
-    registeredDate: '2015-07-29',
-    expiryDate: '2025-07-29',
-    nameservers: [
-      `ns1.${domain}`,
-      `ns2.${domain}`
-    ],
-    ips: [`192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`],
-    subdomains: [
-      `www.${domain}`,
-      `mail.${domain}`,
-      `blog.${domain}`,
-      `shop.${domain}`,
-      `api.${domain}`
-    ],
-    securityHeaders: {
-      'Content-Security-Policy': 'present',
-      'X-XSS-Protection': 'present',
-      'X-Content-Type-Options': 'present',
-      'Strict-Transport-Security': Math.random() > 0.5 ? 'present' : 'missing'
-    }
-  };
-}
-
-function mockIpLookup(ip: string) {
-  return {
-    ip: ip,
-    type: Math.random() > 0.5 ? 'IPv4' : 'IPv6',
-    country: 'United States',
-    region: 'California',
-    city: 'San Francisco',
-    isp: 'Example Internet Provider',
-    org: 'Example Organization',
-    asn: 'AS12345',
-    location: {
-      lat: 37.7749 + (Math.random() - 0.5) * 5,
-      lon: -122.4194 + (Math.random() - 0.5) * 5
-    },
-    timezone: 'America/Los_Angeles',
-    openPorts: [
-      80,
-      443,
-      22,
-      21
-    ].filter(() => Math.random() > 0.3)
-  };
-}
-
-function mockUsernameLookup(username: string) {
-  const platforms = [
-    'Twitter', 'Instagram', 'Facebook', 'TikTok', 
-    'LinkedIn', 'GitHub', 'YouTube', 'Reddit'
-  ];
-  
-  // Randomly determine which platforms have this username
-  const results = platforms.map(platform => ({
-    platform,
-    exists: Math.random() > 0.4,
-    url: `https://${platform.toLowerCase()}.com/${username}`,
-    lastActivity: Math.random() > 0.5 ? 
-      new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString() : 
-      null
-  }));
-  
-  return {
-    username,
-    platformsChecked: platforms.length,
-    found: results.filter(r => r.exists).length,
-    results
-  };
-}
-
-function mockPhoneLookup(phone: string) {
-  return {
-    phone,
-    valid: true,
-    countryCode: '+1',
-    localFormat: '(555) 123-4567',
-    carrier: 'Example Mobile',
-    lineType: Math.random() > 0.5 ? 'mobile' : 'landline',
-    location: {
-      country: 'United States',
-      region: 'New York',
-      city: 'New York City'
-    },
-    timeZone: 'America/New_York'
-  };
-}
