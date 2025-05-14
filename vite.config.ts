@@ -1,8 +1,8 @@
 
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import path from 'path'
-import { componentTagger } from "lovable-tagger"
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import path from "path";
+import { componentTagger } from "./vite-plugins/component-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -17,18 +17,15 @@ export default defineConfig(({ mode }) => ({
   ].filter(Boolean),
   build: {
     outDir: 'dist',
-    // Add minify: false to speed up build
     minify: false,
-    // Limit the number of chunks
     rollupOptions: {
       output: {
         manualChunks(id) {
-          // Create fewer chunks by grouping node_modules
           if (id.includes('node_modules')) {
             if (id.includes('react')) return 'vendor-react';
             if (id.includes('@radix-ui')) return 'vendor-radix';
             if (id.includes('firebase')) return 'vendor-firebase';
-            return 'vendor'; // Group all other dependencies
+            return 'vendor';
           }
         }
       }
@@ -36,8 +33,8 @@ export default defineConfig(({ mode }) => ({
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
+      "@": path.resolve(__dirname, "./src"),
+    }
   },
   optimizeDeps: {
     include: [
@@ -47,7 +44,7 @@ export default defineConfig(({ mode }) => ({
     ]
   },
   server: {
-    host: "::",
-    port: 8080
+    port: 5174,
+    host: true
   }
-}))
+}));

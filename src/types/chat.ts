@@ -1,81 +1,38 @@
 
-import { GeneratedImage } from '@/services/imageGenerationService';
-import { StabilityGeneratedImage } from '@/services/stabilityAIService';
+export type Role = 'user' | 'assistant' | 'system';
 
 export interface Message {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
+  id: string | number;
+  content?: string;
+  text?: string;
+  role?: Role;
+  sender?: 'user' | 'jarvis' | 'system';
   timestamp: Date;
-  generatedImage?: GeneratedImage | StabilityGeneratedImage;
   data?: any;
   skillType?: string;
+  generatedImage?: any;
 }
 
 export interface MessageSuggestion {
   id: string;
   text: string;
-}
-
-export interface JarvisChatProps {
-  activeMode: 'normal' | 'voice' | 'face' | 'hacker' | 'satellite';
-  setIsSpeaking: React.Dispatch<React.SetStateAction<boolean>>;
-  isListening: boolean;
-  activeAssistant: string;
-  setActiveAssistant: (assistant: string) => void;
-  inputMode: 'voice' | 'text';
-  setInputMode: (mode: 'voice' | 'text') => void;
-  onMessageCheck?: (message: string) => boolean;
-  hackerModeActive?: boolean;
-  hackerOutput?: string;
-  setHackerOutput?: React.Dispatch<React.SetStateAction<string>>;
-  onDeactivateHacker?: () => void;
+  onClick?: () => void;
 }
 
 export interface LanguageOption {
   code: string;
   name: string;
+  flag: string;
 }
 
-export interface ChatModeProps {
-  messages: Message[];
-  speakText: (text: string) => Promise<void>;
-  audioPlaying: boolean;
-  isTyping: boolean;
-  currentTypingText: string;
-  isProcessing: boolean;
-  selectedLanguage: string;
-  onLanguageChange: (languageCode: string) => void;
-}
-
-export interface AudioControlsProps {
-  volume: number;
-  audioPlaying: boolean;
-  stopSpeaking: () => void;
-  toggleMute: () => void;
-  onVolumeChange: (values: number[]) => void;
-  isMicActive: boolean;
-  onMicToggle: () => void;
-  inputMode: 'voice' | 'text';
-  onInputModeChange: (mode: 'voice' | 'text') => void;
-}
-
-export interface UserPreference {
-  name?: string;
-  interests?: string[];
-  lastInteractions?: { topic: string, timestamp: Date }[];
-}
-
-export interface ConversationContext {
-  recentTopics: string[];
-  userPreferences: UserPreference;
-  sessionStartTime: Date;
-}
-
-export interface GeneratedImageData {
-  url: string;
-  prompt: string;
-  timestamp: Date;
-  style?: string;
-  resolution?: string;
+export interface JarvisChatProps {
+  activeMode?: 'normal' | 'voice' | 'face' | 'hacker' | 'satellite';
+  setIsSpeaking?: (isSpeaking: boolean) => void;
+  isListening?: boolean;
+  activeAssistant?: string;
+  setActiveAssistant?: (assistant: string) => void;
+  inputMode?: 'voice' | 'text';
+  setInputMode?: (mode: 'voice' | 'text') => void;
+  onMessageCheck?: (message: string) => boolean;
+  hackerModeActive?: boolean;
 }
