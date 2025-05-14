@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { toast } from '@/components/ui/use-toast';
@@ -10,11 +11,9 @@ const JarvisModeSwitcher: React.FC<ModeProps> = ({ isFixedPosition = true }) => 
   const location = useLocation();
   const [currentRoute, setCurrentRoute] = useState<string>('');
   const [showSwitcher, setShowSwitcher] = useState<boolean>(false);
-  
-  // Consistent hook usage - always call all hooks regardless of conditions
   const [isGhostMode, setIsGhostMode] = useState<boolean>(false);
 
-  // Effect to handle route changes and update state accordingly
+  // Simplified effect to reduce complexity
   useEffect(() => {
     const path = location.pathname;
     setCurrentRoute(path);
@@ -25,18 +24,19 @@ const JarvisModeSwitcher: React.FC<ModeProps> = ({ isFixedPosition = true }) => 
     
     // Check if we are in ghost mode
     const inGhostMode = ['/ghost', '/code-zero'].includes(path);
-    setIsGhostMode(inGhostMode);
-    
-    // Show toast when entering ghost mode
-    if (inGhostMode && !isGhostMode) {
-      toast({
-        title: "CODE ZERO AI Activated",
-        description: "Ghost AI system operational. Enhanced stealth capabilities.",
-      });
+    if (inGhostMode !== isGhostMode) {
+      setIsGhostMode(inGhostMode);
+      
+      if (inGhostMode) {
+        toast({
+          title: "CODE ZERO AI Activated",
+          description: "Ghost AI system operational. Enhanced stealth capabilities.",
+        });
+      }
     }
   }, [location, isGhostMode]);
 
-  // If we shouldn't show the switcher, render nothing
+  // Don't render anything if not needed, saves resources
   if (!showSwitcher) {
     return null;
   }
