@@ -48,3 +48,52 @@ export const clearUserChatHistory = (userId: string): void => {
     console.error('Error clearing chat history:', error);
   }
 };
+
+// Save chat messages to history (simplified version for service integration)
+export const saveToHistory = (messages: Message[]): void => {
+  if (messages.length === 0) return;
+  
+  try {
+    const userId = 'default_user'; // Use a default ID if no user is logged in
+    saveUserChatHistory(userId, messages);
+  } catch (error) {
+    console.error('Error saving to history:', error);
+  }
+};
+
+// Process history query - this is the missing function
+export const processHistoryQuery = (message: string): Message[] | null => {
+  // Simple implementation to check if a message is asking about chat history
+  const lowerMessage = message.toLowerCase();
+  
+  if (
+    lowerMessage.includes('chat history') ||
+    lowerMessage.includes('past questions') ||
+    lowerMessage.includes('asked earlier') ||
+    lowerMessage.includes('previous conversations')
+  ) {
+    const userId = 'default_user'; // Use a default ID if no user is logged in
+    const history = loadUserChatHistory(userId);
+    
+    // Only return history if we have any
+    if (history.length > 0) {
+      // Create a summary message of the chat history
+      const historyPreview = history.slice(-5); // Get last 5 messages
+      const content = `Here's a summary of our recent conversation:\n\n${
+        historyPreview.map(msg => 
+          `${msg.role === 'user' ? 'You' : 'Jarvis'}: ${msg.content.substring(0, 100)}${msg.content.length > 100 ? '...' : ''}`
+        ).join('\n\n')
+      }\n\nIs there anything specific from our conversation you'd like to revisit?`;
+      
+      return [{
+        id: Date.now().toString(),
+        content,
+        role: 'assistant',
+        timestamp: new Date(),
+        data: history
+      }];
+    }
+  }
+  
+  return null;
+};
