@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useJarvisChat } from '../contexts/JarvisChatProvider';
 import ChatDashboardPanel from './chat/ChatDashboardPanel';
 import MessageInput from './chat/MessageInput';
@@ -8,11 +8,13 @@ import HackerModeEnhanced from './chat/HackerModeEnhanced';
 import useHackerMode from '../hooks/useHackerMode';
 import { toast } from './ui/sonner';
 import { detectThreats } from '@/services/threatDetectionService';
+import { getAllServices } from '@/services/serviceIntegrations/serviceRegistry';
 
 const JarvisChatMainEnhanced: React.FC = () => {
   const [input, setInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [messages, setMessages] = useState<any[]>([]);
+  const [serviceSuggestions, setServiceSuggestions] = useState<{ id: string, text: string }[]>([]);
   
   // Try to use the JarvisChat context, but provide fallbacks if it's not available
   let jarvisChat;
@@ -35,6 +37,24 @@ const JarvisChatMainEnhanced: React.FC = () => {
   }
   
   const { isHackerModeActive, checkForHackerMode, deactivateHackerMode } = useHackerMode();
+
+  // Load service suggestions
+  useEffect(() => {
+    try {
+      const services = getAllServices();
+      const suggestions = services
+        .filter(service => service.status === 'available')
+        .slice(0, 5)
+        .map(service => ({
+          id: service.id,
+          text: service.commands[0]
+        }));
+      
+      setServiceSuggestions(suggestions);
+    } catch (error) {
+      console.error("Error loading service suggestions:", error);
+    }
+  }, []);
 
   // Create a local send message function since the JarvisChatContext doesn't have sendMessage
   const handleSendMessage = async (text: string) => {
@@ -75,17 +95,46 @@ const JarvisChatMainEnhanced: React.FC = () => {
       return;
     }
     
-    // If not a hacker command and we have image generation handling available
-    if (!isHackerCommand && jarvisChat.handleImageGenerationFromPrompt) {
+    // If not a hacker command and we have a sendMessage function available
+    if (!isHackerCommand && jarvisChat.sendMessage) {
       setIsProcessing(true);
       
-      // We'll use image generation as a fallback since sendMessage isn't available
-      jarvisChat.handleImageGenerationFromPrompt(text)
-        .catch(error => console.error("Failed to process message:", error))
-        .finally(() => setIsProcessing(false));
+      try {
+        await jarvisChat.sendMessage(text);
+      } catch (error) {
+        console.error("Failed to process message:", error);
+        toast("Error", {
+          description: "Failed to process your message.",
+        });
+      } finally {
+        setIsProcessing(false);
+      }
+    }
+    // Fallback if sendMessage not available but image generation is
+    else if (!isHackerCommand && jarvisChat.handleImageGenerationFromPrompt) {
+      setIsProcessing(true);
+      
+      try {
+        // Add the message to our local state
+        setMessages(prev => [...prev, { role: 'user', content: text, id: Date.now().toString() }]);
         
-      // Add the message to our local state
-      setMessages(prev => [...prev, { role: 'user', content: text, id: Date.now().toString() }]);
+        // We'll use image generation as a fallback
+        await jarvisChat.handleImageGenerationFromPrompt(text);
+        
+        // Add a generic response
+        setMessages(prev => [
+          ...prev,
+          { 
+            role: 'assistant', 
+            content: `I've processed your request: "${text}"`,
+            id: Date.now().toString() 
+          }
+        ]);
+      } catch (error) {
+        console.error("Failed to process message:", error);
+      } finally {
+        setIsProcessing(false);
+      }
     }
     
     // Clear input
@@ -100,14 +149,14 @@ const JarvisChatMainEnhanced: React.FC = () => {
   };
   
   // Use context messages if available, otherwise use local state
-  const displayMessages = jarvisChat.messages || messages;
+  const displayMessages = jarvisChat.messages?.length > 0 ? jarvisChat.messages : messages;
   const isCurrentlyProcessing = jarvisChat.isGeneratingImage || isProcessing;
   
-  // Create suggestions with threat detection
+  // Create service-based suggestions
   const suggestions = [
+    ...serviceSuggestions,
     { id: 'threat-1', text: 'Detect threat' },
     { id: 'threat-2', text: 'Scan for threats' },
-    { id: 'default-1', text: 'Generate an image for me' },
     { id: 'default-2', text: 'What can you help me with?' }
   ];
 
@@ -125,8 +174,20 @@ const JarvisChatMainEnhanced: React.FC = () => {
         </div>
       )}
       
-      {/* Message suggestions */}
+      {/* Available integrations */}
       <div className="p-2 border-t border-gray-700">
+        <div className="flex items-center mb-2">
+          <span className="text-xs text-gray-400 mr-2">Available Integrations:</span>
+          <div className="flex flex-wrap gap-1">
+            <span className="px-2 py-1 bg-gray-800 text-xs rounded-full">Resend</span>
+            <span className="px-2 py-1 bg-gray-800 text-xs rounded-full">Clerk</span>
+            <span className="px-2 py-1 bg-gray-800 text-xs rounded-full">Make</span>
+            <span className="px-2 py-1 bg-gray-800 text-xs rounded-full">Mapbox</span>
+            <span className="px-2 py-1 bg-gray-800 text-xs rounded-full">Twilio</span>
+            <span className="px-2 py-1 bg-gray-800 text-xs rounded-full">Weather</span>
+            <span className="px-2 py-1 bg-gray-800 text-xs rounded-full">YouTube</span>
+          </div>
+        </div>
         <MessageSuggestions 
           suggestions={suggestions} 
           onSuggestionClick={(suggestion) => handleSendMessage(suggestion)}

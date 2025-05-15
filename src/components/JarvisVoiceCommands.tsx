@@ -1,4 +1,3 @@
-
 import React, { useEffect, useContext } from 'react';
 import { useVoiceCommands } from '@/hooks/useVoiceCommands';
 import { toast } from '@/components/ui/sonner';
@@ -8,6 +7,7 @@ import { processFileManagerCommand } from '@/services/fileManagerService';
 import { processCalculation } from '@/services/calculatorService';
 import { processWorldClockQuery, isWorldClockQuery } from '@/services/worldClockService';
 import { detectThreats } from '@/services/threatDetectionService';
+import { processServiceCommand } from '@/services/serviceIntegrations/serviceCommandHandler';
 
 interface JarvisVoiceCommandsProps {
   isListening: boolean;
@@ -267,6 +267,278 @@ const JarvisVoiceCommands: React.FC<JarvisVoiceCommandsProps> = ({
       feedback: "Accessing satellite surveillance systems."
     });
     
+    // Service integration commands
+    registerCommand('emailService', {
+      pattern: /(send email|resend|email to)/i,
+      handler: async (transcript) => {
+        if (sendMessage) {
+          await sendMessage(transcript);
+        } else {
+          const result = await processServiceCommand(transcript);
+          if (result.handled) {
+            toast("Email Service", {
+              description: "Processing email request...",
+            });
+          }
+        }
+      },
+      feedback: "Processing email request."
+    });
+
+    registerCommand('authService', {
+      pattern: /(login|signup|authenticate|clerk)/i,
+      handler: async (transcript) => {
+        if (sendMessage) {
+          await sendMessage(transcript);
+        } else {
+          const result = await processServiceCommand(transcript);
+          if (result.handled) {
+            toast("Authentication Service", {
+              description: "Processing authentication request...",
+            });
+          }
+        }
+      },
+      feedback: "Processing authentication request."
+    });
+
+    registerCommand('automationService', {
+      pattern: /(automate|make workflow|create workflow)/i,
+      handler: async (transcript) => {
+        if (sendMessage) {
+          await sendMessage(transcript);
+        } else {
+          const result = await processServiceCommand(transcript);
+          if (result.handled) {
+            toast("Automation Service", {
+              description: "Processing automation request...",
+            });
+          }
+        }
+      },
+      feedback: "Processing automation request."
+    });
+
+    registerCommand('locationService', {
+      pattern: /(find location|search location|map|mapbox)/i,
+      handler: async (transcript) => {
+        if (sendMessage) {
+          await sendMessage(transcript);
+        } else {
+          const result = await processServiceCommand(transcript);
+          if (result.handled) {
+            toast("Location Service", {
+              description: "Searching for location...",
+            });
+          }
+        }
+      },
+      feedback: "Searching for location."
+    });
+
+    registerCommand('messagingService', {
+      pattern: /(send message|call|text|twilio)/i,
+      handler: async (transcript) => {
+        if (sendMessage) {
+          await sendMessage(transcript);
+        } else {
+          const result = await processServiceCommand(transcript);
+          if (result.handled) {
+            toast("Messaging Service", {
+              description: "Processing messaging request...",
+            });
+          }
+        }
+      },
+      feedback: "Processing messaging request."
+    });
+
+    registerCommand('searchService', {
+      pattern: /(search|serper|web search)/i,
+      handler: async (transcript) => {
+        if (sendMessage) {
+          await sendMessage(transcript);
+        } else {
+          const result = await processServiceCommand(transcript);
+          if (result.handled) {
+            toast("Search Service", {
+              description: "Performing web search...",
+            });
+          }
+        }
+      },
+      feedback: "Performing web search."
+    });
+
+    registerCommand('imageService', {
+      pattern: /(create image|generate image|bannerbear)/i,
+      handler: async (transcript) => {
+        if (sendMessage) {
+          await sendMessage(transcript);
+        } else {
+          const result = await processServiceCommand(transcript);
+          if (result.handled) {
+            toast("Image Service", {
+              description: "Generating image...",
+            });
+          }
+        }
+      },
+      feedback: "Generating image."
+    });
+
+    registerCommand('pdfService', {
+      pattern: /(convert pdf|edit pdf|pdf|ilovepdf)/i,
+      handler: async (transcript) => {
+        if (sendMessage) {
+          await sendMessage(transcript);
+        } else {
+          const result = await processServiceCommand(transcript);
+          if (result.handled) {
+            toast("PDF Service", {
+              description: "Processing PDF request...",
+            });
+          }
+        }
+      },
+      feedback: "Processing PDF request."
+    });
+
+    registerCommand('audioService', {
+      pattern: /(find sound|audio|sound|freesound)/i,
+      handler: async (transcript) => {
+        if (sendMessage) {
+          await sendMessage(transcript);
+        } else {
+          const result = await processServiceCommand(transcript);
+          if (result.handled) {
+            toast("Audio Service", {
+              description: "Searching for sounds...",
+            });
+          }
+        }
+      },
+      feedback: "Searching for sounds."
+    });
+
+    registerCommand('petService', {
+      pattern: /(find pet|adopt pet|petfinder)/i,
+      handler: async (transcript) => {
+        if (sendMessage) {
+          await sendMessage(transcript);
+        } else {
+          const result = await processServiceCommand(transcript);
+          if (result.handled) {
+            toast("Pet Service", {
+              description: "Searching for pets...",
+            });
+          }
+        }
+      },
+      feedback: "Searching for pets."
+    });
+
+    registerCommand('financeService', {
+      pattern: /(stock price|financial data|alphavantage)/i,
+      handler: async (transcript) => {
+        if (sendMessage) {
+          await sendMessage(transcript);
+        } else {
+          const result = await processServiceCommand(transcript);
+          if (result.handled) {
+            toast("Finance Service", {
+              description: "Retrieving financial data...",
+            });
+          }
+        }
+      },
+      feedback: "Retrieving financial data."
+    });
+
+    registerCommand('cryptoService', {
+      pattern: /(crypto price|bitcoin|ethereum|coinbase)/i,
+      handler: async (transcript) => {
+        if (sendMessage) {
+          await sendMessage(transcript);
+        } else {
+          const result = await processServiceCommand(transcript);
+          if (result.handled) {
+            toast("Crypto Service", {
+              description: "Retrieving cryptocurrency data...",
+            });
+          }
+        }
+      },
+      feedback: "Retrieving cryptocurrency data."
+    });
+
+    registerCommand('dataVisualizationService', {
+      pattern: /(visualize data|tableau|data viz)/i,
+      handler: async (transcript) => {
+        if (sendMessage) {
+          await sendMessage(transcript);
+        } else {
+          const result = await processServiceCommand(transcript);
+          if (result.handled) {
+            toast("Data Visualization Service", {
+              description: "Processing data visualization request...",
+            });
+          }
+        }
+      },
+      feedback: "Processing data visualization request."
+    });
+
+    registerCommand('biService', {
+      pattern: /(business intelligence|power bi|report)/i,
+      handler: async (transcript) => {
+        if (sendMessage) {
+          await sendMessage(transcript);
+        } else {
+          const result = await processServiceCommand(transcript);
+          if (result.handled) {
+            toast("Business Intelligence Service", {
+              description: "Processing BI request...",
+            });
+          }
+        }
+      },
+      feedback: "Processing Business Intelligence request."
+    });
+
+    registerCommand('timeService', {
+      pattern: /(what time|current time|timezone)/i,
+      handler: async (transcript) => {
+        const now = new Date();
+        
+        if (sendMessage) {
+          await sendMessage(transcript);
+        } else {
+          toast("Time Service", {
+            description: `Current time: ${now.toLocaleTimeString()} (${Intl.DateTimeFormat().resolvedOptions().timeZone})`,
+          });
+        }
+      },
+      feedback: "Checking the current time."
+    });
+
+    registerCommand('codingService', {
+      pattern: /(coding challenge|hackerearth|code)/i,
+      handler: async (transcript) => {
+        if (sendMessage) {
+          await sendMessage(transcript);
+        } else {
+          const result = await processServiceCommand(transcript);
+          if (result.handled) {
+            toast("Coding Service", {
+              description: "Processing coding request...",
+            });
+          }
+        }
+      },
+      feedback: "Processing coding request."
+    });
+    
     return () => {
       // Cleanup
       unregisterCommand('securityScan');
@@ -283,6 +555,24 @@ const JarvisVoiceCommands: React.FC<JarvisVoiceCommandsProps> = ({
       unregisterCommand('worldClock');
       unregisterCommand('chatHistory');
       unregisterCommand('satelliteView');
+      
+      // Clean up service integration commands
+      unregisterCommand('emailService');
+      unregisterCommand('authService');
+      unregisterCommand('automationService');
+      unregisterCommand('locationService');
+      unregisterCommand('messagingService');
+      unregisterCommand('searchService');
+      unregisterCommand('imageService');
+      unregisterCommand('pdfService');
+      unregisterCommand('audioService');
+      unregisterCommand('petService');
+      unregisterCommand('financeService');
+      unregisterCommand('cryptoService');
+      unregisterCommand('dataVisualizationService');
+      unregisterCommand('biService');
+      unregisterCommand('timeService');
+      unregisterCommand('codingService');
     };
   }, [registerCommand, unregisterCommand, hackerModeActive, onActivateHacker, sendMessage]);
   
