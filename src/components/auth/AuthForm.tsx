@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
-import { toast } from '@/components/ui/sonner';
+import { toast } from 'sonner';
 import { GithubIcon, Facebook, Mail } from 'lucide-react';
 import { FirebaseUser } from '@/services/firebaseService';
 
@@ -17,7 +17,7 @@ const AuthForm: React.FC = () => {
   const [password, setPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
-  const { user, signIn } = useAuth();
+  const { user, signIn, signInWithFB, signInWithGH } = useAuth();
   const navigate = useNavigate();
 
   // Redirect if user is already logged in
@@ -33,10 +33,8 @@ const AuthForm: React.FC = () => {
     if (loading) return;
     
     if (isSignUp && password !== confirmPassword) {
-      toast({
-        title: "Error",
-        description: "Passwords do not match",
-        variant: "destructive"
+      toast("Passwords do not match", {
+        description: "Please ensure both passwords are identical."
       });
       return;
     }
@@ -54,17 +52,14 @@ const AuthForm: React.FC = () => {
       
       // Simulate successful login
       await new Promise(resolve => setTimeout(resolve, 1000));
-      toast({
-        title: isSignUp ? "Account Created" : "Login Successful",
+      toast(isSignUp ? "Account Created" : "Login Successful", {
         description: isSignUp ? "Your account has been created successfully" : "Welcome back!"
       });
       
       navigate('/interface');
     } catch (error: any) {
-      toast({
-        title: "Authentication Error",
-        description: error.message || "Failed to authenticate",
-        variant: "destructive"
+      toast("Authentication Error", {
+        description: error.message || "Failed to authenticate"
       });
     } finally {
       setLoading(false);
@@ -75,25 +70,26 @@ const AuthForm: React.FC = () => {
     setLoading(true);
     
     try {
-      // For now, we'll just call the existing signIn function for Google
-      // and log for other providers
+      // Use the appropriate auth method based on provider
+      let result = null;
+      
       if (provider === 'google') {
-        await signIn();
-      } else {
-        console.log(`Logging in with ${provider}`);
-        // Mock successful login
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        toast({
-          title: "Login Successful",
+        result = await signIn();
+      } else if (provider === 'facebook') {
+        result = await signInWithFB(); 
+      } else if (provider === 'github') {
+        result = await signInWithGH();
+      }
+      
+      if (result) {
+        toast("Login Successful", {
           description: `Logged in with ${provider}`
         });
+        navigate('/interface');
       }
-      navigate('/interface');
     } catch (error: any) {
-      toast({
-        title: "Authentication Error",
-        description: error.message || `Failed to authenticate with ${provider}`,
-        variant: "destructive"
+      toast("Authentication Error", {
+        description: error.message || `Failed to authenticate with ${provider}`
       });
     } finally {
       setLoading(false);

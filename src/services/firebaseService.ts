@@ -1,4 +1,4 @@
-import { toast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 
 interface FirebaseConfig {
   apiKey: string;
@@ -67,10 +67,8 @@ export const initializeFirebase = async (): Promise<boolean> => {
 // Authentication functions
 export const signInWithGoogle = async (): Promise<FirebaseUser | null> => {
   if (!await initializeFirebase()) {
-    toast({
-      title: "Firebase Error",
-      description: "Could not initialize Firebase for authentication.",
-      variant: "destructive"
+    toast("Firebase Error", {
+      description: "Could not initialize Firebase for authentication."
     });
     return null;
   }
@@ -95,18 +93,15 @@ export const signInWithGoogle = async (): Promise<FirebaseUser | null> => {
     // Store or update user data in Firestore
     await storeUserProfile(userData);
     
-    toast({
-      title: "Sign In Successful",
-      description: `Welcome, ${user.displayName || "User"}!`,
+    toast("Sign In Successful", {
+      description: `Welcome, ${user.displayName || "User"}!`
     });
     
     return userData;
   } catch (error: any) {
     console.error("Error signing in with Google:", error);
-    toast({
-      title: "Authentication Error",
-      description: error.message || "Failed to sign in with Google",
-      variant: "destructive"
+    toast("Authentication Error", {
+      description: error.message || "Failed to sign in with Google"
     });
     return null;
   }
@@ -114,10 +109,8 @@ export const signInWithGoogle = async (): Promise<FirebaseUser | null> => {
 
 export const signInWithFacebook = async (): Promise<FirebaseUser | null> => {
   if (!await initializeFirebase()) {
-    toast({
-      title: "Firebase Error",
-      description: "Could not initialize Firebase for authentication.",
-      variant: "destructive"
+    toast("Firebase Error", {
+      description: "Could not initialize Firebase for authentication."
     });
     return null;
   }
@@ -141,18 +134,15 @@ export const signInWithFacebook = async (): Promise<FirebaseUser | null> => {
     // Store or update user data in Firestore
     await storeUserProfile(userData);
     
-    toast({
-      title: "Sign In Successful",
-      description: `Welcome, ${user.displayName || "User"}!`,
+    toast("Sign In Successful", {
+      description: `Welcome, ${user.displayName || "User"}!`
     });
     
     return userData;
   } catch (error: any) {
     console.error("Error signing in with Facebook:", error);
-    toast({
-      title: "Authentication Error",
-      description: error.message || "Failed to sign in with Facebook",
-      variant: "destructive"
+    toast("Authentication Error", {
+      description: error.message || "Failed to sign in with Facebook"
     });
     return null;
   }
@@ -160,10 +150,8 @@ export const signInWithFacebook = async (): Promise<FirebaseUser | null> => {
 
 export const signInWithGithub = async (): Promise<FirebaseUser | null> => {
   if (!await initializeFirebase()) {
-    toast({
-      title: "Firebase Error",
-      description: "Could not initialize Firebase for authentication.",
-      variant: "destructive"
+    toast("Firebase Error", {
+      description: "Could not initialize Firebase for authentication."
     });
     return null;
   }
@@ -187,18 +175,15 @@ export const signInWithGithub = async (): Promise<FirebaseUser | null> => {
     // Store or update user data in Firestore
     await storeUserProfile(userData);
     
-    toast({
-      title: "Sign In Successful",
-      description: `Welcome, ${user.displayName || "User"}!`,
+    toast("Sign In Successful", {
+      description: `Welcome, ${user.displayName || "User"}!`
     });
     
     return userData;
   } catch (error: any) {
     console.error("Error signing in with GitHub:", error);
-    toast({
-      title: "Authentication Error",
-      description: error.message || "Failed to sign in with GitHub",
-      variant: "destructive"
+    toast("Authentication Error", {
+      description: error.message || "Failed to sign in with GitHub"
     });
     return null;
   }
@@ -209,17 +194,14 @@ export const signOut = async (): Promise<boolean> => {
   
   try {
     await auth.signOut();
-    toast({
-      title: "Signed Out",
+    toast("Signed Out", {
       description: "You have been successfully signed out."
     });
     return true;
   } catch (error) {
     console.error("Error signing out:", error);
-    toast({
-      title: "Sign Out Error",
-      description: "Failed to sign out.",
-      variant: "destructive"
+    toast("Sign Out Error", {
+      description: "Failed to sign out."
     });
     return false;
   }
@@ -266,10 +248,8 @@ const storeUserProfile = async (userData: FirebaseUser): Promise<void> => {
 // Listen for commands from Firebase
 export const listenForCommands = async (callback: (command: CommandData) => void) => {
   if (!await initializeFirebase()) {
-    toast({
-      title: "Firebase Error",
-      description: "Could not initialize Firebase to listen for commands.",
-      variant: "destructive"
+    toast("Firebase Error", {
+      description: "Could not initialize Firebase to listen for commands."
     });
     return () => {};
   }
@@ -303,10 +283,8 @@ export const listenForCommands = async (callback: (command: CommandData) => void
 // Send a command to Firebase
 export const sendCommand = async (command: CommandData): Promise<boolean> => {
   if (!await initializeFirebase()) {
-    toast({
-      title: "Firebase Error",
-      description: "Could not initialize Firebase to send command.",
-      variant: "destructive"
+    toast("Firebase Error", {
+      description: "Could not initialize Firebase to send command."
     });
     return false;
   }
@@ -321,10 +299,8 @@ export const sendCommand = async (command: CommandData): Promise<boolean> => {
     return true;
   } catch (error) {
     console.error("Error sending command:", error);
-    toast({
-      title: "Command Error",
-      description: "Failed to send command to Firebase.",
-      variant: "destructive"
+    toast("Command Error", {
+      description: "Failed to send command to Firebase."
     });
     return false;
   }
