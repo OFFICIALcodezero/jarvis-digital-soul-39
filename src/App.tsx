@@ -16,6 +16,7 @@ import SatelliteSurveillancePage from "./pages/SatelliteSurveillance";
 import OSINTSearch from "./pages/OSINTSearch";
 import { AuthProvider } from "./contexts/AuthContext";
 import { WeatherContextProvider } from "./features/WeatherContext";
+import Auth from "./pages/Auth";
 import JarvisModeSwitcher from "./components/JarvisModeSwitcher";
 import JarvisV2Interface from "./pages/JarvisV2Interface";
 
@@ -29,6 +30,7 @@ function App() {
               <JarvisModeEnhancer>
                 <Routes>
                   <Route path="/" element={<Index />} />
+                  <Route path="/auth" element={<Auth />} />
                   <Route path="/startup" element={<Startup />} />
                   <Route path="/interface" element={<JarvisInterface />} />
                   <Route path="/jarvis" element={<JarvisInterface />} /> 
@@ -45,7 +47,9 @@ function App() {
                 </Routes>
               </JarvisModeEnhancer>
             </div>
-            <JarvisModeSwitcher />
+            <div style={{ position: 'fixed', bottom: '0', right: '0', zIndex: '1000' }}>
+              <JarvisModeSwitcher />
+            </div>
           </WeatherContextProvider>
         </JarvisChatProvider>
       </AuthProvider>

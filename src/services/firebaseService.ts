@@ -1,4 +1,3 @@
-
 import { toast } from '@/components/ui/use-toast';
 
 interface FirebaseConfig {
@@ -107,6 +106,98 @@ export const signInWithGoogle = async (): Promise<FirebaseUser | null> => {
     toast({
       title: "Authentication Error",
       description: error.message || "Failed to sign in with Google",
+      variant: "destructive"
+    });
+    return null;
+  }
+};
+
+export const signInWithFacebook = async (): Promise<FirebaseUser | null> => {
+  if (!await initializeFirebase()) {
+    toast({
+      title: "Firebase Error",
+      description: "Could not initialize Firebase for authentication.",
+      variant: "destructive"
+    });
+    return null;
+  }
+  
+  try {
+    const { signInWithPopup, FacebookAuthProvider } = await import('firebase/auth');
+    const facebookProvider = new FacebookAuthProvider();
+    const result = await signInWithPopup(auth, facebookProvider);
+    
+    const user = result.user;
+    
+    // Create user profile data
+    const userData: FirebaseUser = {
+      uid: user.uid,
+      displayName: user.displayName,
+      email: user.email,
+      photoURL: user.photoURL,
+      lastSignInTime: user.metadata.lastSignInTime
+    };
+    
+    // Store or update user data in Firestore
+    await storeUserProfile(userData);
+    
+    toast({
+      title: "Sign In Successful",
+      description: `Welcome, ${user.displayName || "User"}!`,
+    });
+    
+    return userData;
+  } catch (error: any) {
+    console.error("Error signing in with Facebook:", error);
+    toast({
+      title: "Authentication Error",
+      description: error.message || "Failed to sign in with Facebook",
+      variant: "destructive"
+    });
+    return null;
+  }
+};
+
+export const signInWithGithub = async (): Promise<FirebaseUser | null> => {
+  if (!await initializeFirebase()) {
+    toast({
+      title: "Firebase Error",
+      description: "Could not initialize Firebase for authentication.",
+      variant: "destructive"
+    });
+    return null;
+  }
+  
+  try {
+    const { signInWithPopup, GithubAuthProvider } = await import('firebase/auth');
+    const githubProvider = new GithubAuthProvider();
+    const result = await signInWithPopup(auth, githubProvider);
+    
+    const user = result.user;
+    
+    // Create user profile data
+    const userData: FirebaseUser = {
+      uid: user.uid,
+      displayName: user.displayName,
+      email: user.email,
+      photoURL: user.photoURL,
+      lastSignInTime: user.metadata.lastSignInTime
+    };
+    
+    // Store or update user data in Firestore
+    await storeUserProfile(userData);
+    
+    toast({
+      title: "Sign In Successful",
+      description: `Welcome, ${user.displayName || "User"}!`,
+    });
+    
+    return userData;
+  } catch (error: any) {
+    console.error("Error signing in with GitHub:", error);
+    toast({
+      title: "Authentication Error",
+      description: error.message || "Failed to sign in with GitHub",
       variant: "destructive"
     });
     return null;

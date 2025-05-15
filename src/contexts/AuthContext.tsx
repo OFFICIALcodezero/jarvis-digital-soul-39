@@ -1,11 +1,20 @@
 
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { FirebaseUser, getCurrentUser, signInWithGoogle, signOut } from '@/services/firebaseService';
+import { 
+  FirebaseUser, 
+  getCurrentUser, 
+  signInWithGoogle,
+  signInWithFacebook,
+  signInWithGithub, 
+  signOut 
+} from '@/services/firebaseService';
 
 interface AuthContextType {
   user: FirebaseUser | null;
   isLoading: boolean;
   signIn: () => Promise<FirebaseUser | null>;
+  signInWithFB: () => Promise<FirebaseUser | null>;
+  signInWithGH: () => Promise<FirebaseUser | null>;
   logOut: () => Promise<boolean>;
 }
 
@@ -35,6 +44,18 @@ export const AuthProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }
     setUser(user);
     return user;
   };
+  
+  const signInWithFB = async () => {
+    const user = await signInWithFacebook();
+    setUser(user);
+    return user;
+  };
+  
+  const signInWithGH = async () => {
+    const user = await signInWithGithub();
+    setUser(user);
+    return user;
+  };
 
   const logOut = async () => {
     const success = await signOut();
@@ -50,6 +71,8 @@ export const AuthProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }
         user,
         isLoading,
         signIn,
+        signInWithFB,
+        signInWithGH,
         logOut
       }}
     >
