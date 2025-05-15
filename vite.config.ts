@@ -2,7 +2,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
-import { componentTagger } from "./vite-plugins/component-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -13,8 +12,7 @@ export default defineConfig(({ mode }) => ({
         plugins: [],
       },
     }),
-    mode === 'development' && componentTagger(),
-  ].filter(Boolean),
+  ],
   build: {
     outDir: 'dist',
     minify: false,
@@ -44,7 +42,7 @@ export default defineConfig(({ mode }) => ({
     ]
   },
   server: {
-    port: 5174,
+    port: 8080,
     host: true
   }
 }));
