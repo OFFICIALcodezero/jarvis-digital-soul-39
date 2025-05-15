@@ -1,3 +1,4 @@
+
 import { getTimeCalendarResponse } from './timeCalendarService';
 import { getWeatherResponse } from './weatherService';
 import { getNewsResponse } from './newsService';
@@ -8,7 +9,6 @@ import { processHistoryQuery } from './chatHistoryService';
 import { toast } from '@/components/ui/use-toast';
 import { detectThreats } from './threatDetectionService';
 import { intelligenceCore } from './intelligenceCoreService';
-import { processServiceCommand } from './serviceIntegrations/serviceCommandHandler';
 
 export interface SkillResponse {
   text: string;
@@ -22,19 +22,6 @@ export const isSkillCommand = (message: string): boolean => {
   const lowerMessage = message.toLowerCase();
   
   const matchResult = Boolean(lowerMessage.match(/what('s| is) happening/i));
-  
-  // Check for service integration commands
-  try {
-    const serviceResult = processServiceCommand(message);
-    if (serviceResult && typeof serviceResult.then === 'function') {
-      // If it's a promise, we can't check synchronously
-      // We'll rely on the other checks instead
-    } else if (serviceResult && 'handled' in serviceResult && serviceResult.handled) {
-      return true;
-    }
-  } catch (error) {
-    console.warn("Error checking service command:", error);
-  }
   
   return (
     // Time related
@@ -99,46 +86,7 @@ export const isSkillCommand = (message: string): boolean => {
     lowerMessage.includes('neural') ||
     lowerMessage.includes('evolve ai') ||
     lowerMessage.includes('brain') ||
-    (lowerMessage.includes('learn') && (lowerMessage.includes('ai') || lowerMessage.includes('network'))) ||
-    
-    // Service integrations
-    lowerMessage.includes('send email') ||
-    lowerMessage.includes('resend') ||
-    lowerMessage.includes('login') ||
-    lowerMessage.includes('signup') ||
-    lowerMessage.includes('clerk') ||
-    lowerMessage.includes('automate') ||
-    lowerMessage.includes('make') ||
-    lowerMessage.includes('find location') ||
-    lowerMessage.includes('search location') ||
-    lowerMessage.includes('mapbox') ||
-    lowerMessage.includes('send message') ||
-    lowerMessage.includes('call') ||
-    lowerMessage.includes('twilio') ||
-    lowerMessage.includes('serper') ||
-    lowerMessage.includes('bannerbear') ||
-    lowerMessage.includes('create image') ||
-    lowerMessage.includes('ilovepdf') ||
-    lowerMessage.includes('convert pdf') ||
-    lowerMessage.includes('freesound') ||
-    lowerMessage.includes('find sound') ||
-    lowerMessage.includes('petfinder') ||
-    lowerMessage.includes('find pet') ||
-    lowerMessage.includes('youtube') ||
-    lowerMessage.includes('play video') ||
-    lowerMessage.includes('alphavantage') ||
-    lowerMessage.includes('stock price') ||
-    lowerMessage.includes('remotion') ||
-    lowerMessage.includes('coinbase') ||
-    lowerMessage.includes('crypto') ||
-    lowerMessage.includes('tableau') ||
-    lowerMessage.includes('visualize data') ||
-    lowerMessage.includes('power bi') ||
-    lowerMessage.includes('venice') ||
-    lowerMessage.includes('data stream') ||
-    lowerMessage.includes('timezone') ||
-    lowerMessage.includes('hackerearth') ||
-    lowerMessage.includes('coding challenge')
+    (lowerMessage.includes('learn') && (lowerMessage.includes('ai') || lowerMessage.includes('network')))
   );
 };
 
@@ -147,23 +95,6 @@ export const processSkillCommand = async (message: string): Promise<SkillRespons
   const lowerMessage = message.toLowerCase();
   
   try {
-    // Check for service integration commands first
-    try {
-      const serviceResult = await processServiceCommand(message);
-      
-      if (serviceResult.handled) {
-        return {
-          text: serviceResult.response.message || "Processing your request through the integrated service.",
-          shouldSpeak: true,
-          data: serviceResult.response,
-          skillType: 'service_integration'
-        };
-      }
-    } catch (error) {
-      console.warn("Error processing service command:", error);
-      // Continue with other skill checks
-    }
-    
     // Neural network commands
     if (
       lowerMessage.includes('neural network') ||

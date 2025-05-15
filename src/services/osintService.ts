@@ -1,15 +1,36 @@
 
 import { OSINTSearchParams, OSINTSearchResult, OSINTAnalytics, OSINTEntity, OSINTRelationship, EntityAnalysis } from '@/types/osint';
 import { v4 as uuidv4 } from 'uuid';
-import { supabase } from "../integrations/supabase/client";
 
-// API endpoints configuration for real OSINT data
-const API_CONFIG = {
-  baseUrl: 'https://emqigcovjkfupxnjakss.supabase.co/functions/v1',
-  endpoints: {
-    lookup: '/osint-lookup'
-  }
+// Mock API endpoints - in a real implementation, these would call actual APIs
+const API_ENDPOINTS = {
+  news: 'https://api.example.com/news-search',
+  social: 'https://api.example.com/social-media-search',
+  public_records: 'https://api.example.com/public-records',
+  web: 'https://api.example.com/web-search',
+  leaked_data: 'https://api.example.com/leaked-data',
 };
+
+// Sample news sources for mock data
+const NEWS_SOURCES = [
+  { name: 'CNN', domain: 'cnn.com' },
+  { name: 'BBC', domain: 'bbc.com' },
+  { name: 'Reuters', domain: 'reuters.com' },
+  { name: 'Associated Press', domain: 'ap.org' },
+  { name: 'Al Jazeera', domain: 'aljazeera.com' },
+];
+
+// Sample social media platforms for mock data
+const SOCIAL_PLATFORMS = [
+  { name: 'Twitter', domain: 'twitter.com' },
+  { name: 'Reddit', domain: 'reddit.com' },
+  { name: 'LinkedIn', domain: 'linkedin.com' },
+  { name: 'Facebook', domain: 'facebook.com' },
+];
+
+// Sample entity types and names for generating mock relationships
+const ENTITY_TYPES = ['person', 'organization', 'location', 'event'] as const;
+const RELATIONSHIP_TYPES = ['mentions', 'involves', 'located_at', 'works_for', 'related_to'] as const;
 
 /**
  * Search for OSINT data across multiple sources
@@ -33,46 +54,7 @@ export const searchOSINTData = async (params: OSINTSearchParams): Promise<OSINTS
   // Sort results by timestamp (newest first)
   results.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
   
-  // Store the search in history
-  try {
-    await supabase.from('osint_searches').insert({
-      query: params.query,
-      sources: params.sources,
-      results_count: results.length,
-      timeframe: params.timeframe || 'all',
-      location: params.location
-    });
-  } catch (error) {
-    console.error("Failed to log OSINT search:", error);
-  }
-  
   return results;
-};
-
-/**
- * Call OSINT lookup endpoint for real data
- */
-export const callOSINTLookup = async (type: 'email' | 'domain' | 'ip' | 'username' | 'phone', query: string): Promise<any> => {
-  try {
-    const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.lookup}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.ANON_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY}`
-      },
-      body: JSON.stringify({ type, query })
-    });
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`API Error (${response.status}): ${errorText}`);
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error(`Error in OSINT lookup (${type}):`, error);
-    throw error;
-  }
 };
 
 /**

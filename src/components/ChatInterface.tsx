@@ -1,11 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Mic, Upload, Terminal, Heart, Brain, Camera, Globe, Calendar, Mail, VolumeX, Volume2 } from 'lucide-react';
-import { logToSupabase } from '../supabase'; 
-import { useYouTubeSearch } from '@/hooks/useYouTubeSearch';
-import YouTubePlayer from './YouTubePlayer';
-import { useAuth } from '@/contexts/AuthContext';
-import { saveUserChatHistory, loadUserChatHistory } from '@/services/chatHistoryService';
-import { toast } from '@/components/ui/use-toast';
+import { logToSupabase } from '../supabase'; // Correctly importing from our new mock file
 
 type Message = {
   id: number;
@@ -16,13 +11,7 @@ type Message = {
 
 type JarvisMode = 'assistant' | 'hacker' | 'girlfriend' | 'translator' | 'vision';
 
-interface ChatInterfaceProps {
-  onYouTubeCommand?: (query: string) => Promise<boolean>;
-}
-
-const ChatInterface: React.FC<ChatInterfaceProps> = ({ onYouTubeCommand }) => {
-  const [input, setInput] = useState('');
-  const { videoId, searchAndPlay, closeVideo } = useYouTubeSearch();
+const ChatInterface = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 0, 
@@ -31,6 +20,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onYouTubeCommand }) => {
       timestamp: new Date()
     }
   ]);
+  const [input, setInput] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [jarvisMode, setJarvisMode] = useState<JarvisMode>('assistant');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -38,37 +28,10 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onYouTubeCommand }) => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [volume, setVolume] = useState(0.7);
   const [isMuted, setIsMuted] = useState(false);
-  const [inputHistory, setInputHistory] = useState<string[]>([]);
-  const [historyIndex, setHistoryIndex] = useState(-1);
-  
-  const { user } = useAuth();
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  
-  // Load chat history when user changes
-  useEffect(() => {
-    if (user) {
-      const userMessages = loadUserChatHistory(user.uid);
-      
-      if (userMessages.length > 0) {
-        setMessages(userMessages);
-        toast({
-          title: "Chat History Loaded",
-          description: `Welcome back, ${user.displayName || 'User'}!`,
-        });
-      }
-    }
-  }, [user]);
-  
-  // Save messages to history when they change and user is logged in
-  useEffect(() => {
-    if (user && messages.length > 1) {  // Only save if we have more than the welcome message
-      saveUserChatHistory(user.uid, messages);
-    }
-  }, [messages, user]);
   
   // Initialize audio element
   useEffect(() => {
@@ -98,61 +61,27 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onYouTubeCommand }) => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, hackerOutput]);
 
-  const handleSendMessage = async () => {
+  const handleSendMessage = () => {
     if (input.trim() === '') return;
 
     const inputLower = input.toLowerCase();
-    
-    // Add to input history
-    setInputHistory(prev => [input, ...prev.slice(0, 49)]); // Keep the last 50 entries
-    setHistoryIndex(-1);
 
-    // Handle YouTube video playing with external handler if provided
-    if (onYouTubeCommand && inputLower.startsWith("play ")) {
-      const isHandled = await onYouTubeCommand(input);
+    // Handle play YouTube command
+    if (inputLower.startsWith("play ")) {
+      const query = inputLower.replace("play", "").trim();
+      const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
+      window.open(url, "_blank");
+
+      // Use a regular function instead of an immediately invoked async function
+      const logResult = () => {
+        logToSupabase(input, "Play YouTube video", url, "neutral")
+          .catch(err => console.error("Error logging to Supabase:", err));
+      };
       
-      if (isHandled) {
-        // Add user message but don't process further
-        const newUserMessage: Message = {
-          id: messages.length,
-          text: input,
-          sender: 'user',
-          timestamp: new Date()
-        };
-        
-        setMessages([...messages, newUserMessage]);
-        setInput('');
-        return;
-      }
-    }
-    
-    // Fallback YouTube handling directly in this component
-    if (inputLower.startsWith("play ") && !onYouTubeCommand) {
-      const query = input.replace(/^play\s+/i, "").trim();
-      
-      if (query) {
-        await searchAndPlay(query);
-        
-        // Add the message to the chat
-        const newUserMessage: Message = {
-          id: messages.length,
-          text: input,
-          sender: 'user',
-          timestamp: new Date()
-        };
-        
-        const responseMessage: Message = {
-          id: messages.length + 1,
-          text: `Playing "${query}" on YouTube`,
-          sender: 'jarvis',
-          timestamp: new Date()
-        };
-        
-        setMessages([...messages, newUserMessage, responseMessage]);
-        await logToSupabase(input, "Play YouTube video", query, "neutral");
-        setInput('');
-        return;
-      }
+      logResult();
+
+      setInput('');
+      return; // Stop further processing
     }
 
     const newUserMessage: Message = {
@@ -321,28 +250,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onYouTubeCommand }) => {
     }
   };
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    // Navigate through input history with up/down arrows
-    if (event.key === 'ArrowUp') {
-      event.preventDefault();
-      if (inputHistory.length > 0 && historyIndex < inputHistory.length - 1) {
-        const newIndex = historyIndex + 1;
-        setHistoryIndex(newIndex);
-        setInput(inputHistory[newIndex]);
-      }
-    } else if (event.key === 'ArrowDown') {
-      event.preventDefault();
-      if (historyIndex > 0) {
-        const newIndex = historyIndex - 1;
-        setHistoryIndex(newIndex);
-        setInput(inputHistory[newIndex]);
-      } else if (historyIndex === 0) {
-        setHistoryIndex(-1);
-        setInput('');
-      }
-    }
-  };
-
   const suggestedCommands = [
     { text: "Tell me a joke", mode: "assistant" },
     { text: "Scan the network", mode: "hacker" },
@@ -393,7 +300,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onYouTubeCommand }) => {
       {/* Main chat area or hacker terminal */}
       <div className="flex-grow overflow-y-auto p-4 space-y-4 bg-neon-grid bg-[length:30px_30px]">
         {jarvisMode === 'hacker' && hackerOutput && (
-          <div className="terminal-text text-sm bg-black/70 p-4 rounded-xl border border-jarvis/30 shadow-jarvis-glow mb-4">
+          <div className="terminal-text text-sm bg-black/70 p-4 rounded-xl border border-jarvis/20 shadow-jarvis-glow mb-4">
             <pre>{hackerOutput}</pre>
           </div>
         )}
@@ -496,12 +403,10 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onYouTubeCommand }) => {
           </button>
           
           <input 
-            ref={inputRef}
             type="text" 
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-            onKeyDown={handleKeyDown}
             placeholder={isRecording ? "Listening..." : "Type your message..."}
             disabled={isRecording}
             className="flex-grow p-2 glass-card border-jarvis/20 text-white placeholder-gray-400 focus:outline-none focus:border-jarvis/50 focus:shadow-jarvis-glow"
@@ -519,7 +424,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onYouTubeCommand }) => {
         {/* Mode indicator */}
         <div className="mt-2 flex justify-between text-xs text-gray-400">
           <span>{jarvisMode.charAt(0).toUpperCase() + jarvisMode.slice(1)} Mode</span>
-          <span>{isRecording ? "Listening..." : isSpeaking ? "Speaking..." : user ? "User: " + (user.displayName || user.email) : "Not signed in"}</span>
+          <span>{isRecording ? "Listening..." : isSpeaking ? "Speaking..." : "Ready"}</span>
         </div>
       </div>
     </div>

@@ -1,7 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { AssistantType } from '@/pages/JarvisInterface';
-import { registerAllServices } from '@/services/serviceIntegrations/registerServices';
-import { processServiceCommand, formatServiceResponse } from '@/services/serviceIntegrations/serviceCommandHandler';
 
 interface ImageGenerationResult {
   url: string;
@@ -64,11 +62,6 @@ export const JarvisChatProvider = ({ children, ...props }: {
     setMessages([initialMessage]);
   }, []);
   
-  // Initialize services
-  useEffect(() => {
-    registerAllServices();
-  }, []);
-  
   // Function to send a message
   const sendMessage = async (message: string) => {
     // Check if this is a special message that should be handled by parent (e.g. hacker mode)
@@ -85,31 +78,7 @@ export const JarvisChatProvider = ({ children, ...props }: {
     
     setMessages(prev => [...prev, userMessage]);
     
-    // First check if it's a service command
-    const serviceResult = await processServiceCommand(message);
-    
-    if (serviceResult.handled) {
-      // It's a service command, handle with the service system
-      const serviceResponse = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: formatServiceResponse(serviceResult.response?.service || 'unknown', serviceResult.response),
-        timestamp: new Date(),
-        serviceData: serviceResult.response
-      };
-      
-      setMessages(prev => [...prev, serviceResponse]);
-      
-      // If we have a setIsSpeaking function from props, use it
-      if (props.setIsSpeaking) {
-        props.setIsSpeaking(true);
-        setTimeout(() => props.setIsSpeaking!(false), 3000);
-      }
-      
-      return;
-    }
-    
-    // If not a service command, continue with normal response simulation
+    // Simulate a response
     setTimeout(() => {
       const assistantMessage = {
         id: (Date.now() + 1).toString(),

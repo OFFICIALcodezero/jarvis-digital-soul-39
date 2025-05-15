@@ -2,7 +2,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Bot, Image, Terminal, Volume2, VolumeX } from 'lucide-react';
-import AuthStatus from '@/components/auth/AuthStatus';
+import GoogleSignInButton from '@/components/auth/GoogleSignInButton';
+import UserProfileButton from '@/components/auth/UserProfileButton';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface JarvisHeaderProps {
   hackerModeActive: boolean;
@@ -17,6 +19,8 @@ const JarvisHeader: React.FC<JarvisHeaderProps> = ({
   toggleMute,
   isMuted
 }) => {
+  const { user } = useAuth();
+
   return (
     <div className={`w-full jarvis-panel flex items-center justify-between p-3 ${hackerModeActive ? 'border-red-500/20' : 'border-jarvis/20'}`}>
       <div className="flex items-center">
@@ -58,7 +62,11 @@ const JarvisHeader: React.FC<JarvisHeaderProps> = ({
         </button>
         
         {/* Authentication UI */}
-        <AuthStatus />
+        {user ? (
+          <UserProfileButton />
+        ) : (
+          <GoogleSignInButton variant="outline" size="sm" />
+        )}
       </div>
     </div>
   );
