@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Bot } from 'lucide-react';
 import JarvisHeader from '@/components/interface/JarvisHeader';
 import JarvisMainLayout from '@/components/interface/JarvisMainLayout';
@@ -11,6 +11,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import JarvisCore from '@/components/JarvisCore';
 import JarvisVoiceCommands from '@/components/JarvisVoiceCommands';
 import VoiceCommandIntegration from '@/features/VoiceCommandIntegration';
+import HologramScreen from '@/components/hologram/HologramScreen';
 
 export type AssistantType = 'jarvis';
 
@@ -40,11 +41,34 @@ const JarvisInterface = () => {
   
   const isMobile = useIsMobile();
   
+  const [isHologramOpen, setIsHologramOpen] = useState(false);
+  
   // Get control options based on current state
   const controlOptions = useControlOptions({ 
     activeMode, 
     hackerModeActive 
   });
+  
+  const openHologram = () => {
+    setIsHologramOpen(true);
+  };
+  
+  // Function to handle chat commands
+  const handleChatCommand = (message: string) => {
+    const lowerMessage = message.toLowerCase();
+    
+    // Check for hologram commands
+    if (lowerMessage.includes('open hologram') || 
+        lowerMessage.includes('show hologram') || 
+        lowerMessage.includes('activate hologram') ||
+        lowerMessage.includes('hologram interface')) {
+      openHologram();
+      return true;
+    }
+    
+    // Pass to default message handler
+    return handleMessageCheck(message);
+  };
   
   return (
     <div className={`relative min-h-screen flex flex-col ${hackerModeActive ? 'hacker-mode' : 'bg-jarvis-bg'} text-white overflow-hidden`}>
@@ -56,6 +80,7 @@ const JarvisInterface = () => {
         isListening={isListening} 
         hackerModeActive={hackerModeActive}
         onActivateHacker={activateHackerMode}
+        onOpenHologram={openHologram}
       />
       <VoiceCommandIntegration isActive={isListening} />
       
@@ -81,12 +106,18 @@ const JarvisInterface = () => {
         handleAssistantChange={handleAssistantChange}
         inputMode={inputMode}
         setInputMode={setInputMode}
-        handleMessageCheck={handleMessageCheck}
+        handleMessageCheck={handleChatCommand}
       />
       
       <JarvisControlBar 
         controlOptions={controlOptions} 
         onToggle={handleToggleMode} 
+      />
+      
+      {/* Hologram screen */}
+      <HologramScreen 
+        isOpen={isHologramOpen} 
+        onClose={() => setIsHologramOpen(false)} 
       />
     </div>
   );

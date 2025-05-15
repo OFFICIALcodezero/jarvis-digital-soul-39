@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { AssistantType } from '@/pages/JarvisInterface';
 
@@ -64,7 +65,7 @@ export const JarvisChatProvider = ({ children, ...props }: {
   
   // Function to send a message
   const sendMessage = async (message: string) => {
-    // Check if this is a special message that should be handled by parent (e.g. hacker mode)
+    // Check if this is a special message that should be handled by parent (e.g. hacker mode or hologram)
     if (props.onMessageCheck && props.onMessageCheck(message)) {
       return;
     }

@@ -1,5 +1,4 @@
-
-import React, { useEffect, useContext } from 'react';
+import React, { useEffect, useContext, useState } from 'react';
 import { useVoiceCommands } from '@/hooks/useVoiceCommands';
 import { toast } from '@/components/ui/sonner';
 import { JarvisChatContext } from '@/contexts/JarvisChatProvider';
@@ -13,12 +12,14 @@ interface JarvisVoiceCommandsProps {
   isListening: boolean;
   hackerModeActive?: boolean;
   onActivateHacker?: () => void;
+  onOpenHologram?: () => void;
 }
 
 const JarvisVoiceCommands: React.FC<JarvisVoiceCommandsProps> = ({ 
   isListening, 
   hackerModeActive = false,
-  onActivateHacker
+  onActivateHacker,
+  onOpenHologram
 }) => {
   const { registerCommand, unregisterCommand } = useVoiceCommands(isListening);
   
@@ -267,6 +268,21 @@ const JarvisVoiceCommands: React.FC<JarvisVoiceCommandsProps> = ({
       feedback: "Accessing satellite surveillance systems."
     });
     
+    // Hologram command
+    registerCommand('hologram', {
+      pattern: /(open hologram|show hologram|activate hologram|hologram interface|launch hologram)/i,
+      handler: () => {
+        if (onOpenHologram) {
+          onOpenHologram();
+        }
+        
+        toast("Hologram Interface", {
+          description: "Opening hologram visualization interface...",
+        });
+      },
+      feedback: "Opening holographic visualization system."
+    });
+    
     return () => {
       // Cleanup
       unregisterCommand('securityScan');
@@ -283,8 +299,9 @@ const JarvisVoiceCommands: React.FC<JarvisVoiceCommandsProps> = ({
       unregisterCommand('worldClock');
       unregisterCommand('chatHistory');
       unregisterCommand('satelliteView');
+      unregisterCommand('hologram');
     };
-  }, [registerCommand, unregisterCommand, hackerModeActive, onActivateHacker, sendMessage]);
+  }, [registerCommand, unregisterCommand, hackerModeActive, onActivateHacker, sendMessage, onOpenHologram]);
   
   return null; // This is a non-visual component
 };
