@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { toast } from '../components/ui/use-toast';
 
@@ -16,7 +15,7 @@ export interface ApiKeyValidation {
   };
 }
 
-const DEFAULT_GROQ_KEY = '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';
+const DEFAULT_GROQ_KEY = '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';
 
 export const useApiKeys = () => {
   const [apiKeys, setApiKeys] = useState<ApiKeys>({

@@ -9,7 +9,7 @@
 export type ApiServiceType = 'groq' | 'elevenlabs';
 
 // Default Groq API key
-const DEFAULT_GROQ_KEY = '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';
+const DEFAULT_GROQ_KEY = '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';
 
 /**
  * Check if an API key exists for a service
