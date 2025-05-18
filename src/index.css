@@ -113,6 +113,7 @@
   border: 1px solid hsla(var(--jarvis), 0.2);
 }
 
+/* Enhanced animation effects */
 .animate-spin-slow {
   animation: spin 4s linear infinite;
 }
@@ -151,10 +152,16 @@
          drop-shadow(0 0 30px rgba(51, 195, 240, 0.7));
 }
 
+/* Enhanced reactor effects */
 .reactor-glow {
   box-shadow: 0 0 20px rgba(51, 195, 240, 0.7),
               0 0 40px rgba(51, 195, 240, 0.4);
   animation: pulse-reactor 2s infinite ease-in-out;
+}
+
+.reactor-beam {
+  box-shadow: 0 0 10px rgba(51, 195, 240, 0.7);
+  animation: pulse-beam 3s infinite ease-in-out;
 }
 
 @keyframes pulse-reactor {
@@ -165,6 +172,17 @@
   50% {
     box-shadow: 0 0 30px rgba(51, 195, 240, 0.9),
                 0 0 60px rgba(51, 195, 240, 0.6);
+  }
+}
+
+@keyframes pulse-beam {
+  0%, 100% {
+    opacity: 0.3;
+    box-shadow: 0 0 5px rgba(51, 195, 240, 0.5);
+  }
+  50% {
+    opacity: 0.6;
+    box-shadow: 0 0 10px rgba(51, 195, 240, 0.7);
   }
 }
 
@@ -212,6 +230,7 @@
   background-size: 20px 20px;
 }
 
+/* Enhanced scan line and animations */
 @keyframes scan-line {
   0% {
     top: 0%;
@@ -250,67 +269,38 @@
   animation-delay: calc(var(--delay) * 0.1s);
 }
 
-/* Hexagonal grid background */
+/* Enhanced hexagonal grid background */
 .hex-grid {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill='%231eaedb' fill-opacity='0.05'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 18.5L12.98 41v8h-2v-6.85L0 35.81v-2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 42.15V49h-2z'/%3E%3C/g%3E%3C/svg%3E");
 }
 
-/* Arc reactor effect */
-.arc-reactor {
-  position: relative;
-  width: 80px;
-  height: 80px;
-  margin: 20px auto;
-  border-radius: 50%;
-  background: radial-gradient(circle at center, rgba(51, 195, 240, 0.3) 0%, transparent 70%);
-  box-shadow: 0 0 20px rgba(51, 195, 240, 0.7);
-}
-
-.arc-reactor::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 60%;
-  height: 60%;
-  border-radius: 50%;
-  background: rgba(51, 195, 240, 0.6);
-  box-shadow: 0 0 15px rgba(51, 195, 240, 0.8), inset 0 0 15px rgba(255, 255, 255, 0.8);
-  animation: pulse 2s infinite ease-in-out;
-}
-
-.arc-reactor::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 30%;
-  height: 30%;
-  border-radius: 50%;
-  background: white;
-  box-shadow: 0 0 10px white;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 0.8;
-    transform: translate(-50%, -50%) scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1.1);
-  }
-}
-
-/* Holographic text effect */
+/* Enhanced holographic text effect */
 .holographic-text {
   color: rgba(51, 195, 240, 0.9);
   text-shadow: 
     0 0 5px rgba(51, 195, 240, 0.7),
     0 0 10px rgba(51, 195, 240, 0.5);
   animation: hologram-flicker 5s infinite;
+}
+
+/* Enhanced hologram effects */
+.hologram-glitch {
+  position: absolute;
+  background: linear-gradient(to right, 
+    transparent, 
+    rgba(51, 195, 240, 0.5), 
+    rgba(51, 195, 240, 0.8), 
+    rgba(51, 195, 240, 0.5), 
+    transparent
+  );
+  animation: hologram-glitch-anim 0.3s ease-out forwards;
+}
+
+@keyframes hologram-glitch-anim {
+  0% { transform: translateX(-100%); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateX(100%); opacity: 0; }
 }
 
 @keyframes hologram-flicker {
@@ -322,7 +312,11 @@
   }
 }
 
-/* HUD scan animation */
+.animate-hologram-flicker {
+  animation: hologram-flicker 4s infinite;
+}
+
+/* Enhanced HUD scan animation */
 .hud-scan {
   position: absolute;
   width: 100%;
@@ -341,3 +335,52 @@
   }
 }
 
+/* 3D perspective effects */
+.perspective-container {
+  perspective: 1000px;
+}
+
+.rotate-3d {
+  transform-style: preserve-3d;
+  animation: rotate-3d 10s infinite linear;
+}
+
+@keyframes rotate-3d {
+  0% { transform: rotateY(0deg); }
+  100% { transform: rotateY(360deg); }
+}
+
+/* Digital data stream effect */
+.data-stream {
+  position: relative;
+  overflow: hidden;
+}
+
+.data-stream::before {
+  content: '01101001 01100001 01110010 01110110 01101001 01110011';
+  position: absolute;
+  font-family: monospace;
+  font-size: 10px;
+  color: rgba(51, 195, 240, 0.4);
+  white-space: nowrap;
+  animation: data-stream-anim 5s linear infinite;
+}
+
+@keyframes data-stream-anim {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Floating element animation */
+.float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
