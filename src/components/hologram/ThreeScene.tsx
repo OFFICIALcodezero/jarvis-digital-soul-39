@@ -2,7 +2,11 @@
 import React, { useRef, useEffect } from 'react';
 import * as THREE from 'three';
 
-const ThreeScene: React.FC = () => {
+interface ThreeSceneProps {
+  rotationSpeed?: number;
+}
+
+const ThreeScene: React.FC<ThreeSceneProps> = ({ rotationSpeed = 1 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
@@ -122,19 +126,21 @@ const ThreeScene: React.FC = () => {
     const animate = () => {
       requestAnimationFrame(animate);
       
-      // Rotate objects for holographic effect
-      torus1.rotation.x += 0.01;
-      torus1.rotation.y += 0.005;
+      // Rotate objects for holographic effect - now with rotationSpeed
+      const speedFactor = rotationSpeed;
       
-      torus2.rotation.y += 0.01;
-      torus2.rotation.z += 0.005;
+      torus1.rotation.x += 0.01 * speedFactor;
+      torus1.rotation.y += 0.005 * speedFactor;
       
-      cube.rotation.x += 0.003;
-      cube.rotation.y += 0.003;
+      torus2.rotation.y += 0.01 * speedFactor;
+      torus2.rotation.z += 0.005 * speedFactor;
       
-      sphere.rotation.y += 0.01;
+      cube.rotation.x += 0.003 * speedFactor;
+      cube.rotation.y += 0.003 * speedFactor;
       
-      particles.rotation.y += 0.001;
+      sphere.rotation.y += 0.01 * speedFactor;
+      
+      particles.rotation.y += 0.001 * speedFactor;
       
       renderer.render(scene, camera);
     };
@@ -169,7 +175,7 @@ const ThreeScene: React.FC = () => {
       particlesGeometry.dispose();
       particlesMaterial.dispose();
     };
-  }, []);
+  }, [rotationSpeed]);
   
   return <div ref={containerRef} className="w-full h-full"></div>;
 };
