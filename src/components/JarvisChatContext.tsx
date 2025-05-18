@@ -27,6 +27,8 @@ interface JarvisChatContextType {
   setInputMode: (mode: 'voice' | 'text') => void;
   showDashboard?: boolean;
   hackerModeActive?: boolean;
+  isGeneratingImage: boolean;
+  handleImageGenerationFromPrompt: (prompt: string) => Promise<any>;
 }
 
 const JarvisChatContext = createContext<JarvisChatContextType | undefined>(undefined);
@@ -51,6 +53,7 @@ export const JarvisChatProvider: React.FC<React.PropsWithChildren<JarvisChatProp
   const [isImageOpen, setIsImageOpen] = useState(false);
   const [showDashboard, setShowDashboard] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
 
   useEffect(() => {
     // Initialize with welcome message
@@ -250,6 +253,46 @@ export const JarvisChatProvider: React.FC<React.PropsWithChildren<JarvisChatProp
     }
   };
 
+  // Add the handleImageGenerationFromPrompt function
+  const handleImageGenerationFromPrompt = async (prompt: string) => {
+    setIsProcessing(true);
+    setIsGeneratingImage(true);
+    
+    try {
+      // Mock implementation - in a real app, this would call an AI image generation API
+      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
+      
+      const mockImageResult = {
+        url: "https://via.placeholder.com/512x512?text=Generated+Image",
+        prompt: prompt,
+        id: Date.now().toString()
+      };
+      
+      // Add the generated image to messages
+      const newMessage: Message = {
+        id: Date.now().toString(),
+        role: "assistant",
+        content: `I've created an image based on your prompt: "${prompt}"`,
+        timestamp: new Date(),
+        generatedImage: { url: mockImageResult.url, prompt: mockImageResult.prompt }
+      };
+      
+      setMessages(prev => [...prev, newMessage]);
+      return mockImageResult;
+    } catch (error) {
+      console.error("Error generating image:", error);
+      toast({
+        title: "Image Generation Failed",
+        description: "There was an error generating your image. Please try again.",
+        variant: "destructive"
+      });
+      return null;
+    } finally {
+      setIsProcessing(false);
+      setIsGeneratingImage(false);
+    }
+  };
+
   return (
     <JarvisChatContext.Provider
       value={{
@@ -272,7 +315,9 @@ export const JarvisChatProvider: React.FC<React.PropsWithChildren<JarvisChatProp
         inputMode,
         setInputMode,
         showDashboard,
-        hackerModeActive
+        hackerModeActive,
+        isGeneratingImage,
+        handleImageGenerationFromPrompt
       }}
     >
       {children}
