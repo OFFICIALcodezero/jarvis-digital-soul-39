@@ -265,7 +265,8 @@ export const JarvisChatProvider: React.FC<React.PropsWithChildren<JarvisChatProp
       const mockImageResult = {
         url: "https://via.placeholder.com/512x512?text=Generated+Image",
         prompt: prompt,
-        id: Date.now().toString()
+        id: Date.now().toString(),
+        timestamp: new Date() // Add timestamp to fix the type error
       };
       
       // Add the generated image to messages
@@ -274,7 +275,7 @@ export const JarvisChatProvider: React.FC<React.PropsWithChildren<JarvisChatProp
         role: "assistant",
         content: `I've created an image based on your prompt: "${prompt}"`,
         timestamp: new Date(),
-        generatedImage: { url: mockImageResult.url, prompt: mockImageResult.prompt }
+        generatedImage: mockImageResult
       };
       
       setMessages(prev => [...prev, newMessage]);

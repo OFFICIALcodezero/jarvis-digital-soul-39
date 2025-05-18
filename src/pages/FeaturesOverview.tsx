@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { VoiceRecognition } from '@/features/VoiceRecognition';
 import { NLP } from '@/features/NLP';
@@ -179,7 +178,7 @@ const FeaturesOverview: React.FC = () => {
   });
   
   // Use the speech recognition hook
-  const { isListening } = useSpeechRecognition();
+  const { listening } = useSpeechRecognition();
 
   const handleTranscription = (text: string) => {
     setTranscribedText(text);
@@ -324,7 +323,7 @@ const FeaturesOverview: React.FC = () => {
             Explore each tab to see the capabilities and interact with different modules.
           </p>
           <p className="text-gray-400 text-sm mt-2">
-            Voice recognition feature is {isListening ? 'currently active' : 'ready to use'}.
+            Voice recognition feature is {listening ? 'currently active' : 'ready to use'}.
             Try saying a command to see the NLP analysis in action.
           </p>
         </div>
