@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 import { toast } from '@/components/ui/use-toast';
@@ -12,7 +11,7 @@ const VoiceCommandIntegration: React.FC<VoiceCommandIntegrationProps> = ({
 }) => {
   const { 
     transcript, 
-    listening, // Changed from isListening to listening to match the hook's interface
+    isListening, 
     startListening, 
     stopListening, 
     clearTranscript,
@@ -58,21 +57,21 @@ const VoiceCommandIntegration: React.FC<VoiceCommandIntegrationProps> = ({
   
   // Start/stop listening based on active status
   useEffect(() => {
-    if (isActive && !listening && isSupported) {
+    if (isActive && !isListening && isSupported) {
       startListening();
       console.log("Voice recognition started");
-    } else if (!isActive && listening) {
+    } else if (!isActive && isListening) {
       stopListening();
       console.log("Voice recognition stopped");
     }
     
     return () => {
-      if (listening) {
+      if (isListening) {
         stopListening();
         console.log("Voice recognition cleanup");
       }
     };
-  }, [isActive, listening, startListening, stopListening, isSupported]);
+  }, [isActive, isListening, startListening, stopListening, isSupported]);
   
   // Process transcript when it changes
   useEffect(() => {

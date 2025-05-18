@@ -2,8 +2,6 @@
 import React from "react";
 import { Message } from "@/types/chat";
 import GeneratedImageCard from "./GeneratedImageCard";
-import HologramMessage from "./HologramMessage";
-import JarvisVisualizer from "../JarvisVisualizer";
 
 export interface ChatModeProps {
   messages: Message[];
@@ -24,13 +22,12 @@ const ChatMode: React.FC<ChatModeProps> = ({
   isProcessing = false,
   selectedLanguage = 'en',
   onLanguageChange = () => {},
-  hackerMode = false,
-  audioPlaying = false
+  hackerMode = false
 }) => {
   return (
     <div className={`jarvis-panel flex-1 flex flex-col overflow-auto ${hackerMode ? 'hacker-terminal hacker-grid' : 'bg-black/20'} p-4 relative`}>
       {/* Messages container */}
-      <div className="flex-1 space-y-4 overflow-auto relative z-10 pb-8">
+      <div className="flex-1 space-y-4 overflow-auto relative z-10">
         {messages.map((message) => {
           // If the message has a generated image, render the image card inside the chat conversation
           if ((message as any).generatedImage) {
@@ -47,50 +44,47 @@ const ChatMode: React.FC<ChatModeProps> = ({
               </div>
             );
           }
-          
-          // Use the new HologramMessage component for regular messages
+          // Default message rendering
           return (
-            <HologramMessage
+            <div
               key={message.id}
-              message={message}
-              isUser={message.role === 'user'}
-              hackerMode={hackerMode}
-              isSpeaking={message.role === 'assistant' && audioPlaying}
-            />
+              className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+            >
+              <div
+                className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                  message.role === "user"
+                    ? hackerMode 
+                      ? "bg-transparent text-white border border-red-500/30" 
+                      : "bg-transparent text-white border border-jarvis/30"
+                    : hackerMode 
+                      ? "bg-transparent text-red-400 border border-red-500/30" 
+                      : "bg-transparent text-white border border-jarvis/30"
+                  }`}
+              >
+                {message.content}
+              </div>
+            </div>
           );
         })}
-        
-        {/* Currently typing message */}
         {isTyping && (
-          <HologramMessage
-            message={{ id: 'typing', role: 'assistant', content: currentTypingText, timestamp: new Date() }}
-            isUser={false}
-            isTyping={true}
-            currentTypingText={currentTypingText}
-            hackerMode={hackerMode}
-          />
-        )}
-        
-        {/* Processing indicator */}
-        {isProcessing && !isTyping && (
-          <div className="flex justify-center my-4">
-            <div className="flex space-x-2 items-center">
-              <div className={`w-2 h-2 rounded-full ${hackerMode ? 'bg-red-500/70' : 'bg-jarvis'} animate-pulse`}></div>
-              <div className={`w-2 h-2 rounded-full ${hackerMode ? 'bg-red-500/70' : 'bg-jarvis'} animate-pulse delay-75`}></div>
-              <div className={`w-2 h-2 rounded-full ${hackerMode ? 'bg-red-500/70' : 'bg-jarvis'} animate-pulse delay-150`}></div>
+          <div className="flex justify-start">
+            <div className={`max-w-[80%] rounded-lg px-4 py-2 ${
+              hackerMode 
+                ? "bg-transparent text-red-400 border border-red-500/30" 
+                : "bg-transparent text-white border border-jarvis/30"
+            }`}>
+              {currentTypingText}
+              <span className="animate-ping">_</span>
             </div>
           </div>
         )}
-        
-        {/* Audio visualizer when speaking */}
-        {audioPlaying && (
-          <div className="fixed bottom-20 left-0 right-0 mx-auto w-full max-w-[500px] px-4">
-            <JarvisVisualizer 
-              isActive={audioPlaying} 
-              complexity="advanced"
-              className="h-20"
-              color={hackerMode ? "rgba(255, 60, 60, 0.8)" : "rgba(51, 195, 240, 0.8)"}
-            />
+        {isProcessing && !isTyping && (
+          <div className="flex justify-center">
+            <div className="flex space-x-2 items-center">
+              <div className={`w-2 h-2 rounded-full ${hackerMode ? 'bg-red-500/70' : 'bg-white/50'} animate-pulse`}></div>
+              <div className={`w-2 h-2 rounded-full ${hackerMode ? 'bg-red-500/70' : 'bg-white/50'} animate-pulse delay-75`}></div>
+              <div className={`w-2 h-2 rounded-full ${hackerMode ? 'bg-red-500/70' : 'bg-white/50'} animate-pulse delay-150`}></div>
+            </div>
           </div>
         )}
       </div>

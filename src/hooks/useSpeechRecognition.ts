@@ -12,12 +12,11 @@ interface SpeechRecognitionOptions {
 }
 
 interface SpeechRecognitionHook {
-  listening: boolean;  // Changed from isListening to listening for consistency
+  isListening: boolean;
   transcript: string;
   startListening: () => void;
   stopListening: () => void;
   clearTranscript: () => void;
-  resetTranscript: () => void; // Added resetTranscript property
   error: string | null;
   isSupported: boolean;
 }
@@ -116,18 +115,12 @@ export const useSpeechRecognition = (options: SpeechRecognitionOptions = {}): Sp
     setTranscript('');
   }, []);
   
-  // Reset transcript - added this function to match the interface
-  const resetTranscript = useCallback(() => {
-    setTranscript('');
-  }, []);
-  
   return {
-    listening: isListening, // Changed to match the interface
+    isListening,
     transcript,
     startListening,
     stopListening,
     clearTranscript,
-    resetTranscript, // Added to match the interface
     error,
     isSupported
   };

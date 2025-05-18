@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Mic, MicOff } from 'lucide-react';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
@@ -12,7 +11,7 @@ interface VoiceRecognitionProps {
 
 export const VoiceRecognition: React.FC<VoiceRecognitionProps> = ({ onTranscription }) => {
   const { 
-    listening, // Changed from isListening to listening 
+    isListening, 
     transcript, 
     startListening, 
     stopListening, 
@@ -29,7 +28,7 @@ export const VoiceRecognition: React.FC<VoiceRecognitionProps> = ({ onTranscript
   }, [transcript, onTranscription]);
 
   const toggleListening = () => {
-    if (listening) { // Changed from isListening to listening
+    if (isListening) {
       stopListening();
     } else {
       clearTranscript();
@@ -53,11 +52,11 @@ export const VoiceRecognition: React.FC<VoiceRecognitionProps> = ({ onTranscript
   }
 
   return (
-    <Card className={`border-jarvis/30 ${listening ? 'bg-jarvis/10' : 'bg-black/20'} transition-colors`}>
+    <Card className={`border-jarvis/30 ${isListening ? 'bg-jarvis/10' : 'bg-black/20'} transition-colors`}>
       <CardHeader className="pb-2">
         <CardTitle className="text-lg flex items-center">
           <span className="mr-2">Voice Recognition</span>
-          {listening && (
+          {isListening && (
             <span className="text-xs bg-jarvis/20 text-jarvis px-2 py-0.5 rounded-full">
               Active
             </span>
@@ -68,11 +67,11 @@ export const VoiceRecognition: React.FC<VoiceRecognitionProps> = ({ onTranscript
       <CardContent className="flex flex-col gap-2">
         <div className="flex justify-between items-center">
           <Button 
-            variant={listening ? "default" : "outline"}
-            className={listening ? "bg-jarvis text-white hover:bg-jarvis/90" : "text-jarvis border-jarvis/50"}
+            variant={isListening ? "default" : "outline"}
+            className={isListening ? "bg-jarvis text-white hover:bg-jarvis/90" : "text-jarvis border-jarvis/50"}
             onClick={toggleListening}
           >
-            {listening ? (
+            {isListening ? (
               <>
                 <MicOff className="mr-2 h-4 w-4" /> Stop Listening
               </>
@@ -90,7 +89,7 @@ export const VoiceRecognition: React.FC<VoiceRecognitionProps> = ({ onTranscript
           )}
         </div>
         
-        {listening && (
+        {isListening && (
           <div className="flex items-center space-x-1 my-2">
             <div className="h-2 w-2 bg-jarvis rounded-full animate-pulse"></div>
             <div className="h-2 w-2 bg-jarvis rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
