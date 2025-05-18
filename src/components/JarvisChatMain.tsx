@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
-import ChatLayout from "./chat/ChatLayout";
+import ChatMode from "./chat/ChatMode";
+import MessageInput from "./chat/MessageInput";
 import { useJarvisChat } from "./JarvisChatContext";
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 
@@ -22,194 +23,160 @@ const JarvisChatMain: React.FC<JarvisChatMainProps> = ({
   const {
     messages, 
     sendMessage, 
-    isProcessing,
+    isGeneratingImage,
+    handleImageGenerationFromPrompt,
+    isProcessing: contextIsProcessing,
     activeAssistant,
     inputMode, 
     setInputMode,
     isSpeaking,
-    activeMode
+    isListening
   } = useJarvisChat();
   
   const [input, setInput] = useState("");
-  const isTyping = false;
-  const currentTypingText = "";
-  const selectedLanguage = "en";
-  const setSelectedLanguage = () => {};
-  const audioPlaying = isSpeaking;
-  const [volume, setVolume] = useState(80);
-  const stopSpeaking = () => {};
-  const toggleMute = () => {};
+  const [isTyping, setIsTyping] = useState(false);
+  const [currentTypingText, setCurrentTypingText] = useState("");
+  const [audioPlaying, setAudioPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const chatEndRef = useRef<HTMLDivElement>(null);
   
-  // Track whether we should listen after processing
-  const shouldResumeListeningRef = useRef(false);
-  
-  const {
-    isListening,
-    transcript,
-    startListening,
+  // Custom hooks
+  const { 
+    startListening, 
     stopListening,
-    clearTranscript
-  } = useSpeechRecognition();
+    transcript, 
+    listening: speechRecognitionActive,
+    clearTranscript,
+    resetTranscript
+  } = useSpeechRecognition({ continuous: true });
   
-  // Process voice input when in voice mode
+  // Sync speech recognition transcript with input
   useEffect(() => {
-    if (inputMode === 'voice' && transcript && !isProcessing && !isSpeaking) {
-      const processedTranscript = transcript.trim();
-      
-      if (processedTranscript) {
-        console.log("Processing voice input:", processedTranscript);
-        
-        // Check for wake word (case insensitive)
-        const hasWakeWord = /\b(jarvis|hey jarvis|hey j.a.r.v.i.s|j.a.r.v.i.s)\b/i.test(processedTranscript);
-        
-        if (hasWakeWord) {
-          console.log("Wake word detected, sending message:", processedTranscript);
-          
-          // Stop listening while processing
-          shouldResumeListeningRef.current = true;
-          stopListening();
-          
-          // Send the message
-          sendMessage(processedTranscript);
-          clearTranscript();
-        } else {
-          console.log("No wake word detected in:", processedTranscript);
-        }
-      }
+    if (transcript && speechRecognitionActive) {
+      setInput(transcript);
     }
-  }, [transcript, inputMode, isProcessing, isSpeaking, sendMessage, clearTranscript, stopListening]);
+  }, [transcript, speechRecognitionActive]);
   
-  // When processing ends, resume listening if in voice mode
+  // Effects for auto-scrolling
   useEffect(() => {
-    if (!isProcessing && inputMode === 'voice' && shouldResumeListeningRef.current && !isListening) {
-      console.log("Processing ended, resuming voice listening");
-      shouldResumeListeningRef.current = false;
-      
-      // Short delay to prevent rapid restart
-      const resumeTimer = setTimeout(() => {
-        if (inputMode === 'voice' && !isListening) {
-          console.log("Resuming listening after processing");
-          startListening();
-        }
-      }, 1000);
-      
-      return () => clearTimeout(resumeTimer);
-    }
-  }, [isProcessing, inputMode, isListening, startListening]);
-
-  // Handle Jarvis speaking - pause listening while speaking
+    scrollToBottom();
+  }, [messages, isTyping]);
+  
+  // Set audio playing state based on context
   useEffect(() => {
-    if (isSpeaking && isListening) {
-      console.log("Jarvis is speaking, pausing listening");
-      shouldResumeListeningRef.current = true;
-      stopListening();
-    } else if (!isSpeaking && !isListening && inputMode === 'voice' && shouldResumeListeningRef.current) {
-      console.log("Jarvis stopped speaking, resuming listening");
-      shouldResumeListeningRef.current = false;
-      
-      // Short delay before resuming
-      const resumeTimer = setTimeout(() => {
-        if (inputMode === 'voice' && !isListening) {
-          console.log("Resuming listening after speaking");
-          startListening();
-        }
-      }, 1000);
-      
-      return () => clearTimeout(resumeTimer);
-    }
-  }, [isSpeaking, isListening, inputMode, startListening, stopListening]);
-
-  // Start listening automatically only when in voice mode, not in face mode
-  useEffect(() => {
-    if (inputMode === 'voice' && !isListening && !isProcessing && !isSpeaking && activeMode !== 'face') {
-      console.log("Starting voice listening automatically in voice mode");
-      startListening();
-    } else if (inputMode === 'text' && isListening) {
-      console.log("Switching to text mode, stopping voice recognition");
-      stopListening();
+    setAudioPlaying(isSpeaking);
+  }, [isSpeaking]);
+  
+  const scrollToBottom = () => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+  
+  const handleSendMessage = async () => {
+    if (input.trim() === "" || contextIsProcessing || isGeneratingImage) return;
+    
+    // Clear input and transcript
+    const message = input;
+    setInput("");
+    resetTranscript();
+    
+    // Check if it's an image generation request
+    if (message.toLowerCase().includes("generate an image") || 
+        message.toLowerCase().includes("create an image") ||
+        message.toLowerCase().includes("make an image")) {
+      await handleImageGenerationFromPrompt(message);
+      return;
     }
     
-    // Clean up when component unmounts or mode changes
-    return () => {
-      if (isListening) {
-        console.log("Stopping voice recognition on cleanup");
-        stopListening();
-      }
-    };
-  }, [inputMode, isListening, isProcessing, isSpeaking, startListening, stopListening, activeMode]);
-
-  // Return suggestions based on context
-  const getSuggestions = (): string[] => {
-    // Simple suggestions - can be expanded based on context
-    return [
-      "Hey Jarvis, what's the weather today?",
-      "Jarvis, tell me a joke",
-      "Hey Jarvis, what can you help me with?"
+    // Send regular message
+    await sendMessage(message);
+    
+    // Simulate typing effect for demo (in a real app this would come from the backend)
+    simulateTypingResponse(message);
+  };
+  
+  const simulateTypingResponse = (message: string) => {
+    setIsTyping(true);
+    setCurrentTypingText("");
+    
+    const responses = [
+      `I understand you're asking about "${message.substring(0, 20)}...". Let me process that for you.`,
+      `Processing your request about "${message.substring(0, 15)}...". One moment please.`,
+      `Analyzing your question on "${message.substring(0, 25)}...". Working on it now.`
     ];
+    
+    const selectedResponse = responses[Math.floor(Math.random() * responses.length)];
+    let i = 0;
+    
+    const typingInterval = setInterval(() => {
+      if (i < selectedResponse.length) {
+        setCurrentTypingText(prev => prev + selectedResponse.charAt(i));
+        i++;
+      } else {
+        clearInterval(typingInterval);
+        setTimeout(() => {
+          setIsTyping(false);
+        }, 500);
+      }
+    }, 20);
   };
-
-  const handleSendMessage = () => {
-    if (input.trim() && !isProcessing) {
-      sendMessage(input);
-      setInput("");
-    }
-  };
-
-  const toggleListeningHandler = () => {
-    if (isListening) {
-      console.log("Manually stopping voice recognition");
+  
+  const handleToggleListening = () => {
+    if (speechRecognitionActive) {
       stopListening();
-      shouldResumeListeningRef.current = false;
+      // If there's transcript content when stopping, send it as a message
+      if (transcript.trim()) {
+        setInput(transcript);
+        setTimeout(() => {
+          handleSendMessage();
+        }, 300);
+      }
     } else {
-      console.log("Manually starting voice recognition");
       clearTranscript();
       startListening();
-      
-      // If in text mode, switch to voice mode
-      if (inputMode === 'text') {
-        setInputMode('voice');
-      }
     }
   };
-
-  // Enhanced details for face mode
-  const getFaceAnalysisText = () => {
-    if (!detectedEmotion && !detectedAge && !detectedGender) return null;
-    
-    let text = "";
-    if (detectedEmotion) text += `Emotion: ${detectedEmotion}`;
-    if (detectedAge) text += text ? ` • Age: ~${detectedAge}` : `Age: ~${detectedAge}`;
-    if (detectedGender) text += text ? ` • ${detectedGender}` : `${detectedGender}`;
-    
-    return text;
+  
+  const handleToggleMute = () => {
+    setIsMuted(!isMuted);
   };
+  
+  const handleImageUploadRequest = () => {
+    const imagePrompt = "I'd like to generate an image of a futuristic city.";
+    setInput(imagePrompt);
+    setTimeout(() => {
+      handleSendMessage();
+    }, 300);
+  };
+  
+  const isProcessing = contextIsProcessing || isGeneratingImage;
 
   return (
-    <ChatLayout
-      messages={messages}
-      input={input}
-      setInput={setInput}
-      isTyping={isTyping}
-      currentTypingText={currentTypingText}
-      isProcessing={isProcessing}
-      selectedLanguage={selectedLanguage}
-      onLanguageChange={setSelectedLanguage}
-      audioPlaying={audioPlaying}
-      volume={volume}
-      onVolumeChange={values => setVolume(values[0])}
-      stopSpeaking={stopSpeaking}
-      toggleMute={toggleMute}
-      isListening={isListening}
-      activeAssistant={activeAssistant as any}
-      inputMode={inputMode}
-      setInputMode={setInputMode}
-      handleSendMessage={handleSendMessage}
-      getSuggestions={getSuggestions}
-      hackerMode={hackerMode}
-      toggleListening={toggleListeningHandler}
-      detectedEmotion={getFaceAnalysisText()}
-      detectedObjects={detectedObjects}
-    />
+    <>
+      <ChatMode 
+        messages={messages}
+        isTyping={isTyping}
+        currentTypingText={currentTypingText}
+        isProcessing={isProcessing && !isTyping}
+        hackerMode={hackerMode}
+        audioPlaying={audioPlaying && !isMuted}
+      />
+      
+      <MessageInput
+        input={input}
+        setInput={setInput}
+        handleSendMessage={handleSendMessage}
+        isProcessing={isProcessing}
+        isListening={speechRecognitionActive}
+        onToggleListen={handleToggleListening}
+        audioPlaying={audioPlaying}
+        onToggleMute={handleToggleMute}
+        isMuted={isMuted}
+        onImageUpload={handleImageUploadRequest}
+        hackerMode={hackerMode}
+      />
+      
+      <div ref={chatEndRef} />
+    </>
   );
 };
 
