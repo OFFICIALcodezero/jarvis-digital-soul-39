@@ -18,6 +18,15 @@ export interface WeatherData {
   }>;
 }
 
+interface WeatherAlert {
+  id: string;
+  type: 'storm' | 'heat' | 'cold' | 'rain' | 'wind';
+  severity: 'low' | 'medium' | 'high';
+  message: string;
+  timestamp: Date;
+  location: string;
+}
+
 interface WeatherContextType {
   weather: WeatherData | null;
   fetchWeather: (latitude: number, longitude: number) => Promise<void>;
@@ -26,6 +35,9 @@ interface WeatherContextType {
   subscribedLocations: string[];
   subscribeToLocation: (location: string) => Promise<void>;
   unsubscribeFromLocation: (location: string) => void;
+  weatherAlerts: WeatherAlert[];
+  dismissAlert: (id: string) => void;
+  activeCollaborators: string[];
 }
 
 const WeatherContext = createContext<WeatherContextType | undefined>(undefined);
@@ -44,12 +56,15 @@ export const WeatherContextProvider: React.FC<{ children: ReactNode }> = ({ chil
   const [error, setError] = useState<string | null>(null);
   const [subscribedLocations, setSubscribedLocations] = useState<string[]>([]);
   const [weatherChannel, setWeatherChannel] = useState<any>(null);
+  const [weatherAlerts, setWeatherAlerts] = useState<WeatherAlert[]>([]);
+  const [activeCollaborators, setActiveCollaborators] = useState<string[]>([]);
 
   // Initialize Supabase Realtime channel for weather updates
   useEffect(() => {
     const channel = supabase.channel('weather_updates', {
       config: {
         broadcast: { self: true },
+        presence: { key: `user_${Math.random().toString(36).substring(2, 9)}` },
       }
     });
 
@@ -70,10 +85,52 @@ export const WeatherContextProvider: React.FC<{ children: ReactNode }> = ({ chil
           }
         }
       })
-      .subscribe((status) => {
+      .on('broadcast', { event: 'weather_alert' }, (payload) => {
+        if (payload.payload && payload.payload.alert) {
+          const alert = payload.payload.alert as WeatherAlert;
+          
+          // Only show alert if this is for a location we're subscribed to
+          if (subscribedLocations.includes(alert.location)) {
+            setWeatherAlerts(prev => [...prev, alert]);
+            
+            // Show a toast notification for the alert
+            toast({
+              title: `Weather Alert: ${alert.type.toUpperCase()}`,
+              description: alert.message,
+              variant: "destructive"
+            });
+          }
+        }
+      })
+      .on('presence', { event: 'sync' }, () => {
+        const state = channel.presenceState();
+        const users = Object.keys(state).map(key => state[key][0]);
+        setActiveCollaborators(users.map(user => user.username || 'Anonymous user'));
+      })
+      .on('presence', { event: 'join' }, ({ key, newPresences }) => {
+        console.log('user joined', key, newPresences);
+        toast({
+          title: "User Joined",
+          description: `${newPresences[0].username || 'A user'} is now monitoring weather`,
+        });
+      })
+      .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
+        console.log('user left', key, leftPresences);
+        toast({
+          title: "User Left",
+          description: `${leftPresences[0].username || 'A user'} stopped monitoring weather`,
+        });
+      })
+      .subscribe(async (status) => {
         if (status === 'SUBSCRIBED') {
           console.log('Connected to weather updates channel');
           setWeatherChannel(channel);
+          
+          // Track current user's presence with username
+          await channel.track({
+            username: `User_${Math.floor(Math.random() * 1000)}`,
+            online_at: new Date().toISOString(),
+          });
         }
       });
 
@@ -82,6 +139,91 @@ export const WeatherContextProvider: React.FC<{ children: ReactNode }> = ({ chil
       supabase.removeChannel(channel);
     };
   }, [subscribedLocations]);
+
+  // Generate weather alerts based on conditions
+  useEffect(() => {
+    if (!weather || !weather.location) return;
+    
+    // Check for extreme weather conditions and generate alerts
+    const checkForAlerts = () => {
+      const alerts: WeatherAlert[] = [];
+      
+      // Check for extreme temperature
+      if (weather.temperature > 35) {
+        alerts.push({
+          id: `heat_${Date.now()}`,
+          type: 'heat',
+          severity: 'high',
+          message: `Extreme heat warning: ${weather.temperature}°C at ${weather.location}. Stay hydrated and avoid direct sun exposure.`,
+          timestamp: new Date(),
+          location: weather.location || ''
+        });
+      }
+      
+      // Check for very cold temperature
+      if (weather.temperature < 0) {
+        alerts.push({
+          id: `cold_${Date.now()}`,
+          type: 'cold',
+          severity: 'medium',
+          message: `Freezing temperature alert: ${weather.temperature}°C at ${weather.location}. Protect yourself from the cold.`,
+          timestamp: new Date(),
+          location: weather.location || ''
+        });
+      }
+      
+      // Check for storms based on condition
+      if (weather.condition.toLowerCase().includes('storm') || 
+          weather.condition.toLowerCase().includes('thunder')) {
+        alerts.push({
+          id: `storm_${Date.now()}`,
+          type: 'storm',
+          severity: 'high',
+          message: `Storm warning for ${weather.location}: ${weather.condition}. Seek shelter immediately.`,
+          timestamp: new Date(),
+          location: weather.location || ''
+        });
+      }
+      
+      // Check for strong winds
+      if (weather.windSpeed && weather.windSpeed > 30) {
+        alerts.push({
+          id: `wind_${Date.now()}`,
+          type: 'wind',
+          severity: 'medium',
+          message: `High wind advisory: ${weather.windSpeed} km/h at ${weather.location}. Secure loose objects and exercise caution.`,
+          timestamp: new Date(),
+          location: weather.location || ''
+        });
+      }
+      
+      // Add alerts and broadcast them
+      if (alerts.length > 0) {
+        setWeatherAlerts(prev => [...prev, ...alerts]);
+        
+        // Broadcast each alert to other clients
+        alerts.forEach(alert => {
+          if (weatherChannel) {
+            weatherChannel.send({
+              type: 'broadcast',
+              event: 'weather_alert',
+              payload: { alert }
+            }).catch(error => {
+              console.error('Error broadcasting weather alert:', error);
+            });
+          }
+        });
+      }
+    };
+    
+    // Check for alerts when weather updates
+    checkForAlerts();
+    
+    // Also set up a periodic check
+    const intervalId = setInterval(checkForAlerts, 60000);
+    
+    return () => clearInterval(intervalId);
+  }, [weather, weatherChannel]);
 
   const fetchWeather = useCallback(async (latitude: number, longitude: number) => {
     setIsLoading(true);
@@ -172,6 +314,11 @@ export const WeatherContextProvider: React.FC<{ children: ReactNode }> = ({ chil
       description: `You'll no longer receive updates for ${location}`,
     });
   }, []);
+  
+  // Dismiss a specific weather alert by ID
+  const dismissAlert = useCallback((id: string) => {
+    setWeatherAlerts(prev => prev.filter(alert => alert.id !== id));
+  }, []);
 
   const value = {
     weather,
@@ -180,7 +327,10 @@ export const WeatherContextProvider: React.FC<{ children: ReactNode }> = ({ chil
     error,
     subscribedLocations,
     subscribeToLocation,
-    unsubscribeFromLocation
+    unsubscribeFromLocation,
+    weatherAlerts,
+    dismissAlert,
+    activeCollaborators
   };
 
   return (
