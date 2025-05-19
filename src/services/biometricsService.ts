@@ -1,6 +1,6 @@
-
 import { toast } from '@/components/ui/use-toast';
 import { sendCommand } from './firebaseService';
+import { supabase } from '@/integrations/supabase/client';
 
 // Biometrics types
 export interface BiometricData {
@@ -38,8 +38,61 @@ export const supportedDevices = [
   { name: 'Garmin', id: 'garmin', connected: false }
 ];
 
-// Simulate connecting to a device
+// For real-time monitoring between devices/browsers
+let biometricsChannel: any = null;
+let activeMonitorCallbacks: ((data: BiometricData) => void)[] = [];
+let connectionsCount = 0;
+
+// Connect to Supabase Realtime for biometrics
+const initRealtimeConnection = () => {
+  if (biometricsChannel) return biometricsChannel;
+  
+  biometricsChannel = supabase.channel('biometrics_channel', {
+    config: {
+      broadcast: { self: true },
+      presence: { key: 'monitoring_user' },
+    }
+  });
+
+  biometricsChannel
+    .on('broadcast', { event: 'biometric_update' }, (payload) => {
+      console.log('Received biometric update:', payload);
+      if (payload.payload && payload.payload.data) {
+        const biometricData = payload.payload.data as BiometricData;
+        
+        // Notify all active callbacks
+        activeMonitorCallbacks.forEach(callback => callback(biometricData));
+        
+        // Show toast for critical or high stress levels
+        if (biometricData.status === 'critical' || biometricData.status === 'high') {
+          toast({
+            title: `${biometricData.status === 'critical' ? 'Critical' : 'High'} Stress Detected`,
+            description: `Current stress level: ${biometricData.stressLevel}. Heart rate: ${biometricData.heartRate} BPM.`,
+            variant: biometricData.status === 'critical' ? "destructive" : "default"
+          });
+        }
+      }
+    })
+    .on('presence', { event: 'sync' }, () => {
+      const state = biometricsChannel.presenceState();
+      console.log('Current monitoring users:', state);
+    })
+    .on('presence', { event: 'join' }, ({ newPresences }) => {
+      console.log('User joined monitoring:', newPresences);
+    })
+    .on('presence', { event: 'leave' }, ({ leftPresences }) => {
+      console.log('User left monitoring:', leftPresences);
+    })
+    .subscribe();
+  
+  return biometricsChannel;
+};
+
+// Simulate connecting to a device - now with real-time updates
 export const connectDevice = async (deviceId: string): Promise<boolean> => {
+  // Initialize realtime connection
+  initRealtimeConnection();
+  
   // Simulate connection delay
   await delay(1500);
   
@@ -57,6 +110,15 @@ export const connectDevice = async (deviceId: string): Promise<boolean> => {
       title: "Device Connected",
       description: `Successfully connected to ${supportedDevices[deviceIndex].name}`,
     });
+    
+    // Update presence state with device info
+    if (biometricsChannel) {
+      await biometricsChannel.track({
+        device: supportedDevices[deviceIndex].name,
+        connected_at: new Date().toISOString(),
+        user_id: 'user_' + Math.random().toString(36).substring(2, 9),
+      });
+    }
     
     // Log to Firebase
     await sendCommand({
@@ -103,7 +165,7 @@ export const getConnectedDevices = (): string[] => {
     .map(device => device.id);
 };
 
-// Get current biometric data
+// Get current biometric data - now with real sharing between clients
 export const getCurrentBiometrics = async (): Promise<BiometricData | null> => {
   const connectedDevices = getConnectedDevices();
   if (connectedDevices.length === 0) {
@@ -166,6 +228,28 @@ export const getCurrentBiometrics = async (): Promise<BiometricData | null> => {
     ];
   }
   
+  const biometricData: BiometricData = {
+    heartRate,
+    stressLevel,
+    status,
+    timestamp: new Date().toISOString(),
+    device,
+    recommendations
+  };
+  
+  // Broadcast biometric data to all connected clients
+  if (biometricsChannel) {
+    try {
+      await biometricsChannel.send({
+        type: 'broadcast',
+        event: 'biometric_update',
+        payload: { data: biometricData }
+      });
+    } catch (error) {
+      console.error('Error broadcasting biometric data:', error);
+    }
+  }
+  
   // Log to Firebase if stress is high or critical
   if (status === 'high' || status === 'critical') {
     await sendCommand({
@@ -177,14 +261,7 @@ export const getCurrentBiometrics = async (): Promise<BiometricData | null> => {
     }).catch(err => console.error('Error logging to Firebase:', err));
   }
   
-  return {
-    heartRate,
-    stressLevel,
-    status,
-    timestamp: new Date().toISOString(),
-    device,
-    recommendations
-  };
+  return biometricData;
 };
 
 // Get biometric history (7 days)
@@ -342,7 +419,7 @@ export const getSleepData = async (days: number = 7): Promise<SleepData[]> => {
   return sleepData;
 };
 
-// Monitor stress levels in real time
+// Monitor stress levels in real time - enhanced with Supabase Realtime
 export const monitorStressLevels = (callback: (data: BiometricData) => void): () => void => {
   // Check for connected devices
   if (getConnectedDevices().length === 0) {
@@ -355,25 +432,35 @@ export const monitorStressLevels = (callback: (data: BiometricData) => void): ()
     return () => {};
   }
   
+  // Initialize realtime connection if not already initialized
+  initRealtimeConnection();
+  connectionsCount++;
+  
+  // Add callback to active callbacks
+  activeMonitorCallbacks.push(callback);
+  
   // Set up interval to simulate real-time monitoring
   const intervalId = setInterval(async () => {
     const data = await getCurrentBiometrics();
     if (data) {
-      callback(data);
-      
-      // Alert on high or critical status
-      if (data.status === 'high' || data.status === 'critical') {
-        toast({
-          title: `${data.status === 'critical' ? 'Critical' : 'High'} Stress Detected`,
-          description: `Current stress level: ${data.stressLevel}. Heart rate: ${data.heartRate} BPM.`,
-          variant: data.status === 'critical' ? "destructive" : "default"
-        });
-      }
+      // Callback is handled by the broadcast listener now
     }
   }, 30000); // Update every 30 seconds
   
   // Return function to stop monitoring
-  return () => clearInterval(intervalId);
+  return () => {
+    clearInterval(intervalId);
+    
+    // Remove callback from active callbacks
+    activeMonitorCallbacks = activeMonitorCallbacks.filter(cb => cb !== callback);
+    
+    connectionsCount--;
+    if (connectionsCount === 0 && biometricsChannel) {
+      // No more active monitors, remove channel
+      supabase.removeChannel(biometricsChannel);
+      biometricsChannel = null;
+    }
+  };
 };
 
 // Generate stress level recommendations

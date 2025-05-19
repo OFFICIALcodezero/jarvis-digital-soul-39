@@ -1,7 +1,11 @@
 
 import React, { useEffect, useState } from 'react';
 import { getWeatherForecast, WeatherData } from '@/services/weatherService';
-import { CloudSun, CloudRain, Sun, Cloud } from 'lucide-react';
+import { CloudSun, CloudRain, Sun, Cloud, Plus, Trash2 } from 'lucide-react';
+import { useWeatherContext } from '@/features/WeatherContext';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 const getWeatherIcon = (condition: string) => {
   const lowerCondition = condition.toLowerCase();
@@ -25,64 +29,51 @@ interface WeatherWidgetProps {
 }
 
 const WeatherWidget: React.FC<WeatherWidgetProps> = ({ isCompact = false }) => {
-  const [weather, setWeather] = useState<WeatherData | null>(null);
-  const [error, setError] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(true);
+  const { 
+    weather, 
+    fetchWeather, 
+    isLoading, 
+    error,
+    subscribedLocations,
+    subscribeToLocation,
+    unsubscribeFromLocation
+  } = useWeatherContext();
+  const [newLocation, setNewLocation] = useState('');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
     // Ask for user geolocation on mount
     if (!navigator.geolocation) {
-      setError('Geolocation not supported by your browser.');
-      setLoading(false);
       return;
     }
-    setLoading(true);
+    
     navigator.geolocation.getCurrentPosition(
       async (position) => {
-        setError('');
-        // Here you would use actual coordinates with a real API; for mock, append coords to city
-        const locationString = `Lat: ${position.coords.latitude.toFixed(2)}, Lon: ${position.coords.longitude.toFixed(2)}`;
-        // Simulate different place by modifying the query; in real-world, send the coords
-        try {
-          const response = await getWeatherForecast({ location: locationString });
-          
-          // Convert response to WeatherData format
-          const data: WeatherData = {
-            location: response.location.name,
-            temperature: response.current.temp,
-            condition: response.current.condition,
-            icon: response.current.icon,
-            forecast: response.forecast?.map(day => ({
-              day: day.day,
-              temperature: day.temp,
-              condition: day.condition,
-              icon: day.icon || '',
-              maxTemp: day.temp, // Using temp as maxTemp since it's not provided
-              date: day.day // Using day as date since it's not provided
-            })) || []
-          };
-          
-          setWeather(data);
-        } catch (e) {
-          setError('Unable to fetch weather for your location.');
-        }
-        setLoading(false);
+        // Fetch weather for current location
+        await fetchWeather(position.coords.latitude, position.coords.longitude);
+        
+        // Also subscribe to current location for updates
+        const locationString = `${position.coords.latitude.toFixed(4)},${position.coords.longitude.toFixed(4)}`;
+        await subscribeToLocation(locationString);
       },
       (err) => {
-        if (err.code === 1) {
-          setError('Cannot show weather: Location permission denied.');
-        } else {
-          setError('Cannot show weather: Unable to retrieve your location.');
-        }
-        setLoading(false);
+        console.error('Geolocation error:', err);
       }
     );
-  }, []);
+  }, [fetchWeather, subscribeToLocation]);
 
-  if (loading) {
+  const handleSubscribeLocation = () => {
+    if (newLocation.trim()) {
+      subscribeToLocation(newLocation.trim());
+      setNewLocation('');
+      setIsDialogOpen(false);
+    }
+  };
+
+  if (isLoading) {
     return (
       <div className="weather-widget bg-black/40 p-4 rounded-lg border border-[#33c3f0]/20 flex justify-center items-center">
-        <span className="text-[#33c3f0] text-sm">Detecting your location…</span>
+        <span className="text-[#33c3f0] text-sm">Loading weather data...</span>
       </div>
     );
   }
@@ -120,7 +111,33 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ isCompact = false }) => {
     <div className="weather-widget bg-black/40 p-4 rounded-lg border border-[#33c3f0]/20">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-[#33c3f0] font-medium">Weather</h3>
-        <span className="text-sm text-gray-300">{weather.location}</span>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+              <Plus className="h-4 w-4 text-[#33c3f0]" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="bg-black/80 border-[#33c3f0]/30">
+            <DialogHeader>
+              <DialogTitle>Add Weather Location</DialogTitle>
+            </DialogHeader>
+            <div className="flex items-center gap-2 mt-2">
+              <Input 
+                placeholder="Enter city or coordinates"
+                value={newLocation}
+                onChange={(e) => setNewLocation(e.target.value)}
+                className="bg-black/40 border-[#33c3f0]/30"
+              />
+              <Button 
+                onClick={handleSubscribeLocation}
+                disabled={!newLocation.trim()}
+                className="bg-[#33c3f0] text-black hover:bg-[#33c3f0]/80"
+              >
+                Add
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <div className="flex items-center mb-4">
@@ -128,18 +145,43 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ isCompact = false }) => {
         <div className="ml-3">
           <div className="text-2xl font-bold">{weather.temperature}°C</div>
           <div className="text-sm text-gray-300">{weather.condition}</div>
+          <div className="text-xs text-[#33c3f0]/70">{weather.location}</div>
         </div>
       </div>
 
-      <div className="flex justify-between">
-        {weather.forecast.slice(0, 4).map((day, index) => (
-          <div key={index} className="text-center">
-            <div className="text-xs text-gray-400">{day.day}</div>
-            <div className="my-1">{getWeatherIcon(day.condition)}</div>
-            <div className="text-xs font-medium">{day.maxTemp}°C</div>
+      {weather.forecast && (
+        <div className="flex justify-between">
+          {weather.forecast.slice(0, 4).map((day, index) => (
+            <div key={index} className="text-center">
+              <div className="text-xs text-gray-400">{day.day}</div>
+              <div className="my-1">{getWeatherIcon(day.condition)}</div>
+              <div className="text-xs font-medium">{day.temperature}°C</div>
+            </div>
+          ))}
+        </div>
+      )}
+      
+      {subscribedLocations.length > 0 && (
+        <div className="mt-4 border-t border-[#33c3f0]/10 pt-3">
+          <h4 className="text-xs text-[#33c3f0]/70 mb-2">Subscribed Locations</h4>
+          <div className="flex flex-wrap gap-2">
+            {subscribedLocations.map(location => (
+              <div 
+                key={location}
+                className="bg-black/30 px-2 py-1 rounded-full text-xs flex items-center gap-1 border border-[#33c3f0]/20"
+              >
+                <span className="text-white/80">{location}</span>
+                <button
+                  onClick={() => unsubscribeFromLocation(location)}
+                  className="text-red-400/80 hover:text-red-400"
+                >
+                  <Trash2 className="h-3 w-3" />
+                </button>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
