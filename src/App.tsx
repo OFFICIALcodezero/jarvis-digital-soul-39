@@ -19,40 +19,43 @@ import { WeatherContextProvider } from "./features/WeatherContext";
 import Auth from "./pages/Auth";
 import JarvisModeSwitcher from "./components/JarvisModeSwitcher";
 import JarvisV2Interface from "./pages/JarvisV2Interface";
+import { ThemeProvider } from "./components/ui/theme-provider";
 
 function App() {
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        <JarvisChatProvider>
-          <WeatherContextProvider>
-            <div className="app-container">
-              <JarvisModeEnhancer>
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/startup" element={<Startup />} />
-                  <Route path="/interface" element={<JarvisInterface />} />
-                  <Route path="/jarvis" element={<JarvisInterface />} /> 
-                  <Route path="/jarvis-v2" element={<JarvisV2Interface />} />
-                  <Route path="/code-zero" element={<JarvisV2Interface />} />
-                  <Route path="/ghost" element={<JarvisV2Interface />} />
-                  <Route path="/image-generation" element={<ImageGeneration />} />
-                  <Route path="/images" element={<ImageGeneration />} />
-                  <Route path="/settings" element={<JarvisSettings />} />
-                  <Route path="/features" element={<FeaturesOverview />} />
-                  <Route path="/satellite" element={<SatelliteSurveillancePage />} />
-                  <Route path="/osint" element={<OSINTSearch />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </JarvisModeEnhancer>
-            </div>
-            <div style={{ position: 'fixed', bottom: '0', right: '0', zIndex: '1000' }}>
-              <JarvisModeSwitcher />
-            </div>
-          </WeatherContextProvider>
-        </JarvisChatProvider>
-      </AuthProvider>
+      <ThemeProvider defaultTheme="dark" storageKey="jarvis-ui-theme">
+        <AuthProvider>
+          <JarvisChatProvider>
+            <WeatherContextProvider>
+              <div className="app-container">
+                <JarvisModeEnhancer>
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/auth" element={<Auth />} />
+                    <Route path="/startup" element={<Startup />} />
+                    <Route path="/interface" element={<JarvisInterface />} />
+                    <Route path="/jarvis" element={<JarvisInterface />} /> 
+                    <Route path="/jarvis-v2" element={<JarvisV2Interface />} />
+                    <Route path="/code-zero" element={<JarvisV2Interface />} />
+                    <Route path="/ghost" element={<JarvisV2Interface />} />
+                    <Route path="/image-generation" element={<ImageGeneration />} />
+                    <Route path="/images" element={<ImageGeneration />} />
+                    <Route path="/settings" element={<JarvisSettings />} />
+                    <Route path="/features" element={<FeaturesOverview />} />
+                    <Route path="/satellite" element={<SatelliteSurveillancePage />} />
+                    <Route path="/osint" element={<OSINTSearch />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </JarvisModeEnhancer>
+              </div>
+              <div style={{ position: 'fixed', bottom: '0', right: '0', zIndex: '1000' }}>
+                <JarvisModeSwitcher />
+              </div>
+            </WeatherContextProvider>
+          </JarvisChatProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 }

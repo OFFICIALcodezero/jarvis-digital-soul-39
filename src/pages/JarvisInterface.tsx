@@ -128,6 +128,30 @@ const JarvisInterface = () => {
     );
   }
   
+  // Prepare extra widgets content for JarvisMainLayout
+  const extraWidgetsContent = showActivityLog ? (
+    <div className="mt-4">
+      <ActivityLogWidget maxItems={12} />
+      <div className="flex justify-end mt-2">
+        <button 
+          className="text-xs text-jarvis underline"
+          onClick={() => setShowActivityLog(false)}
+        >
+          Hide Activity Log
+        </button>
+      </div>
+    </div>
+  ) : (
+    <div className="mt-4 flex justify-end">
+      <button 
+        className="text-xs text-jarvis underline"
+        onClick={() => setShowActivityLog(true)}
+      >
+        Show Activity Log
+      </button>
+    </div>
+  );
+  
   return (
     <WeatherContextProvider>
       <div className={`relative min-h-screen flex flex-col ${hackerModeActive ? 'hacker-mode' : 'bg-jarvis-bg'} text-white overflow-hidden`}>
@@ -150,33 +174,7 @@ const JarvisInterface = () => {
           isMuted={isMuted} 
         />
 
-        <JarvisMainLayout 
-          // Only pass the properties defined in CustomLayoutWrapperProps
-          extraWidgets={
-            showActivityLog ? (
-              <div className="mt-4">
-                <ActivityLogWidget maxItems={12} />
-                <div className="flex justify-end mt-2">
-                  <button 
-                    className="text-xs text-jarvis underline"
-                    onClick={() => setShowActivityLog(false)}
-                  >
-                    Hide Activity Log
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="mt-4 flex justify-end">
-                <button 
-                  className="text-xs text-jarvis underline"
-                  onClick={() => setShowActivityLog(true)}
-                >
-                  Show Activity Log
-                </button>
-              </div>
-            )
-          }
-        >
+        <JarvisMainLayout extraWidgets={extraWidgetsContent}>
           {/* Pass the remaining properties to children components that need them */}
           <div className="flex-1">
             {mode === 'chat' && (
