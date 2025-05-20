@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import { cn } from "@/lib/utils";
 import { Loader } from 'lucide-react';
 
-interface JarvisCoreProps {
+export interface JarvisCoreProps {
   isSpeaking: boolean;
   isListening: boolean;
   isProcessing: boolean;

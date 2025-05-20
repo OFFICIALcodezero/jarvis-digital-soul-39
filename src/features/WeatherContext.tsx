@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -6,6 +5,8 @@ interface WeatherData {
   temperature: number;
   condition: string;
   location: string;
+  humidity?: number;
+  windSpeed?: number;
   forecast: {
     day: string;
     temp: number;
@@ -32,6 +33,8 @@ const defaultWeatherData: WeatherData = {
   temperature: 72,
   condition: 'Sunny',
   location: 'New York, NY',
+  humidity: 65,
+  windSpeed: 8,
   forecast: [
     { day: 'Mon', temp: 72, condition: 'Sunny' },
     { day: 'Tue', temp: 68, condition: 'Partly Cloudy' },
@@ -68,6 +71,10 @@ export const WeatherContextProvider: React.FC<WeatherContextProviderProps> = ({ 
       const temperature = Math.floor(Math.random() * 30) + 50; // Between 50 and 80
       const conditions = ['Sunny', 'Cloudy', 'Rainy', 'Partly Cloudy', 'Stormy'];
       const randomCondition = conditions[Math.floor(Math.random() * conditions.length)];
+      
+      // Random humidity and wind speed
+      const humidity = Math.floor(Math.random() * 40) + 40; // Between 40 and 80
+      const windSpeed = Math.floor(Math.random() * 15) + 5; // Between 5 and 20
 
       // Generate random alerts occasionally
       const shouldHaveAlert = Math.random() > 0.7;
@@ -85,6 +92,8 @@ export const WeatherContextProvider: React.FC<WeatherContextProviderProps> = ({ 
         ...defaultWeatherData,
         temperature,
         condition: randomCondition,
+        humidity,
+        windSpeed,
         alerts,
         lastUpdated: new Date().toISOString()
       };
