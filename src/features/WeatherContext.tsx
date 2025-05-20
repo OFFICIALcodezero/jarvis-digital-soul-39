@@ -1,6 +1,6 @@
 
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
-import { supabase } from '../supabase';
+import { supabase } from '../integrations/supabase/client';
 
 interface WeatherData {
   temperature: number;
@@ -166,3 +166,6 @@ export const useWeather = () => {
   }
   return context;
 };
+
+// Export an alias for the hook to fix imports
+export const useWeatherContext = useWeather;

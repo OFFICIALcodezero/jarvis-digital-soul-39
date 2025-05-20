@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 
@@ -136,7 +135,8 @@ export const GlitchText: React.FC<AnimatedTextProps> = ({ text, className }) => 
     <div className={cn("glitch-text relative", className)} data-text={text}>
       <span className="relative z-10 text-white">{text}</span>
       
-      <style jsx>{`
+      <style>
+        {`
         .glitch-text {
           position: relative;
         }
@@ -177,7 +177,8 @@ export const GlitchText: React.FC<AnimatedTextProps> = ({ text, className }) => 
           50% { clip-path: inset(10% 0 70% 0); }
           75% { clip-path: inset(80% 0 10% 0); }
         }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };

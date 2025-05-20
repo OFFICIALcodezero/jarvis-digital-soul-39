@@ -1,9 +1,8 @@
-
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertCircle, Clock, MapPin } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { useWeatherContext } from './WeatherContext';
+import { useWeather } from './WeatherContext';
 
 interface LocationAwarenessProps {
   userLocation: GeolocationPosition | null;

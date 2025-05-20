@@ -1,8 +1,7 @@
-
 import React, { useEffect, useState } from 'react';
 import { getWeatherForecast, WeatherData } from '@/services/weatherService';
 import { CloudSun, CloudRain, Sun, Cloud, Plus, Trash2, Users, AlertCircle, Bell } from 'lucide-react';
-import { useWeatherContext } from '@/features/WeatherContext';
+import { useWeather } from '@/features/WeatherContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -42,7 +41,7 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ isCompact = false }) => {
     weatherAlerts,
     dismissAlert,
     activeCollaborators
-  } = useWeatherContext();
+  } = useWeather();
   const [newLocation, setNewLocation] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [showAlertsDialog, setShowAlertsDialog] = useState(false);

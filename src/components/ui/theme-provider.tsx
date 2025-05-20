@@ -21,7 +21,7 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
 
 export const ThemeToggle = () => {
   const [mounted, setMounted] = React.useState(false);
-  const { theme, setTheme } = React.useState<'light' | 'dark'>('dark');
+  const { theme, setTheme } = React.useContext(NextThemesProvider.Context) || { theme: 'dark', setTheme: () => {} };
   
   // Ensure we're using client-side rendering
   React.useEffect(() => {

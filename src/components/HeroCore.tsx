@@ -151,10 +151,9 @@ const HeroCore: React.FC<HeroCoreProps> = ({
       />
       
       <div className="relative z-10">
+        {/* Pass JarvisCore a single prop that resolves to true or false */}
         <JarvisCore 
-          isSpeaking={isAnimating} 
-          isListening={false} 
-          isProcessing={false}
+          isActive={isAnimating} 
         />
       </div>
     </div>

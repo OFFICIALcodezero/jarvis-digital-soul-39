@@ -1,8 +1,7 @@
-
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Cloud, CloudRain, CloudSnow, Sun, Thermometer, Wind } from 'lucide-react';
-import { useWeatherContext } from './WeatherContext';
+import { useWeather } from './WeatherContext';
 import { toast } from '@/components/ui/use-toast';
 
 interface WeatherDisplayProps {
@@ -10,7 +9,7 @@ interface WeatherDisplayProps {
 }
 
 export const WeatherDisplay: React.FC<WeatherDisplayProps> = ({ isHackerMode = false }) => {
-  const { weather, fetchWeather, isLoading, error } = useWeatherContext();
+  const { weather, fetchWeather, isLoading, error } = useWeather();
   const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null);
   const [hasFetchedWeather, setHasFetchedWeather] = useState(false);
 
