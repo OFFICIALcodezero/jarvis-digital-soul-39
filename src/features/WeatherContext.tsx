@@ -40,13 +40,6 @@ interface WeatherContextType {
   activeCollaborators: string[];
 }
 
-// Define a type for our presence state
-interface PresenceUser {
-  username?: string;
-  online_at?: string;
-  presence_ref?: string;
-}
-
 const WeatherContext = createContext<WeatherContextType | undefined>(undefined);
 
 export const useWeatherContext = (): WeatherContextType => {
@@ -111,44 +104,21 @@ export const WeatherContextProvider: React.FC<{ children: ReactNode }> = ({ chil
       })
       .on('presence', { event: 'sync' }, () => {
         const state = channel.presenceState();
-        // Extract usernames from presence state, safely accessing username property
-        const users: string[] = [];
-        
-        Object.values(state).forEach(presences => {
-          presences.forEach((presence: PresenceUser) => {
-            // Check if username exists before accessing it
-            if (presence && typeof presence === 'object' && 'username' in presence) {
-              users.push(presence.username || 'Anonymous user');
-            } else {
-              users.push('Anonymous user');
-            }
-          });
-        });
-        
-        setActiveCollaborators(users);
+        const users = Object.keys(state).map(key => state[key][0]);
+        setActiveCollaborators(users.map(user => user.username || 'Anonymous user'));
       })
       .on('presence', { event: 'join' }, ({ key, newPresences }) => {
         console.log('user joined', key, newPresences);
-        // Safely access username from newPresences
-        const username = newPresences[0] && typeof newPresences[0] === 'object' && 'username' in newPresences[0] 
-          ? newPresences[0].username 
-          : 'A user';
-          
         toast({
           title: "User Joined",
-          description: `${username || 'A user'} is now monitoring weather`,
+          description: `${newPresences[0].username || 'A user'} is now monitoring weather`,
         });
       })
       .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
         console.log('user left', key, leftPresences);
-        // Safely access username from leftPresences
-        const username = leftPresences[0] && typeof leftPresences[0] === 'object' && 'username' in leftPresences[0] 
-          ? leftPresences[0].username 
-          : 'A user';
-          
         toast({
           title: "User Left",
-          description: `${username || 'A user'} stopped monitoring weather`,
+          description: `${leftPresences[0].username || 'A user'} stopped monitoring weather`,
         });
       })
       .subscribe(async (status) => {

@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { Bot } from 'lucide-react';
 import JarvisHeader from '@/components/interface/JarvisHeader';
 import JarvisMainLayout from '@/components/interface/JarvisMainLayout';
 import JarvisControlBar from '@/components/interface/JarvisControlBar';
@@ -151,7 +152,21 @@ const JarvisInterface = () => {
         />
 
         <JarvisMainLayout 
-          // Only pass the properties defined in CustomLayoutWrapperProps
+          isSpeaking={isSpeaking}
+          isListening={isListening}
+          isProcessing={isProcessing}
+          activeMode={activeMode}
+          hackerModeActive={hackerModeActive}
+          mode={mode}
+          hackerOutput={hackerOutput}
+          setHackerOutput={setHackerOutput}
+          deactivateHackerMode={deactivateHackerMode}
+          toggleListening={toggleListening}
+          activeAssistant={activeAssistant}
+          handleAssistantChange={handleAssistantChange}
+          inputMode={inputMode}
+          setInputMode={setInputMode}
+          handleMessageCheck={handleChatCommand}
           extraWidgets={
             showActivityLog ? (
               <div className="mt-4">
@@ -176,33 +191,7 @@ const JarvisInterface = () => {
               </div>
             )
           }
-        >
-          {/* Pass the remaining properties to children components that need them */}
-          <div className="flex-1">
-            {mode === 'chat' && (
-              <div className="chat-interface-container flex-1">
-                {/* Chat interface components would go here */}
-                <div className="flex items-center justify-center h-full">
-                  <div className="text-center">
-                    <h2 className="text-2xl font-bold mb-4 text-jarvis">J.A.R.V.I.S. INTERFACE</h2>
-                    <p className="text-gray-300">
-                      {isListening ? "Listening for commands..." : "Ready for input"}
-                    </p>
-                    <JarvisVisualizer className="mt-8 max-w-md mx-auto" />
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            {mode === 'hacker' && (
-              <div className="hacker-interface-container flex-1 p-4">
-                <pre className="font-mono text-green-400 bg-black/70 p-4 rounded h-full overflow-auto">
-                  {hackerOutput}
-                </pre>
-              </div>
-            )}
-          </div>
-        </JarvisMainLayout>
+        />
         
         <JarvisControlBar 
           controlOptions={controlOptions} 
