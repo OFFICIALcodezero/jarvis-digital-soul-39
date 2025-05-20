@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import JarvisHeader from '@/components/interface/JarvisHeader';
 import JarvisMainLayout from '@/components/interface/JarvisMainLayout';
@@ -13,6 +12,7 @@ import VoiceCommandIntegration from '@/features/VoiceCommandIntegration';
 import HologramScreen from '@/components/hologram/HologramScreen';
 import JarvisVisualizer from '@/components/JarvisVisualizer';
 import ActivityLogWidget from '@/components/widgets/ActivityLogWidget';
+import JarvisWidgetPanel from '@/components/interface/JarvisWidgetPanel';
 import { toast } from 'sonner';
 import { WeatherContextProvider } from '@/features/WeatherContext';
 
@@ -175,11 +175,13 @@ const JarvisInterface = () => {
         />
 
         <JarvisMainLayout extraWidgets={extraWidgetsContent}>
-          {/* Pass the remaining properties to children components that need them */}
+          {/* Status widgets panel */}
+          <JarvisWidgetPanel isHackerMode={hackerModeActive} className="mb-4" />
+          
           <div className="flex-1">
             {mode === 'chat' && (
               <div className="chat-interface-container flex-1">
-                {/* Chat interface components would go here */}
+                {/* Chat interface components */}
                 <div className="flex items-center justify-center h-full">
                   <div className="text-center">
                     <h2 className="text-2xl font-bold mb-4 text-jarvis">J.A.R.V.I.S. INTERFACE</h2>
