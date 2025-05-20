@@ -246,7 +246,7 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ isCompact = false }) => {
             <div key={index} className="text-center">
               <div className="text-xs text-gray-400">{day.day}</div>
               <div className="my-1">{getWeatherIcon(day.condition)}</div>
-              <div className="text-xs font-medium">{day.temperature}°C</div>
+              <div className="text-xs font-medium">{day.temp}°C</div>
             </div>
           ))}
         </div>

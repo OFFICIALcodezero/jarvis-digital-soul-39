@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import { supabase } from '../integrations/supabase/client';
 
@@ -175,9 +174,11 @@ export const WeatherContextProvider: React.FC<WeatherContextProviderProps> = ({ 
     setSubscribedLocations(prev => [...prev, location]);
   };
   
-  // Mock unsubscribeFromLocation function
-  const unsubscribeFromLocation = (location: string) => {
+  // Mock unsubscribeFromLocation function - updated to return a Promise
+  const unsubscribeFromLocation = async (location: string): Promise<void> => {
     setSubscribedLocations(prev => prev.filter(loc => loc !== location));
+    // Return a resolved promise to satisfy the type requirement
+    return Promise.resolve();
   };
   
   // Mock dismissAlert function

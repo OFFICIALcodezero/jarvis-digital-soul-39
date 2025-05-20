@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { JarvisMode } from './JarvisCore';
+import { JarvisMode } from '../types/jarvis';
 import { Button } from './ui/button';
 import { 
   Brain, 

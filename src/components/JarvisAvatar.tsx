@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef } from 'react';
-import { JarvisMode } from './JarvisCore';
+import { JarvisMode } from '../types/jarvis';
 import JarvisCore from './core/JarvisCore';
 import SatelliteVision from './SatelliteVision';
 

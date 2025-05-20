@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { JarvisMode } from './JarvisCore';
+import { JarvisMode } from '../types/jarvis';
 import { LucideIcon } from 'lucide-react';
 
 interface JarvisStatusBarProps {
