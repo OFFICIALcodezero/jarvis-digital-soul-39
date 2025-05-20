@@ -13,9 +13,7 @@ import JarvisVoiceCommands from '@/components/JarvisVoiceCommands';
 import VoiceCommandIntegration from '@/features/VoiceCommandIntegration';
 import HologramScreen from '@/components/hologram/HologramScreen';
 import JarvisVisualizer from '@/components/JarvisVisualizer';
-import ActivityLogWidget from '@/components/widgets/ActivityLogWidget';
 import { toast } from 'sonner';
-import { WeatherContextProvider } from '@/features/WeatherContext';
 
 export type AssistantType = 'jarvis';
 
@@ -47,7 +45,6 @@ const JarvisInterface = () => {
   
   const [isHologramOpen, setIsHologramOpen] = useState(false);
   const [systemStatus, setSystemStatus] = useState<'initializing' | 'online' | 'standby'>('initializing');
-  const [showActivityLog, setShowActivityLog] = useState(false);
   
   // Get control options based on current state
   const controlOptions = useControlOptions({ 
@@ -77,13 +74,6 @@ const JarvisInterface = () => {
   // Function to handle chat commands
   const handleChatCommand = (message: string) => {
     const lowerMessage = message.toLowerCase();
-    
-    // Check for activity log commands
-    if (lowerMessage.includes('show activity log') || 
-        lowerMessage.includes('open activity log')) {
-      setShowActivityLog(true);
-      return true;
-    }
     
     // Check for hologram commands
     if (lowerMessage.includes('open hologram') || 
@@ -130,81 +120,55 @@ const JarvisInterface = () => {
   }
   
   return (
-    <WeatherContextProvider>
-      <div className={`relative min-h-screen flex flex-col ${hackerModeActive ? 'hacker-mode' : 'bg-jarvis-bg'} text-white overflow-hidden`}>
-        <JarvisBackground hackerModeActive={hackerModeActive} />
-        
-        {/* Core components responsible for system functionality */}
-        <JarvisCore />
-        <JarvisVoiceCommands 
-          isListening={isListening} 
-          hackerModeActive={hackerModeActive}
-          onActivateHacker={activateHackerMode}
-          onOpenHologram={openHologram}
-        />
-        <VoiceCommandIntegration isActive={isListening} />
-        
-        <JarvisHeader 
-          hackerModeActive={hackerModeActive} 
-          activeAssistant={activeAssistant} 
-          toggleMute={toggleMute} 
-          isMuted={isMuted} 
-        />
+    <div className={`relative min-h-screen flex flex-col ${hackerModeActive ? 'hacker-mode' : 'bg-jarvis-bg'} text-white overflow-hidden`}>
+      <JarvisBackground hackerModeActive={hackerModeActive} />
+      
+      {/* Core components responsible for system functionality */}
+      <JarvisCore />
+      <JarvisVoiceCommands 
+        isListening={isListening} 
+        hackerModeActive={hackerModeActive}
+        onActivateHacker={activateHackerMode}
+        onOpenHologram={openHologram}
+      />
+      <VoiceCommandIntegration isActive={isListening} />
+      
+      <JarvisHeader 
+        hackerModeActive={hackerModeActive} 
+        activeAssistant={activeAssistant} 
+        toggleMute={toggleMute} 
+        isMuted={isMuted} 
+      />
 
-        <JarvisMainLayout 
-          isSpeaking={isSpeaking}
-          isListening={isListening}
-          isProcessing={isProcessing}
-          activeMode={activeMode}
-          hackerModeActive={hackerModeActive}
-          mode={mode}
-          hackerOutput={hackerOutput}
-          setHackerOutput={setHackerOutput}
-          deactivateHackerMode={deactivateHackerMode}
-          toggleListening={toggleListening}
-          activeAssistant={activeAssistant}
-          handleAssistantChange={handleAssistantChange}
-          inputMode={inputMode}
-          setInputMode={setInputMode}
-          handleMessageCheck={handleChatCommand}
-          extraWidgets={
-            showActivityLog ? (
-              <div className="mt-4">
-                <ActivityLogWidget maxItems={12} />
-                <div className="flex justify-end mt-2">
-                  <button 
-                    className="text-xs text-jarvis underline"
-                    onClick={() => setShowActivityLog(false)}
-                  >
-                    Hide Activity Log
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="mt-4 flex justify-end">
-                <button 
-                  className="text-xs text-jarvis underline"
-                  onClick={() => setShowActivityLog(true)}
-                >
-                  Show Activity Log
-                </button>
-              </div>
-            )
-          }
-        />
-        
-        <JarvisControlBar 
-          controlOptions={controlOptions} 
-          onToggle={handleToggleMode} 
-        />
-        
-        {/* Hologram screen */}
-        <HologramScreen 
-          isOpen={isHologramOpen} 
-          onClose={() => setIsHologramOpen(false)} 
-        />
-      </div>
-    </WeatherContextProvider>
+      <JarvisMainLayout 
+        isSpeaking={isSpeaking}
+        isListening={isListening}
+        isProcessing={isProcessing}
+        activeMode={activeMode}
+        hackerModeActive={hackerModeActive}
+        mode={mode}
+        hackerOutput={hackerOutput}
+        setHackerOutput={setHackerOutput}
+        deactivateHackerMode={deactivateHackerMode}
+        toggleListening={toggleListening}
+        activeAssistant={activeAssistant}
+        handleAssistantChange={handleAssistantChange}
+        inputMode={inputMode}
+        setInputMode={setInputMode}
+        handleMessageCheck={handleChatCommand}
+      />
+      
+      <JarvisControlBar 
+        controlOptions={controlOptions} 
+        onToggle={handleToggleMode} 
+      />
+      
+      {/* Hologram screen */}
+      <HologramScreen 
+        isOpen={isHologramOpen} 
+        onClose={() => setIsHologramOpen(false)} 
+      />
+    </div>
   );
 };
 
