@@ -135,8 +135,7 @@ export const GlitchText: React.FC<AnimatedTextProps> = ({ text, className }) => 
     <div className={cn("glitch-text relative", className)} data-text={text}>
       <span className="relative z-10 text-white">{text}</span>
       
-      <style>
-        {`
+      <style dangerouslySetInnerHTML={{ __html: `
         .glitch-text {
           position: relative;
         }
@@ -177,8 +176,7 @@ export const GlitchText: React.FC<AnimatedTextProps> = ({ text, className }) => 
           50% { clip-path: inset(10% 0 70% 0); }
           75% { clip-path: inset(80% 0 10% 0); }
         }
-        `}
-      </style>
+      `}} />
     </div>
   );
 };

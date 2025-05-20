@@ -2,6 +2,7 @@
 "use client";
 
 import * as React from "react";
+import { useTheme } from "next-themes";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { type ThemeProviderProps } from "next-themes/dist/types";
 
@@ -21,7 +22,7 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
 
 export const ThemeToggle = () => {
   const [mounted, setMounted] = React.useState(false);
-  const { theme, setTheme } = React.useContext(NextThemesProvider.Context) || { theme: 'dark', setTheme: () => {} };
+  const { theme, setTheme } = useTheme();
   
   // Ensure we're using client-side rendering
   React.useEffect(() => {

@@ -26,6 +26,16 @@ interface WeatherContextType {
   error: string | null;
   refreshWeather: () => Promise<void>;
   activeUsers: { presence_ref: string }[];
+  
+  // Add missing properties needed by components
+  weather?: WeatherData | null;
+  fetchWeather?: (lat: number, lon: number) => Promise<void>;
+  subscribedLocations?: string[];
+  subscribeToLocation?: (location: string) => Promise<void>;
+  unsubscribeFromLocation?: (location: string) => Promise<void>;
+  weatherAlerts?: Array<{id: string, type: string, severity: string, message: string, timestamp: string}>;
+  dismissAlert?: (id: string) => void;
+  activeCollaborators?: string[];
 }
 
 const defaultWeatherData: WeatherData = {
@@ -54,6 +64,11 @@ export const WeatherContextProvider: React.FC<WeatherContextProviderProps> = ({ 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [activeUsers, setActiveUsers] = useState<{ presence_ref: string }[]>([]);
+  
+  // Add dummy states for the additional properties used in components
+  const [subscribedLocations, setSubscribedLocations] = useState<string[]>([]);
+  const [weatherAlerts, setWeatherAlerts] = useState<Array<{id: string, type: string, severity: string, message: string, timestamp: string}>>([]);
+  const [activeCollaborators, setActiveCollaborators] = useState<string[]>([]);
 
   // Fetch weather data from API
   const fetchWeatherData = async () => {
@@ -91,10 +106,13 @@ export const WeatherContextProvider: React.FC<WeatherContextProviderProps> = ({ 
 
       setWeatherData(newWeatherData);
 
-      // Broadcast weather update to all connected clients
-      await supabase.from('weather_updates').insert({
-        data: newWeatherData,
-        timestamp: new Date().toISOString()
+      // Store the update in the youtube_logs table instead of weather_updates
+      await supabase.from('youtube_logs').insert({
+        command: 'update_weather',
+        user_id: 'system',
+        mood: 'informational',
+        video_title: 'Weather Update',
+        video_url: JSON.stringify(newWeatherData)
       });
     } catch (err) {
       setError('Failed to fetch weather data');
@@ -145,6 +163,27 @@ export const WeatherContextProvider: React.FC<WeatherContextProviderProps> = ({ 
       supabase.removeChannel(presenceChannel);
     };
   }, []);
+  
+  // Mock fetchWeather function used in WeatherDisplay
+  const fetchWeather = async (lat: number, lon: number) => {
+    console.log(`Fetching weather for lat: ${lat}, lon: ${lon}`);
+    await fetchWeatherData();
+  };
+  
+  // Mock subscribeToLocation function
+  const subscribeToLocation = async (location: string) => {
+    setSubscribedLocations(prev => [...prev, location]);
+  };
+  
+  // Mock unsubscribeFromLocation function
+  const unsubscribeFromLocation = (location: string) => {
+    setSubscribedLocations(prev => prev.filter(loc => loc !== location));
+  };
+  
+  // Mock dismissAlert function
+  const dismissAlert = (id: string) => {
+    setWeatherAlerts(prev => prev.filter(alert => alert.id !== id));
+  };
 
   return (
     <WeatherContext.Provider value={{
@@ -153,6 +192,15 @@ export const WeatherContextProvider: React.FC<WeatherContextProviderProps> = ({ 
       error,
       refreshWeather: fetchWeatherData,
       activeUsers,
+      // Add the additional properties needed by components
+      weather: weatherData,
+      fetchWeather,
+      subscribedLocations,
+      subscribeToLocation,
+      unsubscribeFromLocation,
+      weatherAlerts,
+      dismissAlert,
+      activeCollaborators
     }}>
       {children}
     </WeatherContext.Provider>
