@@ -35,15 +35,22 @@
 
     --radius: 0.5rem;
 
-    /* Jarvis theme colors */
-    --jarvis: 193 76% 49%;
-    --jarvis-bg: 220 14% 13%;
-    --jarvis-accent: 193 76% 39%;
+    /* Updated Jarvis theme colors */
+    --jarvis: 250 70% 55%;
+    --jarvis-bg: 230 24% 8%;
+    --jarvis-accent: 250 70% 45%;
     
     /* Hacker mode theme colors */
     --hacker-red: 0 100% 50%;
     --hacker-gold: 43 100% 50%;
     --hacker-bg: 0 0% 5%;
+    
+    /* Modern theme colors */
+    --modern-primary: 252 76% 54%;
+    --modern-secondary: 262 83% 58%;
+    --modern-accent: 292 91% 73%;
+    --modern-dark: 230 33% 15%;
+    --modern-light: 210 40% 98%;
   }
 
   .dark {
@@ -83,9 +90,11 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
   }
 }
 
+/* Base colors */
 .text-jarvis {
   color: hsl(var(--jarvis));
 }
@@ -102,15 +111,23 @@
   background-color: hsl(var(--jarvis-bg));
 }
 
+/* Enhanced panel styles */
 .jarvis-panel {
-  background-color: rgba(0, 0, 0, 0.7);
-  border-bottom: 1px solid hsla(var(--jarvis), 0.2);
+  background-color: rgba(26, 31, 44, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(155, 135, 245, 0.15);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.jarvis-panel:hover {
+  border-color: rgba(155, 135, 245, 0.25);
 }
 
 .glass-morphism {
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(9, 12, 16, 0.7);
   backdrop-filter: blur(10px);
-  border: 1px solid hsla(var(--jarvis), 0.2);
+  border: 1px solid rgba(155, 135, 245, 0.15);
 }
 
 /* Enhanced animation effects */
@@ -140,49 +157,49 @@
   }
 }
 
-/* Iron Man glow effects */
-.ironman-glow {
-  filter: drop-shadow(0 0 10px rgba(179, 0, 0, 0.7)) 
-         drop-shadow(0 0 20px rgba(51, 195, 240, 0.5));
+/* Modern glow effects */
+.modern-glow {
+  filter: drop-shadow(0 0 10px rgba(155, 135, 245, 0.7)) 
+         drop-shadow(0 0 20px rgba(155, 135, 245, 0.5));
   transition: filter 1s ease-in-out;
 }
 
-.ironman-glow:hover {
-  filter: drop-shadow(0 0 15px rgba(179, 0, 0, 0.9)) 
-         drop-shadow(0 0 30px rgba(51, 195, 240, 0.7));
+.modern-glow:hover {
+  filter: drop-shadow(0 0 15px rgba(155, 135, 245, 0.9)) 
+         drop-shadow(0 0 30px rgba(155, 135, 245, 0.7));
 }
 
 /* Enhanced reactor effects */
 .reactor-glow {
-  box-shadow: 0 0 20px rgba(51, 195, 240, 0.7),
-              0 0 40px rgba(51, 195, 240, 0.4);
+  box-shadow: 0 0 20px rgba(155, 135, 245, 0.7),
+              0 0 40px rgba(155, 135, 245, 0.4);
   animation: pulse-reactor 2s infinite ease-in-out;
 }
 
 .reactor-beam {
-  box-shadow: 0 0 10px rgba(51, 195, 240, 0.7);
+  box-shadow: 0 0 10px rgba(155, 135, 245, 0.7);
   animation: pulse-beam 3s infinite ease-in-out;
 }
 
 @keyframes pulse-reactor {
   0%, 100% {
-    box-shadow: 0 0 20px rgba(51, 195, 240, 0.7),
-                0 0 40px rgba(51, 195, 240, 0.4);
+    box-shadow: 0 0 20px rgba(155, 135, 245, 0.7),
+                0 0 40px rgba(155, 135, 245, 0.4);
   }
   50% {
-    box-shadow: 0 0 30px rgba(51, 195, 240, 0.9),
-                0 0 60px rgba(51, 195, 240, 0.6);
+    box-shadow: 0 0 30px rgba(155, 135, 245, 0.9),
+                0 0 60px rgba(155, 135, 245, 0.6);
   }
 }
 
 @keyframes pulse-beam {
   0%, 100% {
     opacity: 0.3;
-    box-shadow: 0 0 5px rgba(51, 195, 240, 0.5);
+    box-shadow: 0 0 5px rgba(155, 135, 245, 0.5);
   }
   50% {
     opacity: 0.6;
-    box-shadow: 0 0 10px rgba(51, 195, 240, 0.7);
+    box-shadow: 0 0 10px rgba(155, 135, 245, 0.7);
   }
 }
 
@@ -271,15 +288,15 @@
 
 /* Enhanced hexagonal grid background */
 .hex-grid {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill='%231eaedb' fill-opacity='0.05'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 18.5L12.98 41v8h-2v-6.85L0 35.81v-2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 42.15V49h-2z'/%3E%3C/g%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill='%239b87f5' fill-opacity='0.05'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 18.5L12.98 41v8h-2v-6.85L0 35.81v-2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 42.15V49h-2z'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 /* Enhanced holographic text effect */
 .holographic-text {
-  color: rgba(51, 195, 240, 0.9);
+  color: rgba(155, 135, 245, 0.9);
   text-shadow: 
-    0 0 5px rgba(51, 195, 240, 0.7),
-    0 0 10px rgba(51, 195, 240, 0.5);
+    0 0 5px rgba(155, 135, 245, 0.7),
+    0 0 10px rgba(155, 135, 245, 0.5);
   animation: hologram-flicker 5s infinite;
 }
 
@@ -288,9 +305,9 @@
   position: absolute;
   background: linear-gradient(to right, 
     transparent, 
-    rgba(51, 195, 240, 0.5), 
-    rgba(51, 195, 240, 0.8), 
-    rgba(51, 195, 240, 0.5), 
+    rgba(155, 135, 245, 0.5), 
+    rgba(155, 135, 245, 0.8), 
+    rgba(155, 135, 245, 0.5), 
     transparent
   );
   animation: hologram-glitch-anim 0.3s ease-out forwards;
@@ -321,8 +338,8 @@
   position: absolute;
   width: 100%;
   height: 2px;
-  background: linear-gradient(to right, transparent, rgba(51, 195, 240, 0.8), transparent);
-  box-shadow: 0 0 10px rgba(51, 195, 240, 0.5);
+  background: linear-gradient(to right, transparent, rgba(155, 135, 245, 0.8), transparent);
+  box-shadow: 0 0 10px rgba(155, 135, 245, 0.5);
   animation: hud-scan 3s infinite;
 }
 
@@ -361,7 +378,7 @@
   position: absolute;
   font-family: monospace;
   font-size: 10px;
-  color: rgba(51, 195, 240, 0.4);
+  color: rgba(155, 135, 245, 0.4);
   white-space: nowrap;
   animation: data-stream-anim 5s linear infinite;
 }
@@ -383,4 +400,56 @@
   50% {
     transform: translateY(-10px);
   }
+}
+
+/* Modern card styles */
+.modern-card {
+  @apply bg-black/40 backdrop-blur-lg border border-jarvis-purple/20 rounded-lg overflow-hidden transition-all duration-300 shadow-modern-card;
+}
+
+.modern-card:hover {
+  @apply border-jarvis-purple/30 shadow-purple-glow;
+}
+
+/* Shimmer effect for loading states */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(155, 135, 245, 0.05) 0%,
+    rgba(155, 135, 245, 0.15) 50%,
+    rgba(155, 135, 245, 0.05) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Modern button styles */
+.btn-modern {
+  @apply px-4 py-2 rounded-md bg-gradient-to-r from-jarvis-purple to-purple-600
+    text-white font-medium shadow-md hover:shadow-lg transition-all duration-300
+    hover:scale-105 focus:outline-none focus:ring-2 focus:ring-jarvis-purple/50;
+}
+
+.btn-modern-outline {
+  @apply px-4 py-2 rounded-md bg-transparent border border-jarvis-purple/50
+    text-jarvis-purple font-medium shadow-md hover:shadow-lg transition-all duration-300
+    hover:bg-jarvis-purple/10 focus:outline-none focus:ring-2 focus:ring-jarvis-purple/30;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(26, 31, 44, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(155, 135, 245, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(155, 135, 245, 0.5);
 }

@@ -28,7 +28,10 @@ export default {
           secondary: "#FFD700",
           text: "#ffffff",
           muted: "#8a8a9b",
-          neon: "#8B5CF6"
+          neon: "#8B5CF6",
+          purple: "#9b87f5",
+          deep: "#1A1F2C",
+          midnight: "#090C10"
         },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -79,15 +82,21 @@ export default {
         "hologram": "0 0 20px rgba(51, 195, 240, 0.4), inset 0 0 30px rgba(51, 195, 240, 0.2)",
         "tech-panel": "inset 0 0 20px rgba(51, 195, 240, 0.2), 0 0 10px rgba(51, 195, 240, 0.1)",
         "hacker-terminal": "inset 0 0 15px rgba(255, 0, 0, 0.2), 0 0 10px rgba(255, 0, 0, 0.1)",
+        "modern-card": "0 4px 20px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.05)",
+        "glass": "0 8px 32px rgba(0, 0, 0, 0.2)",
+        "purple-glow": "0 0 15px rgba(155, 135, 245, 0.4), 0 0 30px rgba(155, 135, 245, 0.2)",
       },
       blur: {
         xs: '2px',
       },
       backgroundImage: {
-        'tech-grid': "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M0 0h40v40H0V0z' fill='none'/%3E%3Cpath d='M0 0h1v1H0V0zm1 1h1v1H1V1zm1 1h1v1H2V2zm1 1h1v1H3V3zm1 1h1v1H4V4zm1 1h1v1H5V5zm1 1h1v1H6V6zm1 1h1v1H7V7zm1 1h1v1H8V8zm1 1h1v1H9V9zm1 1h1v1h-1V10zm1 1h1v1h-1V11zm1 1h1v1h-1V12zm1 1h1v1h-1V13zm1 1h1v1h-1V14zm1 1h1v1h-1V15zm1 1h1v1h-1V16zm1 1h1v1h-1V17zm1 1h1v1h-1V18zm1 1h1v1h-1V19zm1 1h1v1h-1V20zm1 1h1v1h-1V21zm1 1h1v1h-1V22zm1 1h1v1h-1V23zm1 1h1v1h-1V24zm1 1h1v1h-1V25zm1 1h1v1h-1V26zm1 1h1v1h-1V27zm1 1h1v1h-1V28zm1 1h1v1h-1V29zm1 1h1v1h-1V30zm1 1h1v1h-1V31zm1 1h1v1h-1V32zm1 1h1v1h-1V33zm1 1h1v1h-1V34zm1 1h1v1h-1V35zm1 1h1v1h-1V36zm1 1h1v1h-1V37zm1 1h1v1h-1V38zm1 1h1v1h-1V39z' fill='rgba(51, 195, 240, 0.05)'/%3E%3C/svg%3E\")",
-        'circuit': "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='800' viewBox='0 0 800 800'%3E%3Cg fill='none' stroke='%231eaedb' stroke-width='1'%3E%3Cpath d='M769 229L1037 260.9M927 880L731 737 520 660 309 538 40 599 295 764 126.5 879.5 40 599-197 493 102 382-31 229 126.5 79.5-69-63'/%3E%3Cpath d='M-31 229L237 261 390 382 603 493 308.5 537.5 101.5 381.5M370 905L295 764'/%3E%3Cpath d='M520 660L578 842 731 737 840 599 603 493 520 660 295 764 309 538 390 382 539 269 769 229 577.5 41.5 370 105 295 -36 126.5 79.5 237 261 102 382 40 599 -69 737 127 880'/%3E%3Cpath d='M520-140L578.5 42.5 731-63M603 493L539 269 237 261 370 105M902 382L539 269M390 382L102 382'/%3E%3Cpath d='M-222 42L126.5 79.5 370 105 539 269 577.5 41.5 927 80 769 229 902 382 603 493 731 737M295-36L577.5 41.5M578 842L295 764M40-201L127 80M102 382L-261 269'/%3E%3C/g%3E%3Cg fill='%231eaedb'%3E%3Ccircle cx='769' cy='229' r='5'/%3E%3Ccircle cx='539' cy='269' r='5'/%3E%3Ccircle cx='603' cy='493' r='5'/%3E%3Ccircle cx='731' cy='737' r='5'/%3E%3Ccircle cx='520' cy='660' r='5'/%3E%3Ccircle cx='309' cy='538' r='5'/%3E%3Ccircle cx='295' cy='764' r='5'/%3E%3Ccircle cx='40' cy='599' r='5'/%3E%3Ccircle cx='102' cy='382' r='5'/%3E%3Ccircle cx='127' cy='80' r='5'/%3E%3Ccircle cx='370' cy='105' r='5'/%3E%3Ccircle cx='578' cy='42' r='5'/%3E%3Ccircle cx='237' cy='261' r='5'/%3E%3Ccircle cx='390' cy='382' r='5'/%3E%3C/g%3E%3C/svg%3E\")",
+        'tech-grid': "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M0 0h40v40H0V0z' fill='none'/%3E%3Cpath d='M0 0h1v1H0V0zm1 1h1v1H1V1zm1 1h1v1H2V2zm1 1h1v1H3V3zm1 1h1v1H4V4zm1 1h1v1H5V5zm1 1h1v1H6V6zm1 1h1v1H7V7zm1 1h1v1H8V8zm1 1h1v1H9V9zm1 1h1v1h-1V10zm1 1h1v1h-1V11zm1 1h1v1h-1V12zm1 1h1v1h-1V13zm1 1h1v1h-1V14zm1 1h1v1h-1V15zm1 1h1v1h-1V16zm1 1h1v1h-1V17zm1 1h1v1h-1V18zm1 1h1v1h-1V19zm1 1h1v1h-1V20zm1 1h1v1h-1V21zm1 1h1v1h-1V22zm1 1h1v1h-1V23zm1 1h1v1h-1V24zm1 1h1v1h-1V25zm1 1h1v1h-1V26zm1 1h1v1h-1V27zm1 1h1v1h-1V28zm1 1h1v1h-1V29zm1 1h1v1h-1V30zm1 1h1v1h-1V31zm1 1h1v1h-1V32zm1 1h1v1h-1V33zm1 1h1v1h-1V34zm1 1h1v1h-1V35zm1 1h1v1h-1V36zm1 1h1v1h-1V37zm1 1h1v1h-1V38zm1 1h1v1h-1V39z' fill='rgba(155, 135, 245, 0.05)'/%3E%3C/svg%3E\")",
+        'circuit': "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='800' viewBox='0 0 800 800'%3E%3Cg fill='none' stroke='%239b87f5' stroke-width='1'%3E%3Cpath d='M769 229L1037 260.9M927 880L731 737 520 660 309 538 40 599 295 764 126.5 879.5 40 599-197 493 102 382-31 229 126.5 79.5-69-63'/%3E%3Cpath d='M-31 229L237 261 390 382 603 493 308.5 537.5 101.5 381.5M370 905L295 764'/%3E%3Cpath d='M520 660L578 842 731 737 840 599 603 493 520 660 295 764 309 538 390 382 539 269 769 229 577.5 41.5 370 105 295 -36 126.5 79.5 237 261 102 382 40 599 -69 737 127 880'/%3E%3Cpath d='M520-140L578.5 42.5 731-63M603 493L539 269 237 261 370 105M902 382L539 269M390 382L102 382'/%3E%3Cpath d='M-222 42L126.5 79.5 370 105 539 269 577.5 41.5 927 80 769 229 902 382 603 493 731 737M295-36L577.5 41.5M578 842L295 764M40-201L127 80M102 382L-261 269'/%3E%3C/g%3E%3Cg fill='%239b87f5'%3E%3Ccircle cx='769' cy='229' r='5'/%3E%3Ccircle cx='539' cy='269' r='5'/%3E%3Ccircle cx='603' cy='493' r='5'/%3E%3Ccircle cx='731' cy='737' r='5'/%3E%3Ccircle cx='520' cy='660' r='5'/%3E%3Ccircle cx='309' cy='538' r='5'/%3E%3Ccircle cx='295' cy='764' r='5'/%3E%3Ccircle cx='40' cy='599' r='5'/%3E%3Ccircle cx='102' cy='382' r='5'/%3E%3Ccircle cx='127' cy='80' r='5'/%3E%3Ccircle cx='370' cy='105' r='5'/%3E%3Ccircle cx='578' cy='42' r='5'/%3E%3Ccircle cx='237' cy='261' r='5'/%3E%3Ccircle cx='390' cy='382' r='5'/%3E%3C/g%3E%3C/svg%3E\")",
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
+        'modern-gradient': 'linear-gradient(110deg, #9b87f5, #1A1F2C)',
+        'dark-gradient': 'linear-gradient(to bottom, #090C10, #1A1F2C)',
+        'purple-pattern': "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill='%239b87f5' fill-opacity='0.05'%3E%3Cpath d='M20 0a20 20 0 1 0 20 20A20 20 0 0 0 20 0zm0 36a16 16 0 1 1 16-16 16 16 0 0 1-16 16zm0-29a13 13 0 1 0 13 13A13 13 0 0 0 20 7zm0 23a10 10 0 1 1 10-10 10 10 0 0 1-10 10zm0-19a9 9 0 1 0 9 9 9 9 0 0 0-9-9z'/%3E%3C/g%3E%3C/svg%3E\")",
       },
       keyframes: {
         "accordion-down": {
@@ -100,15 +109,15 @@ export default {
         },
         "pulse": {
           "0%": { 
-            boxShadow: "0 0 0 0 rgba(51, 195, 240, 0.7)",
+            boxShadow: "0 0 0 0 rgba(155, 135, 245, 0.7)",
             transform: "scale(0.95)"
           },
           "70%": { 
-            boxShadow: "0 0 0 15px rgba(51, 195, 240, 0)",
+            boxShadow: "0 0 0 15px rgba(155, 135, 245, 0)",
             transform: "scale(1)"
           },
           "100%": { 
-            boxShadow: "0 0 0 0 rgba(51, 195, 240, 0)",
+            boxShadow: "0 0 0 0 rgba(155, 135, 245, 0)",
             transform: "scale(0.95)"
           },
         },
@@ -141,8 +150,8 @@ export default {
           to: { transform: "rotate(360deg)" }
         },
         "glow": {
-          "0%": { boxShadow: "0 0 5px #1eaedb, 0 0 10px #1eaedb, 0 0 15px #1eaedb" },
-          "100%": { boxShadow: "0 0 20px #1eaedb, 0 0 30px #1eaedb, 0 0 40px #1eaedb" }
+          "0%": { boxShadow: "0 0 5px #9b87f5, 0 0 10px #9b87f5, 0 0 15px #9b87f5" },
+          "100%": { boxShadow: "0 0 20px #9b87f5, 0 0 30px #9b87f5, 0 0 40px #9b87f5" }
         },
         "reactor-pulse": {
           "0%": { opacity: "0.6", transform: "scale(0.98)" },
@@ -155,22 +164,22 @@ export default {
         },
         "reactor-glow": {
           "0%": { 
-            boxShadow: "0 0 15px #B30000, 0 0 25px #33C3F0",
+            boxShadow: "0 0 15px #9b87f5, 0 0 25px #1A1F2C",
             opacity: "0.7" 
           },
           "50%": { 
-            boxShadow: "0 0 30px #B30000, 0 0 50px #33C3F0",
+            boxShadow: "0 0 30px #9b87f5, 0 0 50px #1A1F2C",
             opacity: "1"
           },
           "100%": { 
-            boxShadow: "0 0 15px #B30000, 0 0 25px #33C3F0",
+            boxShadow: "0 0 15px #9b87f5, 0 0 25px #1A1F2C",
             opacity: "0.7" 
           }
         },
         "ironman-eyes": {
-          "0%": { filter: "brightness(1) drop-shadow(0 0 2px #33C3F0)" },
-          "50%": { filter: "brightness(1.5) drop-shadow(0 0 8px #33C3F0)" },
-          "100%": { filter: "brightness(1) drop-shadow(0 0 2px #33C3F0)" }
+          "0%": { filter: "brightness(1) drop-shadow(0 0 2px #9b87f5)" },
+          "50%": { filter: "brightness(1.5) drop-shadow(0 0 8px #9b87f5)" },
+          "100%": { filter: "brightness(1) drop-shadow(0 0 2px #9b87f5)" }
         },
         "hologram-flicker": {
           "0%, 100%": { opacity: "1" },
@@ -182,6 +191,19 @@ export default {
         "scan-line": {
           "0%": { top: "0%" },
           "100%": { top: "100%" }
+        },
+        "shimmer": {
+          "0%": { backgroundPosition: "200% 0" },
+          "100%": { backgroundPosition: "-200% 0" },
+        },
+        "wave": {
+          "0%": { transform: "translateX(-100%)" },
+          "50%": { transform: "translateX(0%)" },
+          "100%": { transform: "translateX(100%)" },
+        },
+        "bounce-subtle": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-5px)" },
         },
       },
       animation: {
@@ -201,6 +223,9 @@ export default {
         "ironman-eyes": "ironman-eyes 2s ease-in-out infinite",
         "hologram-flicker": "hologram-flicker 4s infinite",
         "scan-line": "scan-line 3s linear infinite",
+        "shimmer": "shimmer 3s linear infinite",
+        "wave": "wave 2s ease-in-out infinite",
+        "bounce-subtle": "bounce-subtle 2s ease-in-out infinite",
       },
     },
   },

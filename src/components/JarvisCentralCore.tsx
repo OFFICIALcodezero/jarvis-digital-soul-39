@@ -5,6 +5,8 @@ import JarvisAvatar from './JarvisAvatar';
 import { useJarvisChat } from '../contexts/JarvisChatProvider';
 import { Progress } from '@/components/ui/progress';
 import HologramEffect from './ui/hologram-effect';
+import { Badge } from '@/components/ui/badge';
+import { Loader } from 'lucide-react';
 
 interface JarvisCentralCoreProps {
   isSpeaking: boolean;
@@ -55,8 +57,8 @@ const JarvisCentralCore: React.FC<JarvisCentralCoreProps> = ({
       
       // Draw the reflection (we'll just simulate it with a gradient)
       const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      gradient.addColorStop(0, 'rgba(51, 195, 240, 0.3)');
-      gradient.addColorStop(1, 'rgba(51, 195, 240, 0)');
+      gradient.addColorStop(0, 'rgba(155, 135, 245, 0.3)');
+      gradient.addColorStop(1, 'rgba(155, 135, 245, 0)');
       
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -89,24 +91,31 @@ const JarvisCentralCore: React.FC<JarvisCentralCoreProps> = ({
   return (
     <div ref={containerRef} className="flex-1 flex flex-col items-center justify-center relative">
       {/* Ambient circular glow */}
-      <div className="absolute w-96 h-96 rounded-full bg-jarvis/5 blur-[100px] pointer-events-none"></div>
+      <div className="absolute w-96 h-96 rounded-full bg-jarvis-purple/10 blur-[100px] pointer-events-none"></div>
       
       {/* Grid lines for tech feel */}
       <div className="absolute inset-0 pointer-events-none opacity-20" style={{
         backgroundImage: `
-          linear-gradient(0deg, transparent 24%, rgba(51, 195, 240, 0.05) 25%, rgba(51, 195, 240, 0.05) 26%, transparent 27%, transparent 74%, rgba(51, 195, 240, 0.05) 75%, rgba(51, 195, 240, 0.05) 76%, transparent 77%, transparent),
-          linear-gradient(90deg, transparent 24%, rgba(51, 195, 240, 0.05) 25%, rgba(51, 195, 240, 0.05) 26%, transparent 27%, transparent 74%, rgba(51, 195, 240, 0.05) 75%, rgba(51, 195, 240, 0.05) 76%, transparent 77%, transparent)
+          linear-gradient(0deg, transparent 24%, rgba(155, 135, 245, 0.05) 25%, rgba(155, 135, 245, 0.05) 26%, transparent 27%, transparent 74%, rgba(155, 135, 245, 0.05) 75%, rgba(155, 135, 245, 0.05) 76%, transparent 77%, transparent),
+          linear-gradient(90deg, transparent 24%, rgba(155, 135, 245, 0.05) 25%, rgba(155, 135, 245, 0.05) 26%, transparent 27%, transparent 74%, rgba(155, 135, 245, 0.05) 75%, rgba(155, 135, 245, 0.05) 76%, transparent 77%, transparent)
         `,
         backgroundSize: '50px 50px'
       }}></div>
       
       <div 
-        className={`jarvis-core-container w-72 h-72 flex items-center justify-center perspective-container
+        className={`jarvis-core-container relative w-72 h-72 flex items-center justify-center perspective-container
           ${isSpeaking ? 'animate-pulse' : ''} 
           ${isProcessing ? 'animate-spin-slow' : ''}
           ${isGeneratingImage ? 'animate-glow-strong' : ''}
         `}
       >
+        <div className="absolute inset-0 flex items-center justify-center">
+          {/* Animated pulse rings */}
+          <div className={`absolute w-64 h-64 rounded-full border border-jarvis-purple/30 opacity-80 ${(isSpeaking || isListening) ? 'animate-ping-slow' : ''}`}></div>
+          <div className={`absolute w-56 h-56 rounded-full border border-jarvis-purple/20 opacity-60 ${(isSpeaking || isListening) ? 'animate-ping-slow' : ''}`} style={{animationDelay: '0.5s'}}></div>
+          <div className={`absolute w-48 h-48 rounded-full border border-jarvis-purple/10 opacity-40 ${(isSpeaking || isListening) ? 'animate-ping-slow' : ''}`} style={{animationDelay: '1s'}}></div>
+        </div>
+        
         {activeMode !== 'face' && activeMode !== 'satellite' ? (
           <HologramEffect intensity={activeMode === 'hacker' ? 'high' : 'medium'} className="scale-125 transform transition-all duration-300">
             <JarvisCore 
@@ -129,57 +138,53 @@ const JarvisCentralCore: React.FC<JarvisCentralCoreProps> = ({
         {/* Tech decorative elements */}
         <div className="absolute inset-0 pointer-events-none">
           {/* Corner brackets */}
-          <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-jarvis/40"></div>
-          <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-jarvis/40"></div>
-          <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-jarvis/40"></div>
-          <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-jarvis/40"></div>
+          <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-jarvis-purple/40"></div>
+          <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-jarvis-purple/40"></div>
+          <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-jarvis-purple/40"></div>
+          <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-jarvis-purple/40"></div>
         </div>
       </div>
       
       {isGeneratingImage && (
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 z-10">
           <Progress value={generationProgress} className="h-2 bg-black/40" />
-          <p className="text-xs text-jarvis mt-1 text-center">Generating Image: {Math.round(generationProgress)}%</p>
+          <p className="text-xs text-jarvis-purple mt-1 text-center">Generating Image: {Math.round(generationProgress)}%</p>
         </div>
       )}
       
-      {/* Status indicator chips */}
-      {isSpeaking && (
-        <div className="absolute top-2 right-2 bg-jarvis/20 text-jarvis px-2 py-1 rounded-md text-xs border border-jarvis/30 animate-pulse z-10">
-          <div className="flex items-center gap-1">
-            <div className="w-2 h-2 bg-jarvis rounded-full"></div>
+      {/* Status indicators */}
+      <div className="absolute top-2 right-2 flex flex-col gap-2">
+        {isSpeaking && (
+          <Badge variant="purple" className="flex items-center gap-1 animate-pulse">
+            <div className="w-2 h-2 bg-white rounded-full"></div>
             Speaking
-          </div>
-        </div>
-      )}
-      
-      {isListening && !isSpeaking && (
-        <div className="absolute top-2 right-2 bg-jarvis/20 text-jarvis px-2 py-1 rounded-md text-xs border border-jarvis/30 animate-pulse z-10">
-          <div className="flex items-center gap-1">
-            <div className="w-2 h-2 bg-jarvis rounded-full"></div>
+          </Badge>
+        )}
+        
+        {isListening && !isSpeaking && (
+          <Badge variant="purple" className="flex items-center gap-1 animate-pulse">
+            <div className="w-2 h-2 bg-white rounded-full"></div>
             Listening
-          </div>
-        </div>
-      )}
-      
-      {isGeneratingImage && !isSpeaking && !isListening && (
-        <div className="absolute top-2 right-2 bg-jarvis/20 text-jarvis px-2 py-1 rounded-md text-xs border border-jarvis/30 animate-pulse z-10">
-          <div className="flex items-center gap-1">
-            <div className="w-2 h-2 bg-jarvis rounded-full"></div>
+          </Badge>
+        )}
+        
+        {isProcessing && !isSpeaking && !isListening && (
+          <Badge variant="purple" className="flex items-center gap-1">
+            <Loader className="w-3 h-3 animate-spin mr-1" />
+            Processing
+          </Badge>
+        )}
+        
+        {isGeneratingImage && !isSpeaking && !isListening && (
+          <Badge variant="purple" className="flex items-center gap-1 animate-pulse">
+            <div className="w-2 h-2 bg-white rounded-full"></div>
             Generating Image
-          </div>
-        </div>
-      )}
+          </Badge>
+        )}
+      </div>
       
       {/* Data stream line at the bottom */}
       <div className="absolute bottom-0 left-0 right-0 h-6 data-stream opacity-30"></div>
-      
-      {/* Add pulsating rings around the core */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <div className="w-96 h-96 rounded-full border border-jarvis/20 animate-ping-slow opacity-30"></div>
-        <div className="w-80 h-80 rounded-full border border-jarvis/30 animate-ping-slow opacity-30" style={{animationDelay: '0.5s'}}></div>
-        <div className="w-64 h-64 rounded-full border border-jarvis/40 animate-ping-slow opacity-30" style={{animationDelay: '1s'}}></div>
-      </div>
     </div>
   );
 };

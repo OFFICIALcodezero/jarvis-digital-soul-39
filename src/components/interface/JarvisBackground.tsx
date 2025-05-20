@@ -36,14 +36,14 @@ const JarvisBackground: React.FC<JarvisBackgroundProps> = ({ hackerModeActive })
       color: string;
     }[] = [];
     
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 100; i++) {
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        size: 0.5 + Math.random() * 3,
-        speed: 0.2 + Math.random() * 0.8,
-        opacity: 0.1 + Math.random() * 0.3,
-        color: `rgba(51, 195, 240, ${0.3 + Math.random() * 0.7})`
+        size: 0.5 + Math.random() * 2.5,
+        speed: 0.2 + Math.random() * 0.6,
+        opacity: 0.1 + Math.random() * 0.4,
+        color: `rgba(155, 135, 245, ${0.3 + Math.random() * 0.7})`
       });
     }
     
@@ -59,7 +59,7 @@ const JarvisBackground: React.FC<JarvisBackgroundProps> = ({ hackerModeActive })
         ctx.globalAlpha = particle.opacity;
         
         // Add glow
-        ctx.shadowColor = 'rgba(51, 195, 240, 0.5)';
+        ctx.shadowColor = 'rgba(155, 135, 245, 0.5)';
         ctx.shadowBlur = 10;
         ctx.fill();
         
@@ -91,7 +91,7 @@ const JarvisBackground: React.FC<JarvisBackgroundProps> = ({ hackerModeActive })
             ctx.lineTo(particles[j].x, particles[j].y);
             
             const opacity = 1 - distance / 150;
-            ctx.strokeStyle = `rgba(51, 195, 240, ${opacity * 0.2})`;
+            ctx.strokeStyle = `rgba(155, 135, 245, ${opacity * 0.2})`;
             ctx.stroke();
           }
         }
@@ -195,24 +195,24 @@ const JarvisBackground: React.FC<JarvisBackgroundProps> = ({ hackerModeActive })
         </div>
       )}
       
-      {/* Normal Jarvis background */}
+      {/* Modern Jarvis background */}
       {!hackerModeActive && (
         <div className="absolute inset-0 z-0">
           {/* Dark background with subtle hex pattern */}
-          <div className="absolute inset-0 bg-jarvis-bg hex-grid"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-jarvis-deep to-jarvis-midnight hex-grid"></div>
           
           {/* Circular gradient in center */}
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[80vh] h-[80vh] rounded-full bg-[#33C3F0]/5 blur-[100px]"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[80vh] h-[80vh] rounded-full bg-jarvis-purple/5 blur-[100px]"></div>
           
           {/* Subtle horizontal grid lines */}
           <div className="absolute inset-0" style={{
-            backgroundImage: 'linear-gradient(0deg, transparent 24%, rgba(51, 195, 240, 0.05) 25%, rgba(51, 195, 240, 0.05) 26%, transparent 27%, transparent 74%, rgba(51, 195, 240, 0.05) 75%, rgba(51, 195, 240, 0.05) 76%, transparent 77%, transparent)',
+            backgroundImage: 'linear-gradient(0deg, transparent 24%, rgba(155, 135, 245, 0.05) 25%, rgba(155, 135, 245, 0.05) 26%, transparent 27%, transparent 74%, rgba(155, 135, 245, 0.05) 75%, rgba(155, 135, 245, 0.05) 76%, transparent 77%, transparent)',
             backgroundSize: '100px 100px'
           }}></div>
           
           {/* Vertical lines */}
           <div className="absolute inset-0" style={{
-            backgroundImage: 'linear-gradient(90deg, transparent 24%, rgba(51, 195, 240, 0.03) 25%, rgba(51, 195, 240, 0.03) 26%, transparent 27%, transparent 74%, rgba(51, 195, 240, 0.03) 75%, rgba(51, 195, 240, 0.03) 76%, transparent 77%, transparent)',
+            backgroundImage: 'linear-gradient(90deg, transparent 24%, rgba(155, 135, 245, 0.03) 25%, rgba(155, 135, 245, 0.03) 26%, transparent 27%, transparent 74%, rgba(155, 135, 245, 0.03) 75%, rgba(155, 135, 245, 0.03) 76%, transparent 77%, transparent)',
             backgroundSize: '100px 100px'
           }}></div>
           
@@ -221,14 +221,18 @@ const JarvisBackground: React.FC<JarvisBackgroundProps> = ({ hackerModeActive })
             <div className="hud-scan"></div>
           </div>
           
-          {/* Tech circuit patterns in corners */}
-          <div className="absolute top-0 left-0 w-64 h-64 opacity-20" style={{
-            backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'200\' viewBox=\'0 0 800 800\'%3E%3Cg fill=\'none\' stroke=\'%231eaedb\' stroke-width=\'1\'%3E%3Cpath d=\'M769 229L1037 260.9M927 880L731 737 520 660 309 538 40 599 295 764 126.5 879.5 40 599-197 493 102 382-31 229 126.5 79.5-69-63\'/%3E%3Cpath d=\'M-31 229L237 261 390 382 603 493 308.5 537.5 101.5 381.5M370 905L295 764\'/%3E%3Cpath d=\'M520 660L578 842 731 737 840 599 603 493 520 660 295 764 309 538 390 382 539 269 769 229 577.5 41.5 370 105 295 -36 126.5 79.5 237 261 102 382 40 599 -69 737 127 880\'/%3E%3Cpath d=\'M520-140L578.5 42.5 731-63M603 493L539 269 237 261 370 105M902 382L539 269M390 382L102 382\'/%3E%3Cpath d=\'M-222 42L126.5 79.5 370 105 539 269 577.5 41.5 927 80 769 229 902 382 603 493 731 737M295-36L577.5 41.5M578 842L295 764M40-201L127 80M102 382L-261 269\'/%3E%3C/g%3E%3Cg fill=\'%231eaedb\'%3E%3Ccircle cx=\'769\' cy=\'229\' r=\'5\'/%3E%3Ccircle cx=\'539\' cy=\'269\' r=\'5\'/%3E%3Ccircle cx=\'603\' cy=\'493\' r=\'5\'/%3E%3Ccircle cx=\'731\' cy=\'737\' r=\'5\'/%3E%3Ccircle cx=\'520\' cy=\'660\' r=\'5\'/%3E%3Ccircle cx=\'309\' cy=\'538\' r=\'5\'/%3E%3Ccircle cx=\'295\' cy=\'764\' r=\'5\'/%3E%3Ccircle cx=\'40\' cy=\'599\' r=\'5\'/%3E%3Ccircle cx=\'102\' cy=\'382\' r=\'5\'/%3E%3Ccircle cx=\'127\' cy=\'80\' r=\'5\'/%3E%3Ccircle cx=\'370\' cy=\'105\' r=\'5\'/%3E%3Ccircle cx=\'578\' cy=\'42\' r=\'5\'/%3E%3Ccircle cx=\'237\' cy=\'261\' r=\'5\'/%3E%3Ccircle cx=\'390\' cy=\'382\' r=\'5\'/%3E%3C/g%3E%3C/svg%3E")'
-          }}></div>
+          {/* Digital circuit patterns in corners */}
+          <div className="absolute top-0 left-0 w-64 h-64 opacity-20 bg-purple-pattern"></div>
+          <div className="absolute bottom-0 right-0 w-64 h-64 opacity-20 bg-purple-pattern"></div>
           
-          <div className="absolute bottom-0 right-0 w-64 h-64 opacity-20" style={{
-            backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'200\' viewBox=\'0 0 800 800\'%3E%3Cg fill=\'none\' stroke=\'%231eaedb\' stroke-width=\'1\'%3E%3Cpath d=\'M769 229L1037 260.9M927 880L731 737 520 660 309 538 40 599 295 764 126.5 879.5 40 599-197 493 102 382-31 229 126.5 79.5-69-63\'/%3E%3Cpath d=\'M-31 229L237 261 390 382 603 493 308.5 537.5 101.5 381.5M370 905L295 764\'/%3E%3Cpath d=\'M520 660L578 842 731 737 840 599 603 493 520 660 295 764 309 538 390 382 539 269 769 229 577.5 41.5 370 105 295 -36 126.5 79.5 237 261 102 382 40 599 -69 737 127 880\'/%3E%3Cpath d=\'M520-140L578.5 42.5 731-63M603 493L539 269 237 261 370 105M902 382L539 269M390 382L102 382\'/%3E%3Cpath d=\'M-222 42L126.5 79.5 370 105 539 269 577.5 41.5 927 80 769 229 902 382 603 493 731 737M295-36L577.5 41.5M578 842L295 764M40-201L127 80M102 382L-261 269\'/%3E%3C/g%3E%3Cg fill=\'%231eaedb\'%3E%3Ccircle cx=\'769\' cy=\'229\' r=\'5\'/%3E%3Ccircle cx=\'539\' cy=\'269\' r=\'5\'/%3E%3Ccircle cx=\'603\' cy=\'493\' r=\'5\'/%3E%3Ccircle cx=\'731\' cy=\'737\' r=\'5\'/%3E%3Ccircle cx=\'520\' cy=\'660\' r=\'5\'/%3E%3Ccircle cx=\'309\' cy=\'538\' r=\'5\'/%3E%3Ccircle cx=\'295\' cy=\'764\' r=\'5\'/%3E%3Ccircle cx=\'40\' cy=\'599\' r=\'5\'/%3E%3Ccircle cx=\'102\' cy=\'382\' r=\'5\'/%3E%3Ccircle cx=\'127\' cy=\'80\' r=\'5\'/%3E%3Ccircle cx=\'370\' cy=\'105\' r=\'5\'/%3E%3Ccircle cx=\'578\' cy=\'42\' r=\'5\'/%3E%3Ccircle cx=\'237\' cy=\'261\' r=\'5\'/%3E%3Ccircle cx=\'390\' cy=\'382\' r=\'5\'/%3E%3C/g%3E%3C/svg%3E")'
-          }}></div>
+          {/* Add a subtle vignette effect */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/20"></div>
+          
+          {/* Add some floating shapes */}
+          <div className="absolute top-[30%] left-[10%] w-16 h-16 bg-jarvis-purple/5 rounded-full blur-lg animate-float"></div>
+          <div className="absolute top-[60%] left-[25%] w-24 h-24 bg-jarvis-purple/5 rounded-full blur-lg animate-float" style={{ animationDelay: '1s' }}></div>
+          <div className="absolute top-[20%] right-[15%] w-20 h-20 bg-jarvis-purple/5 rounded-full blur-lg animate-float" style={{ animationDelay: '2s' }}></div>
         </div>
       )}
       
@@ -236,7 +240,7 @@ const JarvisBackground: React.FC<JarvisBackgroundProps> = ({ hackerModeActive })
       
       {/* Atmospheric gradient overlay */}
       <div className={`absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t ${
-        hackerModeActive ? 'from-red-900/20' : 'from-[#1eaedb]/10'
+        hackerModeActive ? 'from-red-900/20' : 'from-jarvis-purple/10'
       } to-transparent z-0`}></div>
     </>
   );
