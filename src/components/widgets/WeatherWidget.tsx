@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { getWeatherForecast, WeatherData } from '@/services/weatherService';
 import { CloudSun, CloudRain, Sun, Cloud, Plus, Trash2, Users, AlertCircle, Bell } from 'lucide-react';
-import { useWeatherContext } from '@/features/WeatherContext';
+import { useWeather } from '@/features/WeatherContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -31,21 +31,31 @@ interface WeatherWidgetProps {
 }
 
 const WeatherWidget: React.FC<WeatherWidgetProps> = ({ isCompact = false }) => {
-  const { 
-    weather, 
-    fetchWeather, 
-    isLoading, 
-    error,
-    subscribedLocations,
-    subscribeToLocation,
-    unsubscribeFromLocation,
-    weatherAlerts,
-    dismissAlert,
-    activeCollaborators
-  } = useWeatherContext();
+  // Since our current WeatherContext doesn't have all these properties,
+  // we'll use what's available and mock the rest for now
+  const { weatherData, refreshWeather, isLoading, error } = useWeather();
   const [newLocation, setNewLocation] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [showAlertsDialog, setShowAlertsDialog] = useState(false);
+  
+  // Mock data for properties not in our context
+  const subscribedLocations = [];
+  const weatherAlerts = weatherData?.alerts || [];
+  const activeCollaborators = [];
+  
+  // Mock functions
+  const subscribeToLocation = async (location: string) => {
+    console.log('Would subscribe to location:', location);
+    await refreshWeather();
+  };
+  
+  const unsubscribeFromLocation = (location: string) => {
+    console.log('Would unsubscribe from location:', location);
+  };
+  
+  const dismissAlert = (id: string) => {
+    console.log('Would dismiss alert:', id);
+  };
 
   useEffect(() => {
     // Ask for user geolocation on mount
@@ -56,7 +66,7 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ isCompact = false }) => {
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         // Fetch weather for current location
-        await fetchWeather(position.coords.latitude, position.coords.longitude);
+        await refreshWeather();
         
         // Also subscribe to current location for updates
         const locationString = `${position.coords.latitude.toFixed(4)},${position.coords.longitude.toFixed(4)}`;
@@ -66,7 +76,7 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ isCompact = false }) => {
         console.error('Geolocation error:', err);
       }
     );
-  }, [fetchWeather, subscribeToLocation]);
+  }, [refreshWeather]);
 
   const handleSubscribeLocation = () => {
     if (newLocation.trim()) {
@@ -75,21 +85,6 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ isCompact = false }) => {
       setIsDialogOpen(false);
     }
   };
-
-  // Show toast for new weather alerts
-  useEffect(() => {
-    if (weatherAlerts.length > 0) {
-      // Get latest alert
-      const latestAlert = weatherAlerts[weatherAlerts.length - 1];
-      
-      // Auto-dismiss alerts after 1 minute
-      const timeoutId = setTimeout(() => {
-        dismissAlert(latestAlert.id);
-      }, 60000);
-      
-      return () => clearTimeout(timeoutId);
-    }
-  }, [weatherAlerts, dismissAlert]);
 
   if (isLoading) {
     return (
@@ -107,22 +102,22 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ isCompact = false }) => {
     );
   }
 
-  if (!weather) return null;
+  if (!weatherData) return null;
 
   if (isCompact) {
     return (
       <div className="weather-widget-compact bg-black/40 p-3 rounded-lg border border-[#33c3f0]/20">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            {getWeatherIcon(weather.condition)}
+            {getWeatherIcon(weatherData.condition)}
             <div className="ml-2">
               <div className="text-lg font-bold text-white">
-                {weather.temperature}°C
+                {weatherData.temperature}°C
               </div>
-              <div className="text-xs text-[#33c3f0]/80">{weather.location}</div>
+              <div className="text-xs text-[#33c3f0]/80">{weatherData.location}</div>
             </div>
           </div>
-          <div className="text-sm text-gray-300">{weather.condition}</div>
+          <div className="text-sm text-gray-300">{weatherData.condition}</div>
         </div>
         
         {weatherAlerts.length > 0 && (
@@ -187,11 +182,11 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ isCompact = false }) => {
       </div>
 
       <div className="flex items-center mb-4">
-        {getWeatherIcon(weather.condition)}
+        {getWeatherIcon(weatherData.condition)}
         <div className="ml-3">
-          <div className="text-2xl font-bold">{weather.temperature}°C</div>
-          <div className="text-sm text-gray-300">{weather.condition}</div>
-          <div className="text-xs text-[#33c3f0]/70">{weather.location}</div>
+          <div className="text-2xl font-bold">{weatherData.temperature}°C</div>
+          <div className="text-sm text-gray-300">{weatherData.condition}</div>
+          <div className="text-xs text-[#33c3f0]/70">{weatherData.location}</div>
         </div>
       </div>
 
@@ -209,7 +204,7 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ isCompact = false }) => {
               <p className="text-sm text-gray-400">No active weather alerts</p>
             ) : (
               weatherAlerts.map(alert => (
-                <Alert key={alert.id} className={`bg-red-900/20 border-${alert.severity === 'high' ? 'red-600' : alert.severity === 'medium' ? 'yellow-600' : 'blue-600'}/30`}>
+                <Alert key={alert.type} className={`bg-red-900/20 border-${alert.severity === 'high' ? 'red-600' : alert.severity === 'medium' ? 'yellow-600' : 'blue-600'}/30`}>
                   <div className="flex justify-between items-start">
                     <div>
                       <h4 className="font-medium mb-1 flex items-center">
@@ -222,14 +217,14 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ isCompact = false }) => {
                         {alert.message}
                       </AlertDescription>
                       <div className="text-xs text-gray-400 mt-1">
-                        {new Date(alert.timestamp).toLocaleTimeString()}
+                        {new Date(alert.time).toLocaleTimeString()}
                       </div>
                     </div>
                     <Button 
                       variant="ghost" 
                       size="sm" 
                       className="h-6 w-6 p-0" 
-                      onClick={() => dismissAlert(alert.id)}
+                      onClick={() => dismissAlert(alert.type)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -241,13 +236,13 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ isCompact = false }) => {
         </DialogContent>
       </Dialog>
 
-      {weather.forecast && (
+      {weatherData.forecast && (
         <div className="flex justify-between">
-          {weather.forecast.slice(0, 4).map((day, index) => (
+          {weatherData.forecast.slice(0, 4).map((day, index) => (
             <div key={index} className="text-center">
               <div className="text-xs text-gray-400">{day.day}</div>
               <div className="my-1">{getWeatherIcon(day.condition)}</div>
-              <div className="text-xs font-medium">{day.temperature}°C</div>
+              <div className="text-xs font-medium">{day.temp}°C</div>
             </div>
           ))}
         </div>

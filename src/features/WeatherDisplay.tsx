@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Cloud, CloudRain, CloudSnow, Sun, Thermometer, Wind } from 'lucide-react';
-import { useWeatherContext } from './WeatherContext';
+import { useWeather } from './WeatherContext';
 import { toast } from '@/components/ui/use-toast';
 
 interface WeatherDisplayProps {
@@ -10,7 +10,7 @@ interface WeatherDisplayProps {
 }
 
 export const WeatherDisplay: React.FC<WeatherDisplayProps> = ({ isHackerMode = false }) => {
-  const { weather, fetchWeather, isLoading, error } = useWeatherContext();
+  const { weatherData, refreshWeather, isLoading, error } = useWeather();
   const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null);
   const [hasFetchedWeather, setHasFetchedWeather] = useState(false);
 
@@ -43,16 +43,16 @@ export const WeatherDisplay: React.FC<WeatherDisplayProps> = ({ isHackerMode = f
   // Fetch weather when location is available - but only once
   useEffect(() => {
     if (location && !hasFetchedWeather) {
-      fetchWeather(location.lat, location.lon);
+      refreshWeather();
       setHasFetchedWeather(true);
     }
-  }, [location, fetchWeather, hasFetchedWeather]);
+  }, [location, refreshWeather, hasFetchedWeather]);
 
   // Weather icons based on condition
   const getWeatherIcon = () => {
-    if (!weather) return <Cloud className="h-8 w-8 text-gray-400" />;
+    if (!weatherData) return <Cloud className="h-8 w-8 text-gray-400" />;
 
-    const condition = weather.condition.toLowerCase();
+    const condition = weatherData.condition.toLowerCase();
     
     if (condition.includes('rain') || condition.includes('drizzle')) {
       return <CloudRain className={`h-8 w-8 text-${isHackerMode ? 'red-400' : 'blue-400'}`} />;
@@ -81,44 +81,44 @@ export const WeatherDisplay: React.FC<WeatherDisplayProps> = ({ isHackerMode = f
           </div>
         ) : error ? (
           <div className="text-sm text-red-400">{error}</div>
-        ) : weather ? (
+        ) : weatherData ? (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 {getWeatherIcon()}
                 <div className="ml-2">
-                  <div className="font-medium text-white">{weather.condition}</div>
-                  <div className="text-sm text-gray-300">{weather.location}</div>
+                  <div className="font-medium text-white">{weatherData.condition}</div>
+                  <div className="text-sm text-gray-300">{weatherData.location}</div>
                 </div>
               </div>
-              <div className="text-2xl font-bold text-white">{Math.round(weather.temperature)}°</div>
+              <div className="text-2xl font-bold text-white">{Math.round(weatherData.temperature)}°</div>
             </div>
             
-            {(weather.humidity !== undefined || weather.windSpeed !== undefined) && (
+            {(weatherData.humidity !== undefined || weatherData.windSpeed !== undefined) && (
               <div className="grid grid-cols-2 gap-2 pt-2">
-                {weather.humidity !== undefined && (
+                {weatherData.humidity !== undefined && (
                   <div className="flex items-center text-sm text-white">
                     <Cloud className="h-4 w-4 mr-1 text-blue-400" />
-                    <span>Humidity: {weather.humidity}%</span>
+                    <span>Humidity: {weatherData.humidity}%</span>
                   </div>
                 )}
-                {weather.windSpeed !== undefined && (
+                {weatherData.windSpeed !== undefined && (
                   <div className="flex items-center text-sm text-white">
                     <Wind className="h-4 w-4 mr-1 text-blue-400" />
-                    <span>Wind: {weather.windSpeed} km/h</span>
+                    <span>Wind: {weatherData.windSpeed} km/h</span>
                   </div>
                 )}
               </div>
             )}
             
-            {weather.forecast && weather.forecast.length > 0 && (
+            {weatherData.forecast && weatherData.forecast.length > 0 && (
               <div className="mt-4">
                 <div className="text-sm font-medium mb-2 text-white">Forecast</div>
                 <div className="grid grid-cols-3 gap-2">
-                  {weather.forecast.slice(0, 3).map((day, index) => (
+                  {weatherData.forecast.slice(0, 3).map((day, index) => (
                     <div key={index} className="text-center p-2 bg-black/20 rounded-lg">
                       <div className="text-xs text-gray-300">{day.day}</div>
-                      <div className="font-medium text-white">{Math.round(day.temperature)}°</div>
+                      <div className="font-medium text-white">{Math.round(day.temp)}°</div>
                     </div>
                   ))}
                 </div>

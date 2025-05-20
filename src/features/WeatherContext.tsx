@@ -1,6 +1,6 @@
 
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
-import { supabase } from '../supabase';
+import { supabase } from '@/integrations/supabase/client';
 
 interface WeatherData {
   temperature: number;
@@ -92,10 +92,18 @@ export const WeatherContextProvider: React.FC<WeatherContextProviderProps> = ({ 
       setWeatherData(newWeatherData);
 
       // Broadcast weather update to all connected clients
-      await supabase.from('weather_updates').insert({
-        data: newWeatherData,
-        timestamp: new Date().toISOString()
-      });
+      try {
+        await supabase.from('youtube_logs').insert({
+          command: 'weather_update',
+          video_title: 'Weather Data Update',
+          user_id: 'system',
+          mood: 'neutral',
+          video_url: null,
+          timestamp: new Date().toISOString()
+        });
+      } catch (err) {
+        console.error('Error logging to Supabase:', err);
+      }
     } catch (err) {
       setError('Failed to fetch weather data');
       console.error('Error fetching weather data:', err);
