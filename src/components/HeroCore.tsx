@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef } from 'react';
-import JarvisCore from '@/components/JarvisCore';
+import JarvisCore from '@/components/core/JarvisCore';
 import { cn } from '@/lib/utils';
 
 interface HeroCoreProps {
