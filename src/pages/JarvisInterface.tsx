@@ -15,10 +15,6 @@ import JarvisVisualizer from '@/components/JarvisVisualizer';
 import ActivityLogWidget from '@/components/widgets/ActivityLogWidget';
 import { toast } from 'sonner';
 import { WeatherContextProvider } from '@/features/WeatherContext';
-import JarvisCentralCore from '@/components/JarvisCentralCore';
-import { GlassCard } from '@/components/ui/dynamic-grid';
-import { motion } from 'framer-motion';
-import { ShimmeringText } from '@/components/ui/animated-text';
 
 export type AssistantType = 'jarvis';
 
@@ -103,68 +99,31 @@ const JarvisInterface = () => {
   
   if (systemStatus === 'initializing') {
     return (
-      <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-jarvis-deep to-jarvis-midnight text-white">
+      <div className="relative min-h-screen flex items-center justify-center bg-jarvis-bg text-white">
         <JarvisBackground hackerModeActive={false} />
         
-        <motion.div 
-          className="relative z-10 text-center max-w-lg mx-auto px-6"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <h1 className="text-4xl font-bold mb-6 tracking-wider">
-            <ShimmeringText text="J.A.R.V.I.S" />
-          </h1>
-          <p className="text-jarvis-purple mb-8">Just A Rather Very Intelligent System</p>
+        <div className="relative z-10 text-center">
+          <h1 className="text-4xl font-bold mb-6 holographic-text tracking-wide">J.A.R.V.I.S</h1>
+          <p className="text-jarvis mb-8">Just A Rather Very Intelligent System</p>
           
           <div className="max-w-md mx-auto">
             <div className="h-1 w-full bg-black/20 rounded">
-              <motion.div 
-                className="h-full bg-jarvis-purple rounded" 
-                style={{ boxShadow: '0 0 10px rgba(155, 135, 245, 0.7)' }}
-                initial={{ width: '0%' }}
-                animate={{ width: '60%' }}
-                transition={{ duration: 1.5 }}
-              ></motion.div>
+              <div className="h-full bg-jarvis rounded" style={{ 
+                width: '60%',
+                boxShadow: '0 0 10px rgba(51, 195, 240, 0.7)'
+              }}></div>
             </div>
             
-            <div className="mt-4 font-mono text-sm text-jarvis-purple">
-              <motion.p 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3 }}
-              >
-                Initializing system protocols...
-              </motion.p>
-              <motion.p 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.6 }}
-              >
-                Loading neural network framework...
-              </motion.p>
-              <motion.p 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.9 }}
-              >
-                Establishing secure connections...
-              </motion.p>
-              <motion.p 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1.2 }}
-                className="animate-pulse"
-              >
-                Activating user interface...
-              </motion.p>
+            <div className="mt-4 font-mono text-sm text-jarvis">
+              <p>Initializing system protocols...</p>
+              <p>Loading neural network framework...</p>
+              <p>Establishing secure connections...</p>
+              <p className="animate-pulse">Activating user interface...</p>
             </div>
           </div>
           
-          <div className="mt-8">
-            <JarvisVisualizer className="max-w-md mx-auto" />
-          </div>
-        </motion.div>
+          <JarvisVisualizer className="mt-8 max-w-md mx-auto" />
+        </div>
       </div>
     );
   }
@@ -172,23 +131,21 @@ const JarvisInterface = () => {
   // Prepare extra widgets content for JarvisMainLayout
   const extraWidgetsContent = showActivityLog ? (
     <div className="mt-4">
-      <GlassCard>
-        <ActivityLogWidget maxItems={12} />
-        <div className="flex justify-end mt-2">
-          <button 
-            onClick={() => setShowActivityLog(false)}
-            className="text-xs text-jarvis-purple hover:text-jarvis-purple/80 transition-colors underline"
-          >
-            Hide Activity Log
-          </button>
-        </div>
-      </GlassCard>
+      <ActivityLogWidget maxItems={12} />
+      <div className="flex justify-end mt-2">
+        <button 
+          className="text-xs text-jarvis underline"
+          onClick={() => setShowActivityLog(false)}
+        >
+          Hide Activity Log
+        </button>
+      </div>
     </div>
   ) : (
     <div className="mt-4 flex justify-end">
       <button 
+        className="text-xs text-jarvis underline"
         onClick={() => setShowActivityLog(true)}
-        className="text-xs text-jarvis-purple hover:text-jarvis-purple/80 transition-colors underline"
       >
         Show Activity Log
       </button>
@@ -222,39 +179,24 @@ const JarvisInterface = () => {
           <div className="flex-1">
             {mode === 'chat' && (
               <div className="chat-interface-container flex-1">
-                {/* Central core visualization */}
-                <div className="flex-1 flex flex-col items-center justify-center py-6">
-                  <JarvisCentralCore 
-                    isSpeaking={isSpeaking} 
-                    isListening={isListening} 
-                    isProcessing={isProcessing} 
-                    activeMode={activeMode}
-                  />
-                  
-                  <motion.div 
-                    className="text-center mt-6"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.3 }}
-                  >
-                    <h2 className="text-2xl font-bold mb-4 text-white">
-                      <ShimmeringText text="J.A.R.V.I.S. INTERFACE" />
-                    </h2>
+                {/* Chat interface components would go here */}
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <h2 className="text-2xl font-bold mb-4 text-jarvis">J.A.R.V.I.S. INTERFACE</h2>
                     <p className="text-gray-300">
                       {isListening ? "Listening for commands..." : "Ready for input"}
                     </p>
-                  </motion.div>
+                    <JarvisVisualizer className="mt-8 max-w-md mx-auto" />
+                  </div>
                 </div>
               </div>
             )}
             
             {mode === 'hacker' && (
               <div className="hacker-interface-container flex-1 p-4">
-                <GlassCard className="h-full">
-                  <pre className="font-mono text-green-400 p-4 h-full overflow-auto">
-                    {hackerOutput}
-                  </pre>
-                </GlassCard>
+                <pre className="font-mono text-green-400 bg-black/70 p-4 rounded h-full overflow-auto">
+                  {hackerOutput}
+                </pre>
               </div>
             )}
           </div>

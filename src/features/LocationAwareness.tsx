@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertCircle, Clock, MapPin } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { useWeather } from './WeatherContext';
+import { useWeatherContext } from './WeatherContext';
 
 interface LocationAwarenessProps {
   userLocation: GeolocationPosition | null;
@@ -20,7 +20,6 @@ export const LocationAwareness: React.FC<LocationAwarenessProps> = ({
 }) => {
   const [localTime, setLocalTime] = useState<string>('');
   const [locationName, setLocationName] = useState<string>('Unknown');
-  const weatherContext = useWeather();
 
   // Update local time every minute
   useEffect(() => {
