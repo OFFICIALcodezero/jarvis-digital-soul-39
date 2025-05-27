@@ -1,3 +1,11 @@
+import { getOfflineJarvisResponse } from './services/offlineAIService';
+
+function handleUserMessage(userMessage: string) {
+  // Use your offline AI instead of external API
+  const reply = getOfflineJarvisResponse(userMessage);
+
+  // Then update your UI or chat state with 'reply'
+}
 
 import { toast } from '@/components/ui/use-toast';
 import { getApiKey } from '@/utils/apiKeyManager';
