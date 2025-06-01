@@ -1,0 +1,44 @@
+import React, { useState, useEffect } from "react";
+
+export const MemoryPanel = () => {
+  const [memories, setMemories] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate memory fetch (replace with real API logic)
+    const fetchMemories = async () => {
+      setLoading(true);
+      try {
+        // Replace this mock with actual memory retrieval
+        const stored = JSON.parse(localStorage.getItem("jarvis_memories")) || [];
+        setMemories(stored);
+      } catch (error) {
+        console.error("Error loading memories:", error);
+        setMemories([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMemories();
+  }, []);
+
+  return (
+    <div className="memory-panel-container">
+      <h2 className="text-xl font-bold mb-3 text-blue-400">🧠 Memory Panel</h2>
+      {loading ? (
+        <p className="text-gray-400">Loading memory data...</p>
+      ) : memories.length === 0 ? (
+        <p className="text-red-400">No memories found.</p>
+      ) : (
+        <ul className="list-disc list-inside space-y-1 text-sm">
+          {memories.map((memory, index) => (
+            <li key={index} className="text-white">
+              <strong>{memory.title}</strong>: {memory.value}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
